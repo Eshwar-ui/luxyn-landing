@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LUXYN Landing
 
-## Getting Started
+Marketing landing page for **LUXYN** — private, design-led salon & wellness suites
+for independent beauty professionals. A faithful, pixel-accurate port of a Claude
+Design (`claude.ai/design`) handoff into Next.js, with scroll-reveal, a gold
+marquee, parallax hero, a sticky scroll-aware nav with scrollspy, a progress bar,
+and hover micro-interactions.
 
-First, run the development server:
+🔗 **Live:** https://luxyn-demo-a66a8.web.app
+
+## Tech stack
+
+- **Next.js 16** (App Router, TypeScript) — exported as a fully static site
+- Plain CSS + transcribed inline styles (no UI framework)
+- **Firebase Hosting** for delivery, **GitHub Actions** for CI/CD
+
+## Project structure
+
+| Path | What it is |
+| --- | --- |
+| `app/components/Landing.tsx` | The whole page — every section, with the design's inline styles transcribed verbatim |
+| `app/lib/dc.tsx` | `E` element + `S()` CSS-string parser; drives hover and `IntersectionObserver` scroll-reveal |
+| `app/globals.css` | Ported `<style>` block (reveal / marquee / floaty keyframes, nav) + Google Fonts |
+| `public/assets/` | All design imagery |
+| `firebase.json` / `.firebaserc` | Firebase Hosting config (serves `out/`, project `luxyn-demo-a66a8`) |
+| `.github/workflows/` | CI/CD — live deploy on push to `main`, preview deploy on PRs |
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build & static export
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build    # outputs a static site to ./out
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`next.config.ts` sets `output: "export"`, so the build emits plain HTML/CSS/JS.
 
-## Learn More
+## Manual deploy
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+firebase deploy --only hosting --project luxyn-demo-a66a8
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## CI/CD
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Two workflows in `.github/workflows/`:
 
-## Deploy on Vercel
+- **`firebase-hosting-merge.yml`** — on every push to `main`: `npm ci` → `npm run build` → deploy to the **live** channel.
+- **`firebase-hosting-pr.yml`** — on every pull request: builds and deploys to a temporary **preview** channel and comments the URL on the PR.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### One-time secret setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Both workflows need a repository secret named **`FIREBASE_SERVICE_ACCOUNT`** holding
+a Firebase service-account JSON key with Hosting deploy permission:
+
+1. [Firebase Console](https://console.firebase.google.com/project/luxyn-demo-a66a8/settings/serviceaccounts/adminsdk)
+   → **Project settings → Service accounts → Generate new private key** (downloads a JSON file).
+2. Store it as the repo secret (do **not** commit the file):
+   ```bash
+   gh secret set FIREBASE_SERVICE_ACCOUNT \
+     --repo kalyan1421/luxyn-landing \
+     < ~/Downloads/luxyn-demo-a66a8-firebase-adminsdk-XXXXX.json
+   ```
+3. Delete the downloaded key file.
+
+After the secret is set, push to `main` to trigger the first automated deploy.

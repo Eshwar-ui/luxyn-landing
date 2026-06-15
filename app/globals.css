@@ -9,8 +9,8 @@
    browser (the source needed `!important` only for its sandbox renderer). */
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: #0d1a2e; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { margin: 0; -webkit-font-smoothing: antialiased; }
 
 .rv {
   opacity: 0;

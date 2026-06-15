@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+
+# local editor / harness config
+.claude/

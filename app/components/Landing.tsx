@@ -18,6 +18,19 @@ export default function Landing() {
     window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
   };
 
+  // scale page content to fit viewport width
+  useEffect(() => {
+    const apply = () => {
+      const el = document.getElementById("pageRoot");
+      if (!el) return;
+      const scale = Math.min(1, window.innerWidth / 1440);
+      el.style.zoom = String(scale);
+    };
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, []);
+
   // scroll-driven nav reveal, progress bar, parallax, back-to-top, scrollspy
   useEffect(() => {
     const spyIds = ["gallery", "difference", "findpro", "amenities", "footer"];
@@ -147,7 +160,7 @@ export default function Landing() {
         </svg>
       </div>
 
-      <div style={S("position:relative;width:1440px;margin:0 auto;background:rgb(20,35,59);font-family:'Inter',sans-serif")}>
+      <div id="pageRoot" style={S("position:relative;width:1440px;margin:0 auto;font-family:'Inter',sans-serif")}>
 
         {/* ============ HERO ============ */}
         <section id="hero" data-screen-label="Hero" style={S("position:relative;width:1440px;height:775px;overflow:hidden;background:rgb(20,35,59);display:flex;align-items:center;justify-content:center")}>
@@ -401,7 +414,7 @@ export default function Landing() {
               <E as="span" css="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,.85);cursor:pointer;transition:color .3s" hover="color:#fff">Terms of Service</E>
               <E as="span" css="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,.85);cursor:pointer;transition:color .3s" hover="color:#fff">Cookies Settings</E>
             </div>
-            <span style={S("font-family:'Inter',sans-serif;font-size:16px;color:#fff")}>© 2024 LUXYN. All rights reserved.</span>
+            <span style={S("font-family:'Inter',sans-serif;font-size:16px;color:#fff")}>© 2026 LUXYN. All rights reserved.</span>
           </div>
         </section>
 
