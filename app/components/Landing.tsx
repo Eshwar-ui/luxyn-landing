@@ -23,7 +23,7 @@ export default function Landing() {
     const apply = () => {
       const el = document.getElementById("pageRoot");
       if (!el) return;
-      const scale = Math.min(1, window.innerWidth / 1440);
+      const scale = window.innerWidth / 1440;
       el.style.zoom = String(scale);
     };
     apply();
@@ -160,7 +160,7 @@ export default function Landing() {
         </svg>
       </div>
 
-      <div id="pageRoot" style={S("position:relative;width:1440px;margin:0 auto;font-family:'Inter',sans-serif")}>
+      <div id="pageRoot" style={S("position:relative;width:1440px;font-family:'Inter',sans-serif")}>
 
         {/* ============ HERO ============ */}
         <section id="hero" data-screen-label="Hero" style={S("position:relative;width:1440px;height:775px;overflow:hidden;background:rgb(20,35,59);display:flex;align-items:center;justify-content:center")}>

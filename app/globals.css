@@ -10,7 +10,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; overflow-x: hidden; }
-body { margin: 0; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased; }
 
 .rv {
   opacity: 0;
