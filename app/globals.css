@@ -105,6 +105,8 @@ body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased
   color: rgba(249,245,238,.9);
   cursor: pointer;
   display: inline-block;
+  width: fit-content;
+  justify-self: start;
   position: relative;
   line-height: 1.5;
   padding-bottom: 3px;
