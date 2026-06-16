@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { E, S } from "../lib/dc";
 
 /**
@@ -17,6 +17,18 @@ export default function Landing() {
     const y = el.getBoundingClientRect().top + window.scrollY - 64;
     window.scrollTo({ top: y < 0 ? 0 : y, behavior: "smooth" });
   };
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuNav = (target: string) => {
+    setMenuOpen(false);
+    setTimeout(() => nav(target), 50);
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   // scale page content to fit viewport width
   useEffect(() => {
@@ -95,7 +107,7 @@ export default function Landing() {
         )}
       ></div>
 
-      {/* sticky nav */}
+      {/* sticky nav — hamburger + logo + CTA */}
       <div
         id="navbar"
         style={S("position:fixed;top:0;left:0;width:100vw;z-index:110")}
@@ -103,40 +115,28 @@ export default function Landing() {
         <div
           className="nbinner"
           style={S(
-            "width:100%;max-width:1440px;margin:0 auto;height:72px;padding:0 100px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between"
+            "width:100%;max-width:1440px;margin:0 auto;height:72px;padding:0 40px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;position:relative"
           )}
         >
-          <div
-            data-target="hero"
-            onClick={() => nav("hero")}
-            style={S(
-              "width:150px;height:44px;cursor:pointer;background:url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat"
-            )}
-          ></div>
-          <div
-            className="nblinks"
-            style={S("display:flex;align-items:center;gap:34px")}
-          >
-            <span className="navlink" data-nav="1" data-target="gallery" onClick={() => nav("gallery")}>
-              Suites
-            </span>
-            <span className="navlink" data-nav="1" data-target="difference" onClick={() => nav("difference")}>
-              For Professionals
-            </span>
-            <span className="navlink" data-nav="1" data-target="findpro" onClick={() => nav("findpro")}>
-              Find a Pro
-            </span>
-            <span className="navlink" data-nav="1" data-target="amenities" onClick={() => nav("amenities")}>
-              Amenities
-            </span>
-            <span className="navlink" data-nav="1" data-target="footer" onClick={() => nav("footer")}>
-              Contact
-            </span>
-          </div>
+          {/* hamburger */}
           <E
-            data-target="cta"
+            onClick={() => setMenuOpen(true)}
+            css="width:50px;height:50px;border-radius:333px;background:rgba(255,255,255,.1);backdrop-filter:blur(9.8px);box-shadow:inset 0 0 0 1px rgba(255,248,248,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .35s;flex-shrink:0"
+            hover="background:rgba(255,255,255,.22)"
+          >
+            <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
+              <path d="M1.571 0H9.429a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2ZM12.571 12.8h7.858a1.6 1.6 0 0 1 0 3.2h-7.858a1.6 1.6 0 0 1 0-3.2ZM1.571 6.4h18.858a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2Z"></path>
+            </svg>
+          </E>
+          {/* centered logo */}
+          <div
+            onClick={() => nav("hero")}
+            style={S("position:absolute;left:50%;transform:translateX(-50%);width:150px;height:44px;cursor:pointer;background:url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat")}
+          ></div>
+          {/* CTA */}
+          <E
             onClick={() => nav("cta")}
-            css="height:40px;border-radius:333px;background:rgb(194,160,107);display:flex;align-items:center;justify-content:center;padding:0 24px;cursor:pointer;transition:transform .35s,box-shadow .35s,background .35s"
+            css="height:40px;border-radius:333px;background:rgb(194,160,107);display:flex;align-items:center;justify-content:center;padding:0 24px;cursor:pointer;transition:transform .35s,box-shadow .35s,background .35s;flex-shrink:0"
             hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(194,160,107,.45);background:rgb(206,173,120)"
           >
             <span style={S("font-family:'Inter',sans-serif;font-weight:700;font-size:13px;color:rgb(20,35,59);white-space:nowrap")}>
@@ -145,6 +145,35 @@ export default function Landing() {
           </E>
         </div>
       </div>
+
+      {/* fullscreen menu overlay */}
+      {menuOpen && (
+        <div
+          style={S("position:fixed;inset:0;z-index:200;background:rgba(10,20,38,.55);backdrop-filter:blur(6px)")}
+          onClick={(e) => { if (e.target === e.currentTarget) setMenuOpen(false); }}
+        >
+          <div className="menu-overlay-box" style={S("position:absolute;top:12px;left:12px;right:12px;background:rgba(253,251,247,.97);border-radius:22px;padding:28px 56px 64px")}>
+            {/* close button */}
+            <button
+              onClick={() => setMenuOpen(false)}
+              style={S("width:50px;height:50px;border-radius:333px;background:rgba(20,35,59,.07);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .25s")}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgb(20,35,59)" strokeWidth="2" strokeLinecap="round">
+                <path d="M1 1 L13 13 M13 1 L1 13"/>
+              </svg>
+            </button>
+            {/* nav grid — 2 columns */}
+            <div style={S("margin-top:48px;display:grid;grid-template-columns:1fr 1fr;row-gap:0")}>
+              <span className="menu-link" onClick={() => menuNav("philosophy")}>Suites</span>
+              <span className="menu-link" onClick={() => menuNav("amenities")}>Amenities</span>
+              <span className="menu-link" onClick={() => menuNav("difference")}>For Professionals</span>
+              <span className="menu-link" onClick={() => menuNav("gallery")}>Gallery</span>
+              <span className="menu-link" onClick={() => menuNav("findpro")}>Find a Pro</span>
+              <span className="menu-link" onClick={() => menuNav("footer")}>About</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* back to top */}
       <div
@@ -169,7 +198,7 @@ export default function Landing() {
 
           {/* in-hero top bar */}
           <div style={S("position:absolute;left:100px;top:24px;width:1240px;height:50px;z-index:5")}>
-            <E css="position:absolute;left:0;top:0;width:50px;height:50px;border-radius:333px;background:rgba(255,255,255,.1);backdrop-filter:blur(9.8px);box-shadow:inset 0 0 0 1px rgb(255,248,248);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .35s" hover="background:rgba(255,255,255,.22)">
+            <E onClick={() => setMenuOpen(true)} css="position:absolute;left:0;top:0;width:50px;height:50px;border-radius:333px;background:rgba(255,255,255,.1);backdrop-filter:blur(9.8px);box-shadow:inset 0 0 0 1px rgb(255,248,248);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .35s" hover="background:rgba(255,255,255,.22)">
               <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
                 <path d="M1.571 0H9.429a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2ZM12.571 12.8h7.858a1.6 1.6 0 0 1 0 3.2h-7.858a1.6 1.6 0 0 1 0-3.2ZM1.571 6.4h18.858a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2Z"></path>
               </svg>
