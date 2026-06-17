@@ -71,9 +71,11 @@ export default function Landing() {
   const heroRef  = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
 
-  /* smooth-scroll */
+  /* smooth-scroll — resolves whichever layout (desktop / mobile) is visible */
   const nav = (id: string) => {
-    const el = document.getElementById(id);
+    const candidates = [document.getElementById(id), document.getElementById("m-" + id)]
+      .filter(Boolean) as HTMLElement[];
+    const el = candidates.find(e => e.offsetParent !== null) ?? candidates[0];
     if (!el) return;
     window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64), behavior: "smooth" });
   };
@@ -87,6 +89,8 @@ export default function Landing() {
     const apply = () => {
       const el = document.getElementById("pageRoot");
       if (!el) return;
+      /* desktop canvas only — below lg the dedicated mobile layout takes over */
+      if (window.innerWidth < 1024) { el.style.zoom = ""; return; }
       el.style.zoom = String(window.innerWidth / 1440);
     };
     apply();
@@ -144,7 +148,7 @@ export default function Landing() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -12, scale: 0.97 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-3 left-[5%] right-[5%] rounded-[28px] px-14 py-8"
+              className="absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] sm:rounded-[28px] px-7 sm:px-14 py-7 sm:py-8"
               style={{
                 background: "rgba(255,255,255,0.08)",
                 backdropFilter: "blur(48px) saturate(1.6) brightness(1.1)",
@@ -162,7 +166,7 @@ export default function Landing() {
                   <path d="M1 1 L13 13 M13 1 L1 13"/>
                 </svg>
               </button>
-              <div className="mt-8 grid grid-cols-2" style={{ gap: "0 80px" }}>
+              <div className="mt-7 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-1 sm:gap-x-20 sm:gap-y-0">
                 {NAV.map(({ label, target }) => (
                   <button key={label} onClick={() => menuNav(target)} className="menu-link text-left">
                     {label}
@@ -188,7 +192,13 @@ export default function Landing() {
         </svg>
       </motion.button>
 
-      {/* ═══════════════ PAGE ROOT (zoomed) ════════════ */}
+      {/* ═══════════════ MOBILE LAYOUT (< lg) ══════════ */}
+      <div className="lg:hidden">
+        <MobileLanding nav={nav} onMenu={() => setMenuOpen(true)} />
+      </div>
+
+      {/* ═══════════════ DESKTOP CANVAS (≥ lg, zoomed) ══ */}
+      <div className="hidden lg:block">
       <div id="pageRoot" style={{ position: "relative", width: 1440, fontFamily: "'Inter',sans-serif" }}>
 
         {/* ── HERO ───────────────────────────────────── */}
@@ -632,6 +642,7 @@ export default function Landing() {
         </section>
 
       </div>{/* /pageRoot */}
+      </div>{/* /desktop */}
     </div>
   );
 }
@@ -641,5 +652,347 @@ function HamburgerSVG() {
     <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
       <path d="M1.571 0H9.429a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2ZM12.571 12.8h7.858a1.6 1.6 0 0 1 0 3.2h-7.858a1.6 1.6 0 0 1 0-3.2ZM1.571 6.4h18.858a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2Z"/>
     </svg>
+  );
+}
+
+/* ════════════════════ MOBILE LAYOUT ═══════════════════════
+   A purpose-built single-column experience for < 1024px.
+   Same tokens + arch motif as the desktop canvas, reflowed for
+   touch: readable type, ≥48px targets, always-visible labels.   */
+
+const ARCH = "999px 999px 0 0";                 // responsive rounded-top arch
+/* Mobile entrances use CSS scroll-driven animation (see `[data-rise]` in
+   globals.css), NOT framer — framer 12 + React 19 never runs mount or
+   whileInView animations for elements first painted below the fold, leaving
+   them stuck at the hidden state. The CSS approach can't hide content: where
+   `animation-timeline: view()` is unsupported (or reduced-motion is on), the
+   element simply rests at its natural, fully-visible state. */
+const rev = { "data-rise": "" };
+
+const NAVY = "rgb(20,35,59)";
+const INK  = "rgb(2,36,72)";
+const BODY = "rgb(67,71,78)";
+const GOLD = "rgb(194,160,107)";
+
+/* mobile gallery tiles — reuse the desktop's single-photo crops out of the
+   montage images. Percentage size/position is scale-invariant, so matching
+   each tile's aspect ratio to the desktop card reproduces the exact photo. */
+const M_GAL = [
+  { label: "Estheticians",        img: "/assets/gallery-1.png", ar: "252 / 488", crop: "41.808% 8.108%/634.711% 218.337%" },
+  { label: "Hair Stylists",       img: "/assets/gallery-2.png", ar: "471 / 416", crop: "7.79% 7.154%/355.556% 268.766%"  },
+  { label: "Colorists",           img: "/assets/gallery-2.png", ar: "567 / 508", crop: "49.597% 81.944%/366.587% 272.34%" },
+  { label: "Brow & Lash Artists", img: "/assets/gallery-1.png", ar: "406 / 339", crop: "16.764% 94.851%/447.813% 358.042%" },
+  { label: "Nail Artists",        img: "/assets/gallery-2.png", ar: "253 / 227", crop: "90% 81.364%/378.325% 281.319%"    },
+  { label: "Massage & Wellness",  img: "/assets/gallery-2.png", ar: "392 / 373", crop: "88.462% 8.602%/391.837% 274.531%" },
+];
+
+function MEyebrow({ children, color = GOLD, center = false }: { children: React.ReactNode; color?: string; center?: boolean }) {
+  return (
+    <motion.span
+      {...rev}
+      className={`font-accent font-semibold block ${center ? "text-center" : ""}`}
+      style={{ color, fontSize: 11.5, letterSpacing: 3 }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+function MobileLanding({ nav, onMenu }: { nav: (id: string) => void; onMenu: () => void }) {
+  return (
+    <div className="w-full overflow-x-hidden" style={{ fontFamily: "'Inter',sans-serif" }}>
+
+      {/* ── HERO ─────────────────────────────────────── */}
+      <section id="m-hero" className="relative overflow-hidden" style={{ background: NAVY }}>
+        <div className="absolute inset-0" style={{ background: "url(/assets/hero-bg.png) 60% center/cover no-repeat" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,rgba(20,35,59,.78) 0%,rgba(20,35,59,.58) 45%,rgba(20,35,59,.82) 100%)" }} />
+
+        <div className="relative z-[3]">
+          {/* top bar */}
+          <div className="flex items-center justify-between px-5 pt-5">
+            <button
+              onClick={onMenu}
+              aria-label="Open menu"
+              className="w-[46px] h-[46px] rounded-full flex items-center justify-center transition-colors duration-300 active:bg-white/20"
+              style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
+            >
+              <HamburgerSVG />
+            </button>
+            <button
+              onClick={() => nav("cta")}
+              className="h-[42px] px-5 rounded-full font-bold text-[12px] transition-transform duration-300 active:scale-95"
+              style={{ background: GOLD, color: NAVY }}
+            >
+              Lease a Suite
+            </button>
+          </div>
+
+          {/* logo */}
+          <div className="flex justify-center mt-4">
+            <div style={{ width: 156, height: 45, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }} />
+          </div>
+
+          {/* copy — plain, always-visible markup; framer entrances are
+              unreliable in this stack (see `rev`). data-rise gives a subtle
+              scroll reveal that safely rests visible when unsupported. */}
+          <div className="px-6 pt-9 text-center">
+            <h1
+              data-rise
+              className="m-0 font-display font-medium text-white"
+              style={{ fontSize: "clamp(31px,8.6vw,40px)", lineHeight: 1.06, letterSpacing: "-0.01em" }}
+            >
+              Space to do your best work. A calm home for your craft.
+            </h1>
+            <p
+              data-rise
+              className="font-ui font-normal mx-auto"
+              style={{ marginTop: 16, maxWidth: 380, color: "rgba(255,255,255,.62)", fontSize: 14, lineHeight: 1.65 }}
+            >
+              LUXYN leases private, design-led suites to independent beauty and wellness professionals — the freedom to build, serve, and grow in an elevated space.
+            </p>
+            <div data-rise className="flex flex-col gap-3 mt-7 max-w-[340px] mx-auto">
+              <button
+                onClick={() => nav("cta")}
+                className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]"
+                style={{ background: GOLD, color: NAVY }}
+              >
+                Lease a Suite
+              </button>
+              <button
+                onClick={() => nav("findpro")}
+                className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]"
+                style={{ boxShadow: `inset 0 0 0 1px ${GOLD}`, color: GOLD }}
+              >
+                Book a Tour
+              </button>
+            </div>
+          </div>
+
+          {/* arch visual + quote */}
+          <div className="relative mx-auto mt-10 mb-12" style={{ width: "72%", maxWidth: 280 }}>
+            <div
+              className="floaty relative w-full"
+              style={{ aspectRatio: "5 / 6", borderRadius: ARCH, background: "rgb(238,237,241)", boxShadow: `inset 0 0 0 4px rgb(184,153,104)`, overflow: "hidden" }}
+            >
+              <div className="absolute inset-0" style={{ borderRadius: ARCH, background: "linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,.18)),url(/assets/hero-arch.png) 50% 12%/130% auto no-repeat" }} />
+            </div>
+            <div
+              className="floaty2 absolute flex items-start rounded-[22px] p-5"
+              style={{ left: -14, bottom: -26, width: 200, background: "rgb(250,249,252)", boxShadow: "inset 0 0 0 1px rgba(196,198,207,.3),0 18px 38px rgba(10,22,40,.3)" }}
+            >
+              <span className="font-ui italic" style={{ color: INK, fontSize: 14, lineHeight: 1.55 }}>
+                &quot;A space that honors the artistry of my work.&quot;
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* marquee */}
+        <div className="relative z-[3] overflow-hidden flex items-center" style={{ height: 34, background: GOLD }}>
+          <div className="marq">
+            {[0, 1].map(i => (
+              <span key={i} className="font-ui text-white pr-[.29em]" style={{ fontSize: 13, letterSpacing: ".26em" }}>
+                SALON · WELLNESS · SPA · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PHILOSOPHY ───────────────────────────────── */}
+      <section id="m-philosophy" className="relative" style={{ background: "rgb(243,236,220)" }}>
+        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-14">
+          <MEyebrow>OUR PHILOSOPHY</MEyebrow>
+          <motion.h2 {...rev} className="font-editorial font-normal" style={{ margin: "16px 0 0", color: INK, fontSize: "clamp(26px,7.5vw,32px)", lineHeight: 1.14 }}>
+            A refined space for professionals who care deeply about their work.
+          </motion.h2>
+          <motion.p {...rev} className="font-ui font-normal" style={{ margin: "20px 0 0", color: BODY, fontSize: 15, lineHeight: 1.65 }}>
+            LUXYN was founded on the belief that environment dictates energy. We provide more than four walls — a curated atmosphere designed to enhance the client experience and support your growth with architectural elegance.
+          </motion.p>
+          <motion.div {...rev} className="flex flex-col gap-2 mt-7" style={{ borderTop: "1px solid rgba(196,198,207,.6)", borderBottom: "1px solid rgba(196,198,207,.6)", padding: "16px 0" }}>
+            <span className="font-ui font-semibold italic" style={{ color: INK, fontSize: 15.5, lineHeight: 1.55 }}>
+              &quot;Luxyn has completely transformed how my clients perceive my brand.&quot;
+            </span>
+            <span className="font-ui font-semibold" style={{ color: BODY, fontSize: 11.5, letterSpacing: 1.6 }}>— SARAH J., MASTER COLORIST</span>
+          </motion.div>
+
+          <div className="grid grid-cols-2 gap-3 mt-9">
+            {["/assets/about-2.png", "/assets/about-1.png"].map((img) => (
+              <motion.div
+                key={img} {...rev}
+                className="w-full overflow-hidden"
+                style={{ aspectRatio: "3 / 4", borderRadius: ARCH, background: `url(${img}) 50% 50%/cover no-repeat` }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── DIVERSE ARTISTRY ─────────────────────────── */}
+      <section id="m-gallery" className="relative" style={{ background: "rgb(251,248,241)" }}>
+        <div className="mx-auto w-full max-w-[560px] px-6 pt-16 pb-14">
+          <MEyebrow center>DIVERSE ARTISTRY</MEyebrow>
+          <motion.h2 {...rev} className="font-display font-semibold text-center mx-auto" style={{ margin: "10px auto 0", maxWidth: 420, color: "rgb(33,58,92)", fontSize: "clamp(28px,8.4vw,38px)", lineHeight: 1.05 }}>
+            A space for independent beauty &amp; wellness professionals.
+          </motion.h2>
+          <div className="columns-2 gap-3 mt-10">
+            {M_GAL.map(({ label, img, ar, crop }) => (
+              <motion.div
+                key={label} {...rev}
+                className="relative overflow-hidden rounded-[22px] mb-3 break-inside-avoid"
+                style={{ aspectRatio: ar }}
+              >
+                <div className="absolute inset-0" style={{ background: `url(${img}) ${crop} no-repeat` }} />
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "55%", padding: "0 10px 14px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
+                  <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>{label}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── THE LUXYN DIFFERENCE ─────────────────────── */}
+      <section id="m-difference" className="relative" style={{ background: "rgb(244,238,225)" }}>
+        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-14">
+          <MEyebrow color="rgb(184,153,104)" center>THE LUXYN DIFFERENCE</MEyebrow>
+          <motion.h2 {...rev} className="font-display font-semibold text-center" style={{ margin: "10px 0 0", color: "rgb(33,58,92)", fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.05 }}>
+            A sanctuary, not a rented room
+          </motion.h2>
+          <div className="flex flex-col gap-4 mt-10">
+            {DIFF.map(({ icon, title, body }) => (
+              <motion.div
+                key={title} {...rev}
+                className="flex gap-4 rounded-[16px] p-6"
+                style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
+              >
+                <span className="shrink-0 mt-0.5" style={{ color: "rgb(33,58,92)" }}>{icon}</span>
+                <div className="flex flex-col gap-2">
+                  <span className="font-display font-semibold" style={{ color: "rgb(33,58,92)", fontSize: 21, lineHeight: 1.1 }}>{title}</span>
+                  <span className="font-accent font-normal" style={{ color: "rgb(22,38,60)", opacity: .85, fontSize: 14, lineHeight: 1.55 }}>{body}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── BANNER ───────────────────────────────────── */}
+      <section id="m-banner" className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 380, background: NAVY }}>
+        <div className="absolute inset-0" style={{ background: "url(/assets/cta-bg.png) center/cover no-repeat" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgb(20,35,59) 0%,rgba(45,79,127,.55) 55%,rgba(70,122,194,.15) 100%)" }} />
+        <div className="relative z-[2] flex flex-col items-center gap-5 text-center px-7 py-16">
+          <motion.h2 {...rev} className="m-0 font-display font-bold text-white" style={{ fontSize: "clamp(34px,10vw,52px)", lineHeight: 1.04 }}>
+            Your suite. Your schedule. Your brand.
+          </motion.h2>
+          <motion.p {...rev} className="m-0 font-ui font-medium" style={{ maxWidth: 420, color: "rgb(255,220,164)", fontSize: 15, lineHeight: 1.55 }}>
+            Create a space that feels like your own, serve clients with privacy, and grow your business inside a calm, elevated environment.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* ── AMENITIES ────────────────────────────────── */}
+      <section id="m-amenities" className="relative overflow-hidden" style={{ background: NAVY }}>
+        <div className="absolute pointer-events-none opacity-40" style={{ left: "50%", top: 0, transform: "translateX(-50%)", width: "150%", height: "100%", background: "url(/assets/amenities-illustration.png) center/cover no-repeat" }} />
+        <div className="relative z-[2] mx-auto w-full max-w-[520px] px-6 pt-16 pb-16">
+          <MEyebrow color="rgb(184,153,104)" center>AMENITIES</MEyebrow>
+          <motion.h2 {...rev} className="font-display font-bold text-white text-center mx-auto" style={{ margin: "10px auto 0", maxWidth: 360, fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.06 }}>
+            Designed around comfort, care, and craft.
+          </motion.h2>
+          <div className="flex flex-col gap-4 mt-10">
+            {AMEN.map(({ icon, title, body }) => (
+              <motion.div
+                key={title} {...rev}
+                className="flex flex-col gap-3 rounded-[22px] bg-white p-7"
+                style={{ boxShadow: "inset 0 0 0 1px rgba(196,198,207,.2)" }}
+              >
+                <span style={{ color: "rgb(198,155,95)" }}>{icon}</span>
+                <span className="font-ui font-medium" style={{ color: INK, fontSize: 13.5, letterSpacing: 1.3 }}>{title}</span>
+                <span className="font-ui font-normal" style={{ color: BODY, fontSize: 15, lineHeight: 1.6 }}>{body}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FIND A PRO ───────────────────────────────── */}
+      <section id="m-findpro" className="relative" style={{ background: "rgb(244,238,225)" }}>
+        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-16 flex flex-col items-center text-center">
+          <motion.div
+            {...rev}
+            className="relative"
+            style={{ width: "70%", maxWidth: 280, aspectRatio: "1 / 1" }}
+          >
+            <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: ARCH, background: "url(/assets/findpro-a.png) center/cover no-repeat", boxShadow: "0 24px 50px rgba(20,35,59,.2)" }} />
+            <div className="floaty absolute inset-0" style={{ background: "url(/assets/findpro-stylist.png) bottom center/contain no-repeat", filter: "drop-shadow(0 18px 28px rgba(20,35,59,.32))" }} />
+          </motion.div>
+          <div className="mt-9"><MEyebrow color="rgb(74,98,106)" center>FOR CLIENTS</MEyebrow></div>
+          <motion.h2 {...rev} className="m-0 mt-3 font-display font-bold" style={{ color: INK, fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.05 }}>
+            Looking for a professional?
+          </motion.h2>
+          <motion.p {...rev} className="m-0 mt-4 font-ui font-normal" style={{ maxWidth: 400, color: BODY, fontSize: 15, lineHeight: 1.65 }}>
+            Explore independent beauty and wellness professionals working from LUXYN.
+          </motion.p>
+          <motion.button
+            {...rev}
+            onClick={() => nav("gallery")}
+            className="h-[50px] px-9 mt-7 rounded-full font-ui font-bold text-white transition-transform duration-300 active:scale-[.98]"
+            style={{ fontSize: 13.5, letterSpacing: .5, background: NAVY }}
+          >
+            Find a Pro
+          </motion.button>
+        </div>
+      </section>
+
+      {/* ── READY CTA ────────────────────────────────── */}
+      <section id="m-cta" className="relative overflow-hidden flex items-center justify-center" style={{ background: NAVY }}>
+        <div className="absolute inset-0 opacity-25 overflow-hidden" style={{ background: "linear-gradient(180deg,rgb(20,35,59) 0%,rgb(55,96,161) 100%)" }}>
+          {[1.0, 1.6, 2.2].map((s, i) => (
+            <div key={i} className="absolute rounded-full" style={{ left: "50%", top: "120%", width: `${s * 100}vw`, height: `${s * 100}vw`, transform: "translate(-50%,-50%)", border: `1px solid rgba(255,255,255,${0.5 - i * 0.12})` }} />
+          ))}
+        </div>
+        <div className="relative z-[2] flex flex-col items-center gap-5 text-center px-7 py-16">
+          <motion.h2 {...rev} className="font-display font-bold text-white" style={{ fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.08 }}>
+            Ready to make LUXYN your new professional home?
+          </motion.h2>
+          <motion.p {...rev} className="font-ui font-normal" style={{ color: "rgba(255,255,255,.85)", maxWidth: 380, fontSize: 15, lineHeight: 1.6 }}>
+            Book a private tour and explore available suites designed for your next chapter.
+          </motion.p>
+          <motion.div {...rev} className="flex flex-col gap-3 w-full max-w-[320px] mt-1">
+            <button onClick={() => nav("findpro")} className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]" style={{ background: GOLD, color: NAVY }}>Lease a Suite</button>
+            <button onClick={() => nav("gallery")} className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]" style={{ boxShadow: `inset 0 0 0 1px ${GOLD}`, color: GOLD }}>Book a Tour</button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ───────────────────────────────────── */}
+      <section id="m-footer" className="relative overflow-hidden" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 40%,rgb(62,120,197) 100%)" }}>
+        <div className="flex flex-col items-center px-6 pt-12 pb-8">
+          <button onClick={() => nav("hero")} aria-label="Back to top" style={{ width: 150, height: 44, background: "url(/assets/logo.png) 50% 66.194%/146.25% 455.339% no-repeat" }} />
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mt-7">
+            {[
+              { label: "Suites",            id: "gallery"    },
+              { label: "For Professionals", id: "difference" },
+              { label: "Find a Pro",        id: "findpro"    },
+              { label: "Amenities",         id: "amenities"  },
+              { label: "Contact",           id: "cta"        },
+            ].map(({ label, id }) => (
+              <button key={label} onClick={() => nav(id)} className="font-accent text-white/90 transition-colors duration-300 active:text-champagne" style={{ fontSize: 14 }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="w-full h-px my-8" style={{ background: "rgba(138,146,157,.6)" }} />
+          <div className="mx-auto" style={{ width: 200, height: 60, background: "url(/assets/logo.png) 50% 60.271%/146.25% 699.668% no-repeat", opacity: .9 }} />
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-9">
+            {["Privacy Policy", "Terms of Service", "Cookies Settings"].map(l => (
+              <button key={l} className="font-ui text-white/80 transition-colors duration-300 active:text-white" style={{ fontSize: 13 }}>{l}</button>
+            ))}
+          </div>
+          <span className="font-ui text-white/90 mt-4" style={{ fontSize: 13 }}>© 2026 LUXYN. All rights reserved.</span>
+        </div>
+      </section>
+
+    </div>
   );
 }
