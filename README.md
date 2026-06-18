@@ -3,10 +3,10 @@
 Marketing landing page for **LUXYN** — private, design-led salon & wellness suites
 for independent beauty professionals. A faithful, pixel-accurate port of a Claude
 Design (`claude.ai/design`) handoff into Next.js, with scroll-reveal, a gold
-marquee, parallax hero, a sticky scroll-aware nav with scrollspy, a progress bar,
-and hover micro-interactions.
+marquee, parallax hero, a glassmorphism overlay menu, a scroll progress bar,
+a dedicated mobile layout, and hover micro-interactions.
 
-🔗 **Live:** https://luxyn-demo-a66a8.web.app
+🔗 **Live:** https://luxynstudios.com
 
 ## Tech stack
 
@@ -18,12 +18,33 @@ and hover micro-interactions.
 
 | Path | What it is |
 | --- | --- |
-| `app/components/Landing.tsx` | The whole page — every section, with the design's inline styles transcribed verbatim |
-| `app/lib/dc.tsx` | `E` element + `S()` CSS-string parser; drives hover and `IntersectionObserver` scroll-reveal |
-| `app/globals.css` | Ported `<style>` block (reveal / marquee / floaty keyframes, nav) + Google Fonts |
+| `app/components/Landing.tsx` | The whole page — desktop canvas + dedicated mobile layout, with the design's inline styles transcribed verbatim and framer-motion reveals |
+| `app/components/ContactForm.tsx` | Accessible lease/tour enquiry form (validation, submit states, honeypot); POSTs to the endpoint in `site.ts` |
+| `app/components/LegalLayout.tsx` | Shared chrome for the privacy / terms / cookies pages |
+| `app/lib/site.ts` | **Single source of truth** for domain, business contact details, socials, and the form endpoint — replace the `PLACEHOLDER` values before launch |
+| `app/layout.tsx` | Root layout + full SEO metadata (Open Graph, Twitter, robots, icons) + `LocalBusiness` JSON-LD |
+| `app/robots.ts` / `app/sitemap.ts` | Generated `robots.txt` and `sitemap.xml` |
+| `app/{privacy,terms,cookies}/page.tsx` | Legal pages (placeholder copy) |
+| `app/not-found.tsx` | Branded 404 |
+| `app/globals.css` | Ported `<style>` block (marquee / floaty keyframes, glass menu, gallery hover, CSS scroll-reveal, form fields, skip-link, legal prose) + Google Fonts |
 | `public/assets/` | All design imagery |
 | `firebase.json` / `.firebaserc` | Firebase Hosting config (serves `out/`, project `luxyn-demo-a66a8`) |
 | `.github/workflows/` | CI/CD — live deploy on push to `main`, preview deploy on PRs |
+
+## Before launch — replace placeholders
+
+All site-wide values live in [`app/lib/site.ts`](app/lib/site.ts). Search it for
+`PLACEHOLDER` and set the real values:
+
+1. **`url`** — your production domain (used for canonical URLs, the sitemap, and Open Graph).
+2. **`contact`** — business email, phone, and address (shown in the footer + structured data).
+3. **`socials`** — profile URLs (empty strings are hidden automatically).
+4. **`formEndpoint`** — create a free form at [Formspree](https://formspree.io) (or similar)
+   and paste its endpoint. Until this is set, the contact form shows a friendly
+   "email us directly" message instead of failing silently.
+
+Also review the placeholder legal copy in `app/{privacy,terms,cookies}/page.tsx`
+with your own counsel.
 
 ## Local development
 

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import ContactForm from "./ContactForm";
+import { site, fullAddress } from "../lib/site";
 
 /* ─── animation helpers ─────────────────────────────────── */
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -23,28 +25,37 @@ const NAV = [
   { label: "For Professionals", target: "difference" },
   { label: "Gallery",           target: "gallery"    },
   { label: "Find a Pro",        target: "findpro"    },
-  { label: "About",             target: "footer"     },
+  { label: "Contact",           target: "contact"    },
 ];
+
+/* ─── footer legal links + meta ─────────────────────────── */
+const LEGAL = [
+  { label: "Privacy Policy",   href: "/privacy" },
+  { label: "Terms of Service", href: "/terms"   },
+  { label: "Cookies Settings", href: "/cookies" },
+];
+const YEAR = 2026;
+const VELVO_URL = "https://velvomedia.com";
 
 /* ─── difference cards ──────────────────────────────────── */
 const DIFF = [
   {
-    icon: <svg width="32" height="34" viewBox="0 0 24 26" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M2 25V10a10 10 0 0 1 20 0v15"/><circle cx="12" cy="11" r="1.2" fill="currentColor" stroke="none"/></svg>,
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21V9a6 6 0 0 1 12 0v12" /><path d="M10 21v-5a2 2 0 0 1 4 0v5" /></svg>,
     title: "Design-led suites",
     body:  "The most beautiful private suites in the category — finished to feel like a destination, not a cubicle.",
   },
   {
-    icon: <svg width="32" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M4 20c0-8 8-15 17-15 0 9-7 17-15 17a2 2 0 0 1-2-2Z"/><path d="M5 19C9 14 13 11 17 8"/></svg>,
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21C12 21 7 15 12 5C17 15 12 21 12 21Z"/><path d="M11 18C6 17 4 12 5 7C7 10 11 14 11 18Z"/><path d="M13 18C18 17 20 12 19 7C17 10 13 14 13 18Z"/></svg>,
     title: "Wellness under one roof",
     body:  "Hair, skin, nails, brows, massage and more — a full sensory experience for every client.",
   },
   {
-    icon: <svg width="32" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>,
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7" r="4" /><path d="M6 21c0-4 3-7 6-7s6 3 6 7" /></svg>,
     title: "Independence, supported",
     body:  "Own your business and your hours. Lean on LUXYN for the front desk, upkeep, and marketing.",
   },
   {
-    icon: <svg width="32" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M3 19h18"/><path d="M5 19a7 7 0 0 1 14 0"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1.1" fill="currentColor" stroke="none"/></svg>,
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v2" /><path d="M6 16c0-6 2-8 6-8s6 2 6 8" /><path d="M4 16h16" /><path d="M10 16a2 2 0 0 0 4 0" /></svg>,
     title: "On-site care",
     body:  "A real person on site every day to welcome your clients and keep your space effortless.",
   },
@@ -52,12 +63,12 @@ const DIFF = [
 
 /* ─── amenity cards ─────────────────────────────────────── */
 const AMEN = [
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>,  title: "24/7 SECURE ACCESS",  body: "Your business, your hours. Complete autonomy with a state-of-the-art security system for peace of mind." },
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="5"/><circle cx="7" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>, title: "ON-SITE LAUNDRY",    body: "Complimentary high-capacity laundry facilities designed to keep your workflow seamless and stress-free." },
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 9h12v5a5 5 0 0 1-10 0z"/><path d="M17 10h2a2 2 0 0 1 0 5h-2"/><path d="M8 4v2M11.5 3v2"/></svg>, title: "CLIENT LOUNGE",      body: "A sophisticated waiting area with specialty coffee and refreshments to delight your guests from arrival." },
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 9a16 16 0 0 1 20 0"/><path d="M5 12.5a11 11 0 0 1 14 0"/><path d="M8.5 16a6 6 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1.1" fill="currentColor" stroke="none"/></svg>, title: "HIGH-SPEED FIBER",    body: "Dedicated enterprise-grade Wi-Fi for seamless booking, processing, and social media management." },
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>, title: "DAILY COMMON CARE",  body: "Professional cleaning of all shared areas ensures the facility always reflects your high standards." },
-  { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 14c-2.2 0-4 1.8-4 5 3.2 0 5-1.8 5-4"/><path d="M19 3l2 2-9.5 9.5-2-2z"/></svg>, title: "CUSTOM BRANDING",    body: "Paint and decorate your suite to match your brand's unique identity and professional aesthetic." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M10 21V7h4v14"/><path d="M5 21h14"/></svg>,  title: "24/7 SECURE ACCESS",  body: "Your business, your hours. Complete autonomy with a state-of-the-art security system for peace of mind." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8l-8 5h16z"/><path d="M12 8V6a2 2 0 0 1 2-2"/></svg>, title: "ON-SITE LAUNDRY",    body: "Complimentary high-capacity laundry facilities designed to keep your workflow seamless and stress-free." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6h8v7a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6z"/><path d="M14 8h2a2 2 0 0 1 0 4h-2"/><path d="M4 20h12"/></svg>, title: "CLIENT LOUNGE",      body: "A sophisticated waiting area with specialty coffee and refreshments to delight your guests from arrival." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="16" width="16" height="4" rx="1" /><path d="M7 16v-4" /><path d="M17 16v-4" /><path d="M9 8a3 3 0 0 1 6 0" /><path d="M12 12v.01" /></svg>, title: "HIGH-SPEED FIBER",    body: "Dedicated enterprise-grade Wi-Fi for seamless booking, processing, and social media management." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v9" /><path d="M8 11h8v4H8z" /><path d="M8 15v5" /><path d="M12 15v5" /><path d="M16 15v5" /></svg>, title: "DAILY COMMON CARE",  body: "Professional cleaning of all shared areas ensures the facility always reflects your high standards." },
+  { icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3l6 6-12 12H3v-6L15 3z" /><path d="M14 6l4 4" /><path d="M9 9l-6 6" /></svg>, title: "CUSTOM BRANDING",    body: "Paint and decorate your suite to match your brand's unique identity and professional aesthetic." },
 ];
 
 /* ─── shared button styles ──────────────────────────────── */
@@ -71,11 +82,9 @@ export default function Landing() {
   const heroRef  = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
 
-  /* smooth-scroll — resolves whichever layout (desktop / mobile) is visible */
+  /* smooth-scroll */
   const nav = (id: string) => {
-    const candidates = [document.getElementById(id), document.getElementById("m-" + id)]
-      .filter(Boolean) as HTMLElement[];
-    const el = candidates.find(e => e.offsetParent !== null) ?? candidates[0];
+    const el = document.getElementById(id);
     if (!el) return;
     window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64), behavior: "smooth" });
   };
@@ -83,20 +92,6 @@ export default function Landing() {
 
   /* measure hero height once */
   useEffect(() => { if (heroRef.current) setHeroH(heroRef.current.offsetHeight); }, []);
-
-  /* viewport zoom */
-  useEffect(() => {
-    const apply = () => {
-      const el = document.getElementById("pageRoot");
-      if (!el) return;
-      /* desktop canvas only — below lg the dedicated mobile layout takes over */
-      if (window.innerWidth < 1024) { el.style.zoom = ""; return; }
-      el.style.zoom = String(window.innerWidth / 1440);
-    };
-    apply();
-    window.addEventListener("resize", apply);
-    return () => window.removeEventListener("resize", apply);
-  }, []);
 
   /* scroll effects */
   useEffect(() => {
@@ -120,10 +115,11 @@ export default function Landing() {
     };
   }, [heroH]);
 
-  const showTop = scrollY > 900;
-
   return (
     <div className="relative overflow-x-hidden">
+
+      {/* ── skip to content (keyboard a11y) ──────────── */}
+      <button className="skip-link" onClick={() => nav("hero")}>Skip to content</button>
 
       {/* ── progress bar ─────────────────────────────── */}
       <div id="prog" className="fixed top-0 left-0 h-[3px] bg-champagne z-[120]" style={{ width: 0, transition: "width .1s linear" }} />
@@ -139,7 +135,7 @@ export default function Landing() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="fixed inset-0 z-[200]"
-            style={{ background: "rgba(5,12,24,.72)", backdropFilter: "blur(8px)" }}
+            style={{ background: "rgba(5,12,24,.5)" }}
             onClick={e => { if (e.target === e.currentTarget) setMenuOpen(false); }}
           >
             <motion.div
@@ -148,27 +144,27 @@ export default function Landing() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -12, scale: 0.97 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] sm:rounded-[28px] px-7 sm:px-14 py-7 sm:py-8"
+              className="absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                backdropFilter: "blur(48px) saturate(1.6) brightness(1.1)",
-                WebkitBackdropFilter: "blur(48px) saturate(1.6) brightness(1.1)",
-                border: "1px solid rgba(255,255,255,.22)",
-                boxShadow: "0 8px 64px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(255,255,255,.06)",
+                background: "rgba(33,45,63,0.85)",
+                backdropFilter: "blur(24px) saturate(1.2)",
+                WebkitBackdropFilter: "blur(24px) saturate(1.2)",
+                border: "1px solid rgba(255,255,255,0.4)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
               }}
             >
               <button
                 onClick={() => setMenuOpen(false)}
-                className="w-[50px] h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/10"
-                style={{ background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.2)" }}
+                aria-label="Close menu"
+                className="absolute top-[24px] left-[24px] sm:top-[32px] sm:left-[32px] flex items-center justify-center transition-opacity duration-300 opacity-80 hover:opacity-100 p-2"
               >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,.9)" strokeWidth="1.8" strokeLinecap="round">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgb(225,216,194)" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M1 1 L13 13 M13 1 L1 13"/>
                 </svg>
               </button>
-              <div className="mt-7 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-1 sm:gap-x-20 sm:gap-y-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-y-6 gap-x-12 mt-6 sm:mt-0">
                 {NAV.map(({ label, target }) => (
-                  <button key={label} onClick={() => menuNav(target)} className="menu-link text-left">
+                  <button key={label} onClick={() => menuNav(target)} className="font-display text-left transition-opacity duration-300 hover:opacity-100 text-[22px] sm:text-[26px]" style={{ color: "rgb(225,216,194)", opacity: 0.9 }}>
                     {label}
                   </button>
                 ))}
@@ -179,7 +175,7 @@ export default function Landing() {
       </AnimatePresence>
 
       {/* ── back to top ──────────────────────────────── */}
-      <motion.button
+      {/* <motion.button
         onClick={() => nav("hero")}
         className="fixed right-7 bottom-7 w-[50px] h-[50px] rounded-full flex items-center justify-center z-[115] cursor-pointer"
         style={{ background: "rgb(194,160,107)", boxShadow: "0 10px 26px rgba(0,0,0,.3)" }}
@@ -190,127 +186,164 @@ export default function Landing() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(20,35,59)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 19V5M5 12l7-7 7 7"/>
         </svg>
-      </motion.button>
+      </motion.button> */}
 
-      {/* ═══════════════ MOBILE LAYOUT (< lg) ══════════ */}
-      <div className="lg:hidden">
-        <MobileLanding nav={nav} onMenu={() => setMenuOpen(true)} />
-      </div>
+      {/* ═══════════════ PAGE ROOT ════════════ */}
+      <div id="pageRoot" className="relative w-full overflow-x-hidden" style={{ fontFamily: "'Inter',sans-serif" }}>
 
-      {/* ═══════════════ DESKTOP CANVAS (≥ lg, zoomed) ══ */}
-      <div className="hidden lg:block">
-      <div id="pageRoot" style={{ position: "relative", width: 1440, fontFamily: "'Inter',sans-serif" }}>
+        {/* ── STICKY NAVBAR ──────────────────────────── */}
+          <div
+            className={`fixed top-0 left-0 z-[100] transition-all duration-300 flex justify-center w-full`}
+            style={{
+              paddingTop: scrollY > 50 ? 16 : 24,
+              paddingBottom: scrollY > 50 ? 16 : 24,
+              background: scrollY > 50 ? "rgba(13, 27, 46, 0.85)" : "transparent",
+              backdropFilter: scrollY > 50 ? "blur(16px)" : "none",
+              WebkitBackdropFilter: scrollY > 50 ? "blur(16px)" : "none",
+              borderBottom: scrollY > 50 ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+            }}
+          >
+          <div className="relative w-full max-w-[1240px] px-6 lg:px-12 flex items-center justify-between h-[50px]">
+            <button
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+              className="w-[44px] h-[44px] md:w-[50px] md:h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20 shrink-0"
+              style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
+            >
+              <HamburgerSVG />
+            </button>
+
+            <div
+              onClick={() => nav("hero")}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-opacity hover:opacity-80 scale-[0.6] sm:scale-[0.8] md:scale-100"
+              style={{ width: 265, height: 76, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }}
+              aria-label="Back to top"
+              role="button"
+            />
+
+            <button
+              onClick={() => nav("contact")}
+              className={`${btnGold} hidden md:block shrink-0`}
+              style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
+            >
+              LEASE A SUITE
+            </button>
+            <button
+              onClick={() => nav("contact")}
+              aria-label="Lease a suite"
+              className={`md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full shrink-0`}
+              style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
 
         {/* ── HERO ───────────────────────────────────── */}
         <section
           ref={heroRef}
           id="hero"
-          className="relative overflow-hidden flex items-center justify-center"
-          style={{ width: 1440, height: 775, background: "rgb(20,35,59)" }}
+          className="relative w-full overflow-hidden flex flex-col items-center justify-center lg:h-[100svh] lg:min-h-[700px] pt-36 pb-24 lg:pt-20 lg:pb-10"
+          style={{ background: "rgb(20,35,59)" }}
         >
           <div
             ref={heroBgRef}
             className="absolute will-change-transform"
-            style={{ left: 0, top: "-8%", width: 1440, height: "124%", background: "url(/assets/hero-bg.png) center/cover no-repeat" }}
+            style={{
+              left: 0,
+              top: "-15%",
+              width: "100%",
+              height: "130%",
+              background: "url(/assets/hero-bg.png) 50% 30% / cover no-repeat"
+            }}
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(110deg,rgba(20,35,59,.86) 0%,rgba(20,35,59,.45) 46%,rgba(20,35,59,.08) 70%)" }} />
-
-          {/* in-hero top bar */}
-          <div className="absolute z-[5]" style={{ left: 100, top: 24, width: 1240, height: 50 }}>
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="absolute left-0 top-0 w-[50px] h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20"
-              style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
-            >
-              <HamburgerSVG />
-            </button>
-            <button
-              onClick={() => nav("cta")}
-              className={`absolute right-0 top-[5px] ${btnGold}`}
-              style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
-            >
-              Lease a Suite
-            </button>
-          </div>
-          {/* logo */}
-          <div
-            className="absolute z-[5]"
-            style={{ left: 595, top: 24, width: 251, height: 72, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }}
-          />
+          <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(110deg,rgba(20,35,59,.86) 0%,rgba(20,35,59,.45) 46%,rgba(20,35,59,.08) 70%)" }} />
 
           {/* hero content */}
-          <div className="relative z-[4]" style={{ width: 1440, height: 560 }}>
+          <div className="relative z-[4] w-full max-w-[1061px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-center lg:items-start justify-center gap-16 lg:gap-8 xl:gap-24">
             {/* left copy */}
             <motion.div
-              className="absolute flex flex-col"
-              style={{ left: 182, top: 120, width: 513 }}
+              className="flex flex-col w-full lg:w-[45%] xl:w-[513px] shrink-0 mt-0 lg:mt-28"
               initial="hidden"
               animate="show"
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.13 } } }}
             >
               <motion.h1
                 variants={FU}
-                className="m-0 font-display font-medium text-white"
-                style={{ fontSize: 52, lineHeight: 1.0, letterSpacing: "-0.01em" }}
+                className="m-0 font-display font-medium text-white text-4xl sm:text-5xl lg:text-[52px]"
+                style={{ lineHeight: 1.05, letterSpacing: "-0.01em" }}
               >
-                Space to do your best work.<br />A calm home for your craft.
+                Space To Do Your Best Work. A Calm Home For Your Craft.
               </motion.h1>
               <motion.p
                 variants={FU}
-                className="font-ui font-normal text-white/40"
-                style={{ marginTop: 18, width: 499, fontSize: 12, lineHeight: 1.6 }}
+                className="font-ui font-normal text-white/40 mt-6 text-sm sm:text-[15px]"
+                style={{ lineHeight: 1.6 }}
               >
-                LUXYN leases private, design-led suites to independent beauty and wellness professionals — giving you the freedom to build, serve, and grow in an elevated space.
+                LUXYN Leases Private, Design-Led Suites To Independent Beauty And Wellness Professionals — Giving You The Freedom To Build, Serve, And Grow In An Elevated Space.
               </motion.p>
-              <motion.div variants={FU} className="flex gap-3 items-center" style={{ marginTop: 30 }}>
+              <motion.div variants={FU} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mt-10">
                 <button
-                  onClick={() => nav("cta")}
+                  onClick={() => nav("contact")}
                   className={btnGold}
                   style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
                 >
-                  Lease a Suite
+                  LEASE A SUITE
                 </button>
                 <button
-                  onClick={() => nav("findpro")}
+                  onClick={() => nav("contact")}
                   className={btnOutline}
                   style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}
                 >
-                  Book a Tour
+                  BOOK A TOUR
                 </button>
               </motion.div>
             </motion.div>
 
             {/* right: arch + quote */}
             <motion.div
-              className="absolute"
-              style={{ left: 787, top: 14, width: 456, height: 533 }}
+              className="relative w-full max-w-[420px] lg:max-w-none lg:w-[45%] xl:max-w-[456px] xl:w-[456px] shrink-0 flex justify-center items-center"
+              style={{ aspectRatio: "456/533" }}
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <div
-                className="floaty absolute"
-                style={{ left: 0, top: 6, width: 417, height: 521, borderRadius: "500px 500px 0 0", background: "rgb(238,237,241)", boxShadow: "inset 0 0 0 5px rgb(184,153,104)", overflow: "hidden" }}
+                className="absolute pointer-events-none z-[1]"
+                style={{
+                  left: "6%", top: "3%", width: "88%", height: "94%",
+                  borderRadius: "500px 500px 0 0",
+                  border: "5px solid rgb(194,160,107)",
+                }}
+              />
+              <div
+                className="absolute z-[2]"
+                style={{
+                  left: "0%", top: "3%", width: "88%", height: "94%",
+                  borderRadius: "500px 500px 0 0",
+                  border: "5px solid rgb(194,160,107)",
+                  overflow: "hidden"
+                }}
               >
                 <div
+                  className="absolute"
                   style={{
-                    position: "absolute", left: 0, top: -6, width: 417, height: 533,
+                    left: "-1.5%", top: "-1.5%", width: "103%", height: "103%",
                     borderRadius: "3333px 3333px 0 0",
-                    background: "linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.2)),url(/assets/hero-arch.png) 50% 0%/125% 132.27% no-repeat",
-                    boxShadow: "inset 0 0 0 5px rgb(184,153,104)",
+                    background: "url(/assets/hero-arch.png) 50% 0%/125% 132.27% no-repeat"
                   }}
                 />
               </div>
               <div
-                className="floaty2 absolute flex items-start rounded-[32px]"
+                className="absolute flex flex-col justify-center rounded-[24px] z-[3]"
                 style={{
-                  left: -48, top: 338, width: 240, height: 143, padding: 32,
-                  background: "rgb(250,249,252)",
-                  boxShadow: "inset 0 0 0 1px rgba(196,198,207,.3),0 24px 48px rgba(10,22,40,.28)",
+                  left: "-5%", bottom: "10%", width: "55%", padding: "20px",
+                  background: "rgb(255,255,255)",
+                  boxShadow: "0 20px 40px rgba(10,22,40,.1)",
                 }}
               >
-                <span className="font-ui italic text-[rgb(2,36,72)]" style={{ fontSize: 16, lineHeight: 1.6 }}>
-                  &quot;A space that honors the artistry of my work.&quot;
+                <span className="font-ui text-[rgb(20,35,59)] text-[12px] sm:text-[14px]" style={{ lineHeight: 1.6 }}>
+                  &quot;A space that honors<br/>the artistry of my<br/>work.&quot;
                 </span>
               </div>
             </motion.div>
@@ -318,12 +351,12 @@ export default function Landing() {
 
           {/* champagne marquee */}
           <div
-            className="absolute left-0 bottom-0 overflow-hidden flex items-center z-[5]"
-            style={{ width: 1440, height: 39, background: "rgb(194,160,107)" }}
+            className="absolute left-0 bottom-0 w-full overflow-hidden flex items-center z-[5]"
+            style={{ height: 39, background: "rgb(194,160,107)" }}
           >
             <div className="marq">
               {[0, 1].map(i => (
-                <span key={i} className="font-ui text-white pr-[.29em]" style={{ fontSize: 16, letterSpacing: ".29em" }}>
+                <span key={i} className="font-ui text-white pr-[.29em] whitespace-nowrap" style={{ fontSize: 16, letterSpacing: ".29em" }}>
                   SALON · WELLNESS · SPA · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
                 </span>
               ))}
@@ -331,121 +364,131 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── PHILOSOPHY ─────────────────────────────── */}
-        <section id="philosophy" className="relative overflow-hidden" style={{ width: 1440, minHeight: 775, background: "rgb(243,236,220)" }}>
-          <div className="absolute" style={{ left: 144, top: 123, width: 466 }}>
-            <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
-              className="block font-ui font-semibold text-[rgb(198,155,95)]"
-              style={{ fontSize: 12, letterSpacing: 1.8 }}
-            >
-              OUR PHILOSOPHY
-            </motion.span>
-            <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-              className="font-editorial font-normal text-[rgb(2,36,72)]"
-              style={{ margin: "26px 0 0", width: 466, fontSize: 34, lineHeight: 1.1 }}
-            >
-              A refined space for professionals who care deeply about their work.
-            </motion.h2>
-            <motion.p initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)}
-              className="font-ui font-normal text-[rgb(67,71,78)]"
-              style={{ margin: "34px 0 0", width: 466, fontSize: 16, lineHeight: 1.6 }}
-            >
-              LUXYN was founded on the belief that environment dictates energy. We provide more than just four walls; we provide a curated atmosphere designed to enhance the client experience and support your professional growth with architectural elegance.
-            </motion.p>
-            <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.24)}
-              className="flex flex-col gap-2"
-              style={{ marginTop: 34, borderTop: "1px solid rgba(196,198,207,.5)", borderBottom: "1px solid rgba(196,198,207,.5)", padding: "16px 0" }}
-            >
-              <span className="font-ui font-semibold italic text-[rgb(2,36,72)]" style={{ fontSize: 16, lineHeight: 1.6 }}>
-                &quot;Luxyn has completely transformed how my clients perceive my brand.&quot;
-              </span>
-              <span className="font-ui font-semibold text-[rgb(67,71,78)]" style={{ fontSize: 12, letterSpacing: 1.8 }}>
-                — SARAH J., MASTER COLORIST
-              </span>
-            </motion.div>
+        <section id="philosophy" className="relative overflow-hidden w-full py-12 lg:py-20 flex justify-center" style={{ background: "rgb(243,236,220)" }}>
+          <div className="w-full max-w-[1151px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-8 xl:gap-6">
+            <div className="flex flex-col w-full lg:w-[45%] xl:w-[466px] shrink-0 mx-auto lg:mx-0">
+              <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
+                className="block font-ui font-semibold text-[rgb(198,155,95)]"
+                style={{ fontSize: 12, letterSpacing: 1.8 }}
+              >
+                OUR PHILOSOPHY
+              </motion.span>
+              <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
+                className="font-editorial font-normal text-[rgb(2,36,72)] text-3xl sm:text-4xl lg:text-[34px]"
+                style={{ margin: "26px 0 0", lineHeight: 1.1 }}
+              >
+                A refined space for professionals who care deeply about their work.
+              </motion.h2>
+              <motion.p initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)}
+                className="font-ui font-normal text-[rgb(67,71,78)]"
+                style={{ margin: "34px 0 0", fontSize: 16, lineHeight: 1.6 }}
+              >
+                LUXYN was founded on the belief that environment dictates energy. We provide more than just four walls; we provide a curated atmosphere designed to enhance the client experience and support your professional growth with architectural elegance.
+              </motion.p>
+              <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.24)}
+                className="flex flex-col gap-2"
+                style={{ marginTop: 34, borderTop: "1px solid rgba(196,198,207,.5)", borderBottom: "1px solid rgba(196,198,207,.5)", padding: "16px 0" }}
+              >
+                <span className="font-ui font-semibold italic text-[rgb(2,36,72)]" style={{ fontSize: 16, lineHeight: 1.6 }}>
+                  &quot;Luxyn has completely transformed how my clients perceive my brand.&quot;
+                </span>
+                <span className="font-ui font-semibold text-[rgb(67,71,78)]" style={{ fontSize: 12, letterSpacing: 1.8 }}>
+                  — SARAH J., MASTER COLORIST
+                </span>
+              </motion.div>
+            </div>
+
+            {/* arch images */}
+            <div className="flex gap-4 sm:gap-[16px] justify-center items-center w-full lg:w-[50%] xl:w-[662px] shrink-0 mx-auto lg:mx-0">
+              {/* arch image 1 */}
+              <motion.div
+                initial="hidden" whileInView="show" viewport={vp} variants={FR}
+                className="relative group overflow-hidden shrink-0 mt-10 sm:mt-16 xl:mt-20"
+                style={{ width: "48%", maxWidth: 323, aspectRatio: "323/450", borderRadius: "500px 500px 0 0" }}
+              >
+                <div
+                  className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
+                  style={{ background: "url(/assets/about-2.png) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
+                />
+              </motion.div>
+
+              {/* arch image 2 */}
+              <motion.div
+                initial="hidden" whileInView="show" viewport={vp} variants={FR} {...delay(0.14)}
+                className="relative group overflow-hidden shrink-0 mb-10 sm:mb-16 xl:mb-20"
+                style={{ width: "48%", maxWidth: 323, aspectRatio: "323/450", borderRadius: "500px 500px 0 0" }}
+              >
+                <div
+                  className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
+                  style={{ background: "url(/assets/about-1.png) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
+                />
+              </motion.div>
+            </div>
           </div>
-
-          {/* arch image 1 */}
-          <motion.div
-            initial="hidden" whileInView="show" viewport={vp} variants={FR}
-            className="absolute group overflow-hidden"
-            style={{ left: 633, top: 235, width: 323, height: 450, borderRadius: "500px 500px 0 0" }}
-          >
-            <div
-              className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
-              style={{ background: "url(/assets/about-2.png) 50% 50%/139.319% 100% no-repeat", borderRadius: "500px 500px 0 0" }}
-            />
-          </motion.div>
-
-          {/* arch image 2 */}
-          <motion.div
-            initial="hidden" whileInView="show" viewport={vp} variants={FR} {...delay(0.14)}
-            className="absolute group overflow-hidden"
-            style={{ left: 972, top: 155, width: 323, height: 450, borderRadius: "500px 500px 0 0" }}
-          >
-            <div
-              className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
-              style={{ background: "url(/assets/about-1.png) 50% 50%/139.319% 100% no-repeat", borderRadius: "500px 500px 0 0" }}
-            />
-          </motion.div>
         </section>
 
         {/* ── DIVERSE ARTISTRY ───────────────────────── */}
-        <section id="gallery" className="relative overflow-hidden" style={{ width: 1440, minHeight: 775, background: "rgb(251,248,241)" }}>
-          <div className="absolute flex flex-col items-center" style={{ left: 299, top: 70, width: 843 }}>
+        <section id="gallery" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
+          <div className="flex flex-col items-center px-6" style={{ maxWidth: 843, marginBottom: 48 }}>
             <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
-              className="font-ui font-semibold text-[rgb(198,155,95)]" style={{ fontSize: 12, letterSpacing: 1.8 }}
+              className="font-ui font-semibold text-[rgb(198,155,95)] text-center" style={{ fontSize: 12, letterSpacing: 1.8 }}
             >
               DIVERSE ARTISTRY
             </motion.span>
             <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-              className="font-display font-semibold text-[rgb(33,58,92)] text-center"
-              style={{ margin: "10px 0 0", width: 843, fontSize: 46, lineHeight: 1.0 }}
+              className="font-display font-semibold text-[rgb(33,58,92)] text-center text-3xl sm:text-4xl lg:text-[46px]"
+              style={{ margin: "10px 0 0", lineHeight: 1.1 }}
             >
               A space for independent beauty &amp; wellness professionals.
             </motion.h2>
           </div>
 
-          <div className="absolute flex gap-4 items-start" style={{ left: 106, top: 227, width: 1229, height: 483 }}>
+          <div className="w-full max-w-[1229px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-4">
             {/* tall left */}
             <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FS}
-              className="gallery-card relative overflow-hidden flex-shrink-0 rounded-[32px]"
-              style={{ width: 228, height: 483, background: "#fff" }}
+              className="gallery-card relative overflow-hidden flex-shrink-0 rounded-[32px] w-full h-[280px] lg:h-auto lg:w-[200px] xl:w-[228px]"
+              style={{ background: "#fff" }}
             >
-              <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: -5, top: 0, width: 252, height: 488, background: "url(/assets/gallery-1.png) 41.808% 8.108%/634.711% 218.337% no-repeat" }} />
-              <div className="card-overlay absolute bottom-0 left-0 right-0 z-[3] flex items-end justify-center" style={{ height: "52%", padding: "0 14px 24px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="card-label font-accent font-normal text-white text-center" style={{ fontSize: 11, letterSpacing: 3 }}>Estheticians</span>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full" style={{ aspectRatio: "228/483" }}>
+                <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: "-2.19%", top: "0%", width: "110.52%", height: "101.03%", background: "url(/assets/gallery-1.png) 41.808% 8.108%/634.711% 218.337% no-repeat" }} />
+              </div>
+              <div className="card-overlay absolute inset-0 z-[3] flex items-end justify-center rounded-[32px]" style={{ padding: "0 14px 32px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,.25) 100%)" }}>
+                <span className="card-label font-display font-medium text-white text-center" style={{ fontSize: 22, letterSpacing: 4 }}>Brow & Lash Artists</span>
               </div>
             </motion.div>
 
-            <div className="flex flex-col gap-4" style={{ width: 985 }}>
-              <div className="flex gap-4 items-center">
+            <div className="flex flex-col gap-4 flex-1">
+              <div className="flex flex-col sm:flex-row gap-4">
                 {[
-                  { w:454, h:231, bg:"url(/assets/gallery-2.png) 7.79% 7.154%/355.556% 268.766% no-repeat", iL:-17, iT:-96, iW:471, iH:416, label:"Hair Stylists", d:0.08 },
-                  { w:515, h:231, bg:"url(/assets/gallery-2.png) 49.597% 81.944%/366.587% 272.34% no-repeat",  iL:0,   iT:-244,iW:567, iH:508, label:"Colorists",    d:0.16 },
-                ].map(({ w, h, bg, iL, iT, iW, iH, label, d }) => (
+                  { smFlex: "sm:grow-[454] sm:basis-0", smAsp: "sm:aspect-[454/231]", asp: "454/231", bg:"url(/assets/gallery-2.png) 7.79% 7.154%/355.556% 268.766% no-repeat", iL:"-3.74%", iT:"-41.56%", iW:"103.74%", iH:"180.09%", label:"Hair Stylists", d:0.08 },
+                  { smFlex: "sm:grow-[515] sm:basis-0", smAsp: "sm:aspect-[515/231]", asp: "515/231", bg:"url(/assets/gallery-2.png) 49.597% 81.944%/366.587% 272.34% no-repeat",  iL:"0%",   iT:"-105.63%",iW:"110.1%", iH:"219.91%", label:"Nail Artists",    d:0.16 },
+                ].map(({ smFlex, smAsp, asp, bg, iL, iT, iW, iH, label, d }) => (
                   <motion.div key={label} initial="hidden" whileInView="show" viewport={vp} variants={FS} {...delay(d)}
-                    className="gallery-card relative overflow-hidden rounded-[32px]" style={{ width: w, height: h }}
+                    className={`gallery-card relative overflow-hidden rounded-[32px] w-full h-[280px] sm:h-auto ${smAsp} ${smFlex}`}
                   >
-                    <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: iL, top: iT, width: iW, height: iH, background: bg }} />
-                    <div className="card-overlay absolute bottom-0 left-0 right-0 z-[3] flex items-end justify-center" style={{ height: "55%", padding: "0 14px 18px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,0) 100%)" }}>
-                      <span className="card-label font-accent font-normal text-white text-center" style={{ fontSize: 11, letterSpacing: 3 }}>{label}</span>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full" style={{ aspectRatio: asp }}>
+                      <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: iL, top: iT, width: iW, height: iH, background: bg }} />
+                    </div>
+                    <div className="card-overlay absolute inset-0 z-[3] flex items-end justify-center rounded-[32px]" style={{ padding: "0 14px 32px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,.25) 100%)" }}>
+                      <span className="card-label font-display font-medium text-white text-center" style={{ fontSize: 22, letterSpacing: 4 }}>{label}</span>
                     </div>
                   </motion.div>
                 ))}
               </div>
-              <div className="flex gap-4 items-end">
+              <div className="flex flex-col md:flex-row gap-4 items-stretch lg:items-end">
                 {[
-                  { w:406, h:230, bg:"url(/assets/gallery-1.png) 16.764% 94.851%/447.813% 358.042% no-repeat", iL:0,   iT:-89,  iW:406, iH:339, label:"Brow & Lash Artists",  d:0.12 },
-                  { w:233, h:227, bg:"url(/assets/gallery-2.png) 90% 81.364%/378.325% 281.319% no-repeat",      iL:-10, iT:0,    iW:253, iH:227, label:"Nail Artists",         d:0.20 },
-                  { w:314, h:231, bg:"url(/assets/gallery-2.png) 88.462% 8.602%/391.837% 274.531% no-repeat",   iL:-16, iT:-142, iW:392, iH:373, label:"Massage & Wellness",   d:0.28 },
-                ].map(({ w, h, bg, iL, iT, iW, iH, label, d }) => (
+                  { mdFlex: "md:grow-[406] md:basis-0", mdAsp: "md:aspect-[406/230]", asp: "406/230", bg:"url(/assets/gallery-1.png) 16.764% 94.851%/447.813% 358.042% no-repeat", iL:"0%",   iT:"-38.7%",  iW:"100%", iH:"147.39%", label:"Massage Therapists",  d:0.12 },
+                  { mdFlex: "md:grow-[233] md:basis-0", mdAsp: "md:aspect-[233/227]", asp: "233/227", bg:"url(/assets/gallery-2.png) 90% 81.364%/378.325% 281.319% no-repeat",      iL:"-4.29%", iT:"0%",    iW:"108.58%", iH:"100%", label:"Wellness Practitioners",         d:0.20 },
+                  { mdFlex: "md:grow-[314] md:basis-0", mdAsp: "md:aspect-[314/231]", asp: "314/231", bg:"url(/assets/gallery-2.png) 88.462% 8.602%/391.837% 274.531% no-repeat",   iL:"-5.1%", iT:"-61.47%", iW:"124.84%", iH:"161.47%", label:"Estheticians",   d:0.28 },
+                ].map(({ mdFlex, mdAsp, asp, bg, iL, iT, iW, iH, label, d }) => (
                   <motion.div key={label} initial="hidden" whileInView="show" viewport={vp} variants={FS} {...delay(d)}
-                    className="gallery-card relative overflow-hidden rounded-[32px]" style={{ width: w, height: h }}
+                    className={`gallery-card relative overflow-hidden rounded-[32px] w-full h-[280px] md:h-auto ${mdAsp} ${mdFlex}`}
                   >
-                    <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: iL, top: iT, width: iW, height: iH, background: bg }} />
-                    <div className="card-overlay absolute bottom-0 left-0 right-0 z-[3] flex items-end justify-center" style={{ height: "55%", padding: "0 14px 18px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,0) 100%)" }}>
-                      <span className="card-label font-accent font-normal text-white text-center" style={{ fontSize: 11, letterSpacing: 3 }}>{label}</span>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full" style={{ aspectRatio: asp }}>
+                      <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: iL, top: iT, width: iW, height: iH, background: bg }} />
+                    </div>
+                    <div className="card-overlay absolute inset-0 z-[3] flex items-end justify-center rounded-[32px]" style={{ padding: "0 14px 32px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,.25) 100%)" }}>
+                      <span className="card-label font-display font-medium text-white text-center" style={{ fontSize: 22, letterSpacing: 4 }}>{label}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -455,43 +498,43 @@ export default function Landing() {
         </section>
 
         {/* ── THE LUXYN DIFFERENCE ───────────────────── */}
-        <section id="difference" className="relative overflow-hidden" style={{ width: 1440, minHeight: 555, background: "rgb(244,238,225)" }}>
-          <div className="absolute flex flex-col items-center gap-3" style={{ left: 270, top: 61, width: 900 }}>
+        <section id="difference" className="relative overflow-hidden w-full pt-12 lg:pt-20 pb-8 lg:pb-12 flex flex-col items-center" style={{ background: "rgb(244,238,225)" }}>
+          <div className="flex flex-col items-center px-6 mb-8 lg:mb-12 text-center max-w-[900px]">
             <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
               className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
             >
               THE LUXYN DIFFERENCE
             </motion.span>
-            <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-              className="font-display font-semibold text-[rgb(33,58,92)]" style={{ fontSize: 46, lineHeight: 1.0 }}
+            <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
+              className="m-0 font-display font-semibold text-[rgb(33,58,92)] text-3xl sm:text-4xl lg:text-[46px]" style={{ margin: "10px 0 0", lineHeight: 1.1 }}
             >
               A sanctuary, not a rented room
-            </motion.span>
+            </motion.h2>
           </div>
-          <div className="absolute flex gap-6 items-start" style={{ left: 120, top: 191, width: 1200 }}>
+          <div className="w-full max-w-[1200px] px-6 lg:px-12 xl:px-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {DIFF.map(({ icon, title, body }, i) => (
               <motion.div
                 key={title}
                 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(i * 0.09)}
-                className="flex flex-col gap-3.5 rounded-[12px] transition-[transform,box-shadow] duration-[400ms] cursor-default"
-                style={{ width: 282, height: 276, background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)", padding: "32px 26px" }}
-                whileHover={{ y: -8, boxShadow: "inset 0 0 0 1px rgb(225,216,194), 0 22px 44px rgba(33,58,92,.14)" }}
+                className="flex flex-col rounded-[8px] transition-[transform,box-shadow] duration-[400ms] cursor-default w-full p-6 lg:py-8 lg:px-7"
+                style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
+                whileHover={{ y: -8, boxShadow: "inset 0 0 0 1px rgb(225,216,194), 0 22px 44px rgba(33,58,92,.08)" }}
               >
-                <span className="text-[rgb(33,58,92)]">{icon}</span>
-                <span className="font-display font-semibold text-[rgb(33,58,92)]" style={{ fontSize: 24, lineHeight: 1.0 }}>{title}</span>
-                <span className="font-accent font-normal opacity-85 text-[rgb(22,38,60)]" style={{ fontSize: 14.5, lineHeight: 1.5 }}>{body}</span>
+                <span className="text-[rgb(33,58,92)] mb-4 lg:mb-5 [&>svg]:w-[24px] [&>svg]:h-[24px] lg:[&>svg]:w-[28px] lg:[&>svg]:h-[28px]">{icon}</span>
+                <span className="font-display font-bold text-[rgb(33,58,92)] text-[20px] lg:text-[24px] mb-2 lg:mb-3" style={{ lineHeight: 1.2 }}>{title}</span>
+                <span className="font-ui font-normal opacity-80 text-[rgb(22,38,60)] text-[13.5px] lg:text-[14.5px]" style={{ lineHeight: 1.6 }}>{body}</span>
               </motion.div>
             ))}
           </div>
         </section>
 
-        {/* ── BANNER ─────────────────────────────────── */}
-        <section id="banner" className="relative overflow-hidden flex items-center justify-center" style={{ width: 1440, height: 550, background: "rgb(244,238,225)" }}>
-          <div className="absolute" style={{ left: 0, top: "-15%", width: 1440, height: "130%", background: "url(/assets/cta-bg.png) center/cover no-repeat" }} />
+        {/* ── CTA BANNER ─────────────────────────────── */}
+        <section id="banner" className="relative w-full overflow-hidden flex items-center justify-center pt-20 lg:pt-32 pb-12 lg:pb-16" style={{ background: "rgb(20,35,59)" }}>
+          <div className="absolute" style={{ left: "-5%", top: "-10%", width: "110%", height: "130%", background: "url(/assets/cta-bg.png) center/cover no-repeat" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgb(20,35,59) 0%,rgba(45,79,127,.5) 50%,rgba(70,122,194,0) 100%)" }} />
-          <div className="relative z-[2] flex flex-col items-center gap-6 text-center" style={{ maxWidth: 760, padding: "0 40px" }}>
+          <div className="relative z-[2] flex flex-col items-center gap-6 text-center" style={{ maxWidth: 760, padding: "0 24px" }}>
             <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU}
-              className="m-0 font-display font-bold text-white" style={{ fontSize: 72, lineHeight: 1.0 }}
+              className="m-0 font-display font-bold text-white text-4xl sm:text-5xl lg:text-[72px]" style={{ lineHeight: 1.05 }}
             >
               Your suite. Your schedule. Your brand.
             </motion.h2>
@@ -504,145 +547,265 @@ export default function Landing() {
         </section>
 
         {/* ── AMENITIES ──────────────────────────────── */}
-        <section id="amenities" className="relative overflow-hidden flex flex-col items-center justify-center" style={{ width: 1440, height: 835, background: "rgb(20,35,59)", gap: 48 }}>
-          <div className="absolute opacity-50 pointer-events-none" style={{ left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 1550, height: "120%", background: "url(/assets/amenities-illustration.png) center/cover no-repeat" }} />
-          <div className="relative z-[2] flex flex-col items-center gap-4">
+        <section id="amenities" className="relative w-full pt-8 lg:pt-12 pb-12 lg:pb-20 flex flex-col items-center justify-center gap-12" style={{ background: "rgb(20,35,59)" }}>
+          <div className="absolute opacity-50 pointer-events-none" style={{ left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: "110%", minWidth: 1000, height: "120%", background: "url(/assets/amenities-illustration.png) center/cover no-repeat" }} />
+          <div className="relative z-[2] flex flex-col items-center gap-4 px-6 text-center">
             <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
               className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
             >
               AMENITIES
             </motion.span>
             <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-              className="font-display font-bold text-white text-center" style={{ width: 448, fontSize: 44, lineHeight: 1.0 }}
+              className="font-display font-bold text-white text-center text-3xl sm:text-4xl lg:text-[44px]" style={{ maxWidth: 448, lineHeight: 1.1 }}
             >
               Designed around comfort, care, and craft.
             </motion.span>
           </div>
-          <div className="relative z-[2] grid" style={{ width: 1152, gridTemplateColumns: "1fr 1fr 1fr", gridAutoRows: "250.78px", gap: 24 }}>
+          <div className="relative z-[2] w-full max-w-[1240px] px-3 sm:px-6 lg:px-12 grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6">
             {AMEN.map(({ icon, title, body }, i) => (
               <motion.div
                 key={title}
                 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(i * 0.08)}
-                className="flex flex-col gap-[15px] rounded-[32px] bg-white p-10 cursor-default"
-                style={{ boxShadow: "inset 0 0 0 1px rgba(196,198,207,.2)" }}
-                whileHover={{ y: -8, boxShadow: "0 26px 50px rgba(0,0,0,.28)" }}
+                className="flex flex-col justify-start rounded-[12px] sm:rounded-[24px] bg-white cursor-default p-3 sm:p-8"
+                style={{ boxShadow: "inset 0 0 0 1px rgba(196,198,207,.3)" }}
+                whileHover={{ y: -6, boxShadow: "0 24px 48px rgba(20,35,59,.16)" }}
               >
-                <span className="text-[rgb(198,155,95)]">{icon}</span>
-                <span className="font-ui font-medium text-[rgb(2,36,72)]" style={{ fontSize: 14, letterSpacing: 1.4 }}>{title}</span>
-                <span className="font-ui font-normal text-[rgb(67,71,78)]" style={{ fontSize: 16, lineHeight: 1.6 }}>{body}</span>
+                <span className="text-[rgb(198,155,95)] mb-2 sm:mb-6 [&>svg]:w-[20px] [&>svg]:h-[20px] sm:[&>svg]:w-[32px] sm:[&>svg]:h-[32px]">{icon}</span>
+                <span className="font-ui font-medium text-[rgb(33,58,92)] uppercase text-[9.5px] sm:text-[13px] mb-1 sm:mb-4" style={{ letterSpacing: 1 }}>{title}</span>
+                <span className="font-ui font-normal text-[rgb(67,71,78)] opacity-90 text-[10px] sm:text-[14.5px]" style={{ lineHeight: 1.45 }}>{body}</span>
               </motion.div>
             ))}
           </div>
         </section>
 
         {/* ── FIND A PRO ─────────────────────────────── */}
-        <section id="findpro" className="relative overflow-hidden flex items-center" style={{ width: 1440, minHeight: 756, background: "rgb(244,238,225)" }}>
-          <motion.div
-            initial="hidden" whileInView="show" viewport={vp} variants={FL}
-            className="absolute overflow-hidden"
-            style={{ left: 144, top: 120, width: 516, height: 516, borderRadius: "500px 500px 0 0", background: "url(/assets/findpro-a.png) center/cover no-repeat", boxShadow: "0 28px 60px rgba(20,35,59,.18)" }}
-            whileHover={{ y: -10, boxShadow: "0 40px 80px rgba(20,35,59,.28)" }}
-          />
-          <motion.div
-            initial="hidden" whileInView="show" viewport={vp} variants={FL} {...delay(0.12)}
-            className="absolute floaty"
-            style={{ left: 172, top: 81, width: 460, height: 555, background: "url(/assets/findpro-stylist.png) bottom center/contain no-repeat", filter: "drop-shadow(0 24px 36px rgba(20,35,59,.32))" }}
-            whileHover={{ y: -8, scale: 1.02 }}
-          />
-          <div className="absolute flex flex-col items-start" style={{ left: 780, top: 250, width: 516, gap: 28 }}>
-            <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
-              className="font-ui font-semibold text-[rgb(74,98,106)]" style={{ fontSize: 12, letterSpacing: 1.8 }}
-            >
-              FOR CLIENTS
-            </motion.span>
-            <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-              className="m-0 font-display font-bold text-[rgb(2,36,72)]" style={{ width: 516, fontSize: 44, lineHeight: 1.0 }}
-            >
-              Looking for a professional?
-            </motion.h2>
-            <motion.p initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)}
-              className="m-0 font-ui font-normal text-[rgb(67,71,78)]" style={{ width: 516, fontSize: 16, lineHeight: 1.6 }}
-            >
-              Explore independent beauty and wellness professionals working from LUXYN.
-            </motion.p>
-            <motion.button
-              initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.24)}
-              onClick={() => nav("gallery")}
-              className="h-[48px] px-8 rounded-full font-ui font-bold text-white cursor-pointer transition-[transform,box-shadow,background] duration-300 hover:-translate-y-0.5"
-              style={{ fontSize: 13, letterSpacing: .5, background: "rgb(20,35,59)" }}
-              whileHover={{ boxShadow: "0 14px 30px rgba(20,35,59,.32)" }}
-            >
-              Find a Pro
-            </motion.button>
+        <section id="findpro" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center justify-center" style={{ background: "rgb(244,238,225)" }}>
+          <div className="w-full max-w-[1152px] px-6 lg:px-12 xl:px-0 flex flex-col-reverse lg:flex-row items-center justify-center gap-16 lg:gap-8 xl:gap-24">
+            <div className="relative w-full lg:w-[45%] xl:w-[516px] shrink-0" style={{ aspectRatio: "516/590" }}>
+              <motion.div
+                initial="hidden" whileInView="show" viewport={vp} variants={FL}
+                className="absolute overflow-hidden"
+                style={{ left: "0%", top: "8.5%", width: "100%", height: "87.5%", borderRadius: "500px 500px 0 0", background: "url(/assets/findpro-a.png) center/cover no-repeat", boxShadow: "0 28px 60px rgba(20,35,59,.18)" }}
+                whileHover={{ y: -10, boxShadow: "0 40px 80px rgba(20,35,59,.28)" }}
+              />
+              <motion.div
+                initial="hidden" whileInView="show" viewport={vp} variants={FL} {...delay(0.12)}
+                className="absolute"
+                style={{ left: "0%", top: "8.5%", width: "100%", height: "87.5%", clipPath: "inset(-50% -50% 0 -50%)", WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden", transform: "translateZ(0)" }}
+              >
+                <motion.div
+                  className="absolute origin-bottom floaty"
+                  style={{ left: "0%", bottom: "-5%", width: "100%", height: "120%", background: "url(/assets/findpro-stylist.png) bottom center/contain no-repeat", filter: "drop-shadow(0 24px 36px rgba(20,35,59,.32))", willChange: "transform", WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                />
+              </motion.div>
+            </div>
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-[45%] xl:w-[466px] shrink-0">
+              <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
+                className="block font-ui font-semibold text-[rgb(198,155,95)]" style={{ fontSize: 12, letterSpacing: 1.8 }}
+              >
+                FOR CLIENTS
+              </motion.span>
+              <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
+                className="m-0 font-display font-semibold text-[rgb(33,58,92)] text-[28px] sm:text-[34px] lg:text-[42px]" style={{ margin: "20px 0 32px", lineHeight: 1.1 }}
+              >
+                Looking for a professional?
+              </motion.h2>
+              <motion.p initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)}
+                className="m-0 font-ui font-normal text-[rgb(67,71,78)] text-[14px] sm:text-[16px] lg:text-[17px]" style={{ lineHeight: 1.6 }}
+              >
+                Explore independent beauty and wellness professionals working from LUXYN.
+              </motion.p>
+              <motion.button
+                initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.24)}
+                onClick={() => nav("gallery")}
+                className="h-[52px] px-10 rounded-full font-ui font-bold text-white cursor-pointer transition-[transform,box-shadow,background] duration-300 hover:-translate-y-0.5 mt-8"
+                style={{ fontSize: 15, letterSpacing: .5, background: "rgb(20,35,59)" }}
+                whileHover={{ boxShadow: "0 14px 30px rgba(20,35,59,.32)" }}
+              >
+                FIND A PRO
+              </motion.button>
+            </div>
           </div>
         </section>
 
         {/* ── READY CTA ──────────────────────────────── */}
-        <section id="cta" className="relative overflow-hidden flex items-center justify-center" style={{ width: 1440, height: 448, background: "rgb(20,35,59)" }}>
-          <div className="absolute inset-0 opacity-25 overflow-hidden" style={{ background: "linear-gradient(180deg,rgb(20,35,59) 0%,rgb(55,96,161) 100%)" }}>
-            {[1100, 1450, 1800, 2150].map((s, i) => (
-              <div key={i} className="absolute rounded-full" style={{ left: "50%", top: "118%", width: s, height: s, marginLeft: -s / 2, marginTop: -s / 2, border: `1px solid rgba(255,255,255,${0.5 - i * 0.08})` }} />
+        <section id="cta" className="relative overflow-hidden w-full pt-24 lg:pt-32 pb-8 sm:pb-12 lg:pb-16 flex items-center justify-center" style={{ background: "rgb(26,45,76)" }}>
+          <div className="absolute inset-0 overflow-hidden">
+            {[
+              { w: "w-[160vw] sm:w-[600px]", stroke: 5, opacity: 0.15 },
+              { w: "w-[240vw] sm:w-[900px]", stroke: 4, opacity: 0.10 },
+              { w: "w-[320vw] sm:w-[1200px]", stroke: 2, opacity: 0.07 }
+            ].map(({ w, stroke, opacity }, i) => (
+              <div key={i} className={`absolute rounded-full aspect-square ${w}`} style={{ left: "50%", top: "100%", transform: "translate(-50%, -30%)", border: `${stroke}px solid rgba(225,216,194,${opacity})` }} />
             ))}
           </div>
-          <div className="relative z-[2] flex flex-col items-center gap-6 text-center" style={{ maxWidth: 1176, padding: "0 40px" }}>
-            <div className="flex flex-col items-center gap-4">
+          <div className="relative z-[2] flex flex-col items-center gap-8 text-center" style={{ maxWidth: 1176, padding: "0 24px" }}>
+            <div className="flex flex-col items-center gap-5">
               <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
-                className="font-display font-bold text-white" style={{ fontSize: 44, lineHeight: 1.05 }}
+                className="font-display font-normal text-white text-3xl sm:text-4xl lg:text-[44px]" style={{ lineHeight: 1.05 }}
               >
                 Ready to make LUXYN your new professional home?
               </motion.span>
               <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
-                className="font-ui font-normal text-white" style={{ fontSize: 16 }}
+                className="font-ui font-normal" style={{ fontSize: 16, color: "rgba(255,255,255,0.85)" }}
               >
                 Book a private tour and explore available suites designed for your next chapter.
               </motion.span>
             </div>
-            <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)} className="flex gap-3">
-              <button onClick={() => nav("findpro")} className={btnGold} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}>Lease a Suite</button>
-              <button onClick={() => nav("gallery")}  className={btnOutline} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}>Book a Tour</button>
+            <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)} className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full sm:w-auto px-4 sm:px-0">
+              <button onClick={() => nav("contact")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}>LEASE A SUITE</button>
+              <button onClick={() => nav("contact")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}>BOOK A TOUR</button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ── CONTACT ────────────────────────────────── */}
+        <section id="contact" className="relative overflow-hidden w-full py-12 lg:py-20 flex justify-center" style={{ background: "rgb(243,236,220)" }}>
+          <div className="w-full max-w-[1151px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-start justify-center gap-12 lg:gap-16">
+            {/* intro + details */}
+            <motion.div
+              initial="hidden" whileInView="show" viewport={vp} variants={FL}
+              className="flex flex-col w-full lg:w-[45%] xl:w-[488px] shrink-0"
+            >
+              <span className="block font-ui font-semibold text-[rgb(198,155,95)]" style={{ fontSize: 12, letterSpacing: 1.8 }}>
+                GET IN TOUCH
+              </span>
+              <h2 className="m-0 font-display font-semibold text-[rgb(2,36,72)] text-3xl sm:text-4xl lg:text-[46px]" style={{ margin: "22px 0 0", lineHeight: 1.1 }}>
+                Reserve your suite at LUXYN.
+              </h2>
+              <p className="font-ui font-normal text-[rgb(67,71,78)]" style={{ margin: "24px 0 0", fontSize: 16, lineHeight: 1.6 }}>
+                Tell us about your craft and the space you envision. Our team will reach out to arrange a private tour and walk you through availability.
+              </p>
+              <div className="flex flex-col gap-5 mt-9">
+                <ContactLine type="email" />
+                <ContactLine type="phone" />
+                <ContactLine type="address" />
+              </div>
+            </motion.div>
+
+            {/* form */}
+            <motion.div
+              initial="hidden" whileInView="show" viewport={vp} variants={FR} {...delay(0.12)}
+              className="w-full lg:w-[50%] xl:w-[520px] shrink-0"
+            >
+              <ContactForm />
             </motion.div>
           </div>
         </section>
 
         {/* ── FOOTER ─────────────────────────────────── */}
-        <section id="footer" className="relative overflow-hidden" style={{ width: 1440, minHeight: 624, background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
-          <div className="absolute flex flex-col items-center" style={{ left: 429, top: 35, width: 583, gap: 26 }}>
-            <button onClick={() => nav("hero")} className="cursor-pointer" style={{ width: 194, height: 63, background: "url(/assets/logo.png) 50% 66.194%/146.25% 455.339% no-repeat" }} />
-            <div className="flex items-center" style={{ gap: 48 }}>
+        <section id="footer" className="relative overflow-hidden w-full pt-8 sm:pt-16 pb-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
+          <div className="flex flex-col items-center z-[2] gap-8 px-6">
+            <button onClick={() => nav("hero")} className="cursor-pointer transition-opacity hover:opacity-80 scale-[0.8] sm:scale-100" style={{ width: 265, height: 76, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }} aria-label="Back to top" />
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-12">
               {[
                 { label: "Suites",            id: "gallery"    },
                 { label: "For Professionals", id: "difference" },
                 { label: "Find a Pro",        id: "findpro"    },
                 { label: "Amenities",         id: "amenities"  },
-                { label: "Contact",           id: "cta"        },
+                { label: "Contact",           id: "contact"    },
               ].map(({ label, id }) => (
                 <button key={label} onClick={() => nav(id)}
-                  className="font-accent text-white cursor-pointer whitespace-nowrap transition-colors duration-300 hover:text-champagne"
-                  style={{ fontSize: 14.5 }}
+                  className="font-accent font-light text-white cursor-pointer whitespace-nowrap transition-colors duration-300 hover:text-champagne underline underline-offset-4 decoration-[1px] decoration-white/50 hover:decoration-champagne"
+                  style={{ fontSize: 18 }}
                 >
                   {label}
                 </button>
               ))}
             </div>
+            <SocialLinks />
           </div>
-          <div className="absolute left-0 w-full h-px" style={{ top: 223, background: "rgb(138,146,157)" }} />
+
+          <div className="w-full h-px mt-16 z-[2]" style={{ background: "rgb(138,146,157)", opacity: 0.4 }} />
+
           <motion.div
             initial="hidden" whileInView="show" viewport={vp} variants={FI}
-            className="absolute"
-            style={{ left: 0, top: 268, width: 1440, height: 301, background: "url(/assets/logo.png) 50% 60.271%/146.25% 699.668% no-repeat" }}
-          />
-          <div className="absolute flex justify-between items-start" style={{ left: 80, top: 569, width: 1280 }}>
-            <div className="flex gap-6">
-              {["Privacy Policy", "Terms of Service", "Cookies Settings"].map(l => (
-                <button key={l} className="font-ui text-white/85 transition-colors duration-300 hover:text-white cursor-pointer" style={{ fontSize: 14 }}>{l}</button>
-              ))}
+            className="w-full max-w-[1440px] z-[1] flex justify-center overflow-hidden h-[100px] sm:h-[150px] md:h-[250px] lg:h-[300px]"
+          >
+            <div style={{ width: "100%", height: "100%", background: "url(/assets/logo.png) 50% 60.271% / 146.25% 699.668% no-repeat" }} />
+          </motion.div>
+
+          <div className="w-full max-w-[1240px] px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center z-[2] gap-6 pt-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8 w-full md:w-auto">
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-8 w-full md:w-auto">
+                {LEGAL.map(({ label, href }) => (
+                  <a key={label} href={href} className="font-ui font-light text-white/85 transition-colors duration-300 hover:text-white cursor-pointer underline underline-offset-4 decoration-[1px] decoration-white/30 hover:decoration-white text-[13px] sm:text-[14px] md:text-[15.5px]">{label}</a>
+                ))}
+              </div>
             </div>
-            <span className="font-ui text-white" style={{ fontSize: 16 }}>© 2026 LUXYN. All rights reserved.</span>
+            <span className="font-ui text-white/85 text-center text-[12px] sm:text-[14px] md:text-[16px]">© {YEAR} LUXYN. All rights reserved.</span>
+          </div>
+
+          <div className="w-full flex justify-center z-[2] pt-5 pb-1">
+            <span className="font-ui text-white/55 text-center" style={{ fontSize: 13, letterSpacing: 0.2 }}>
+              Designed by{" "}
+              <a href={VELVO_URL} target="_blank" rel="noopener noreferrer" className="text-champagne transition-opacity duration-300 hover:opacity-70">VELVO Media</a>
+            </span>
           </div>
         </section>
 
       </div>{/* /pageRoot */}
-      </div>{/* /desktop */}
+    </div>
+  );
+}
+
+/* ─── contact detail line (contact section + footer) ─────── */
+const CONTACT_ICONS = {
+  email: <path d="M3 5h18v14H3zM3 6l9 7 9-7" />,
+  phone: <path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 2 6a2 2 0 0 1 2-2Z" />,
+  address: <><path d="M12 21s-7-6.4-7-11a7 7 0 0 1 14 0c0 4.6-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></>,
+};
+
+function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
+  const data = {
+    email:   { label: "EMAIL", value: site.contact.email, href: `mailto:${site.contact.email}` },
+    phone:   { label: "CALL",  value: site.contact.phone, href: `tel:${site.contact.phoneHref}` },
+    address: { label: "VISIT", value: fullAddress,        href: null as string | null },
+  }[type];
+
+  const value = data.href ? (
+    <a href={data.href} className="font-ui text-[rgb(2,36,72)] text-[15.5px] transition-opacity duration-300 hover:opacity-70">{data.value}</a>
+  ) : (
+    <span className="font-ui text-[rgb(2,36,72)] text-[15.5px]">{data.value}</span>
+  );
+
+  return (
+    <div className="flex items-start gap-3.5">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(198,155,95)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0" aria-hidden="true">
+        {CONTACT_ICONS[type]}
+      </svg>
+      <span className="flex flex-col gap-0.5">
+        <span className="font-accent font-semibold text-[rgb(120,124,131)]" style={{ fontSize: 11, letterSpacing: 1.4 }}>{data.label}</span>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+const SOCIAL_ICONS: Record<string, React.ReactNode> = {
+  instagram: <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 1.62c-3.15 0-3.5.01-4.74.07-.9.04-1.39.2-1.72.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.12.33-.28.82-.32 1.72-.06 1.24-.07 1.59-.07 4.36s.01 3.12.07 4.36c.04.9.2 1.39.32 1.72.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.12.82.28 1.72.32 1.24.06 1.59.07 4.36.07s3.12-.01 4.36-.07c.9-.04 1.39-.2 1.72-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.12-.33.28-.82.32-1.72.06-1.24.07-1.59.07-4.36s-.01-3.12-.07-4.36c-.04-.9-.2-1.39-.32-1.72a2.86 2.86 0 0 0-.69-1.06 2.86 2.86 0 0 0-1.06-.69c-.33-.12-.82-.28-1.72-.32-1.24-.06-1.59-.07-4.36-.07Zm0 2.76a5.3 5.3 0 1 1 0 10.6 5.3 5.3 0 0 1 0-10.6Zm0 1.62a3.68 3.68 0 1 0 0 7.36 3.68 3.68 0 0 0 0-7.36Zm5.48-1.06a1.24 1.24 0 1 1-2.48 0 1.24 1.24 0 0 1 2.48 0Z" />,
+  facebook:  <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />,
+  linkedin:  <path d="M6.94 5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM3.4 8.48h3.1V21H3.4V8.48Zm5.02 0h2.97v1.71h.04c.41-.78 1.43-1.6 2.94-1.6 3.14 0 3.72 2.07 3.72 4.76V21h-3.1v-5.46c0-1.3-.02-2.98-1.81-2.98-1.82 0-2.1 1.42-2.1 2.88V21H8.42V8.48Z" />,
+};
+
+function SocialLinks() {
+  const entries = Object.entries(site.socials).filter(([, url]) => url);
+  if (!entries.length) return null;
+  return (
+    <div className="flex items-center gap-3">
+      {entries.map(([name, url]) => (
+        <a
+          key={name} href={url} target="_blank" rel="noopener noreferrer"
+          aria-label={`LUXYN on ${name[0].toUpperCase() + name.slice(1)}`}
+          className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-white transition-[background,transform,color] duration-300 hover:-translate-y-0.5 hover:text-champagne"
+          style={{ background: "rgba(255,255,255,.1)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            {SOCIAL_ICONS[name]}
+          </svg>
+        </a>
+      ))}
     </div>
   );
 }
@@ -652,375 +815,5 @@ function HamburgerSVG() {
     <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
       <path d="M1.571 0H9.429a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2ZM12.571 12.8h7.858a1.6 1.6 0 0 1 0 3.2h-7.858a1.6 1.6 0 0 1 0-3.2ZM1.571 6.4h18.858a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2Z"/>
     </svg>
-  );
-}
-
-/* ════════════════════ MOBILE LAYOUT ═══════════════════════
-   A purpose-built single-column experience for < 1024px.
-   Same tokens + arch motif as the desktop canvas, reflowed for
-   touch: readable type, ≥48px targets, always-visible labels.   */
-
-const ARCH = "999px 999px 0 0";                 // responsive rounded-top arch
-/* Mobile entrances use CSS scroll-driven animation (see `[data-rise]` in
-   globals.css), NOT framer — framer 12 + React 19 never runs mount or
-   whileInView animations for elements first painted below the fold, leaving
-   them stuck at the hidden state. The CSS approach can't hide content: where
-   `animation-timeline: view()` is unsupported (or reduced-motion is on), the
-   element simply rests at its natural, fully-visible state. */
-const rev = { "data-rise": "" };
-
-const NAVY = "rgb(20,35,59)";
-const INK  = "rgb(2,36,72)";
-const BODY = "rgb(67,71,78)";
-const GOLD = "rgb(194,160,107)";
-
-/* mobile gallery tiles — reuse the desktop's single-photo crops out of the
-   montage images. Percentage size/position is scale-invariant, so matching
-   each tile's aspect ratio to the desktop card reproduces the exact photo. */
-const M_GAL = [
-  { label: "Estheticians",        img: "/assets/gallery-1.png", ar: "252 / 488", crop: "41.808% 8.108%/634.711% 218.337%" },
-  { label: "Hair Stylists",       img: "/assets/gallery-2.png", ar: "471 / 416", crop: "7.79% 7.154%/355.556% 268.766%"  },
-  { label: "Colorists",           img: "/assets/gallery-2.png", ar: "567 / 508", crop: "49.597% 81.944%/366.587% 272.34%" },
-  { label: "Brow & Lash Artists", img: "/assets/gallery-1.png", ar: "406 / 339", crop: "16.764% 94.851%/447.813% 358.042%" },
-  { label: "Nail Artists",        img: "/assets/gallery-2.png", ar: "253 / 227", crop: "90% 81.364%/378.325% 281.319%"    },
-  { label: "Massage & Wellness",  img: "/assets/gallery-2.png", ar: "392 / 373", crop: "88.462% 8.602%/391.837% 274.531%" },
-];
-
-function MEyebrow({ children, color = GOLD, center = false }: { children: React.ReactNode; color?: string; center?: boolean }) {
-  return (
-    <motion.span
-      {...rev}
-      className={`font-accent font-semibold block ${center ? "text-center" : ""}`}
-      style={{ color, fontSize: 11.5, letterSpacing: 3 }}
-    >
-      {children}
-    </motion.span>
-  );
-}
-
-function MobileLanding({ nav, onMenu }: { nav: (id: string) => void; onMenu: () => void }) {
-  return (
-    <div className="w-full overflow-x-hidden" style={{ fontFamily: "'Inter',sans-serif" }}>
-
-      {/* ── HERO ─────────────────────────────────────── */}
-      <section id="m-hero" className="relative overflow-hidden" style={{ background: NAVY }}>
-        <div className="absolute inset-0" style={{ background: "url(/assets/hero-bg.png) 60% center/cover no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,rgba(20,35,59,.78) 0%,rgba(20,35,59,.58) 45%,rgba(20,35,59,.82) 100%)" }} />
-
-        <div className="relative z-[3]">
-          {/* top bar */}
-          <div className="flex items-center justify-between px-5 pt-5">
-            <button
-              onClick={onMenu}
-              aria-label="Open menu"
-              className="w-[46px] h-[46px] rounded-full flex items-center justify-center transition-colors duration-300 active:bg-white/20"
-              style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
-            >
-              <HamburgerSVG />
-            </button>
-            <button
-              onClick={() => nav("cta")}
-              className="h-[42px] px-5 rounded-full font-bold text-[12px] transition-transform duration-300 active:scale-95"
-              style={{ background: GOLD, color: NAVY }}
-            >
-              Lease a Suite
-            </button>
-          </div>
-
-          {/* logo */}
-          <div className="flex justify-center mt-4">
-            <div style={{ width: 156, height: 45, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }} />
-          </div>
-
-          {/* copy — plain, always-visible markup; framer entrances are
-              unreliable in this stack (see `rev`). data-rise gives a subtle
-              scroll reveal that safely rests visible when unsupported. */}
-          <div className="px-6 pt-9 text-center">
-            <h1
-              data-rise
-              className="m-0 font-display font-medium text-white"
-              style={{ fontSize: "clamp(31px,8.6vw,40px)", lineHeight: 1.06, letterSpacing: "-0.01em" }}
-            >
-              Space to do your best work. A calm home for your craft.
-            </h1>
-            <p
-              data-rise
-              className="font-ui font-normal mx-auto"
-              style={{ marginTop: 16, maxWidth: 380, color: "rgba(255,255,255,.62)", fontSize: 14, lineHeight: 1.65 }}
-            >
-              LUXYN leases private, design-led suites to independent beauty and wellness professionals — the freedom to build, serve, and grow in an elevated space.
-            </p>
-            <div data-rise className="flex flex-col gap-3 mt-7 max-w-[340px] mx-auto">
-              <button
-                onClick={() => nav("cta")}
-                className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]"
-                style={{ background: GOLD, color: NAVY }}
-              >
-                Lease a Suite
-              </button>
-              <button
-                onClick={() => nav("findpro")}
-                className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]"
-                style={{ boxShadow: `inset 0 0 0 1px ${GOLD}`, color: GOLD }}
-              >
-                Book a Tour
-              </button>
-            </div>
-          </div>
-
-          {/* arch visual + quote */}
-          <div className="relative mx-auto mt-10 mb-12" style={{ width: "72%", maxWidth: 280 }}>
-            <div
-              className="floaty relative w-full"
-              style={{ aspectRatio: "5 / 6", borderRadius: ARCH, background: "rgb(238,237,241)", boxShadow: `inset 0 0 0 4px rgb(184,153,104)`, overflow: "hidden" }}
-            >
-              <div className="absolute inset-0" style={{ borderRadius: ARCH, background: "linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,.18)),url(/assets/hero-arch.png) 50% 12%/130% auto no-repeat" }} />
-            </div>
-            <div
-              className="floaty2 absolute flex items-start rounded-[22px] p-5"
-              style={{ left: -14, bottom: -26, width: 200, background: "rgb(250,249,252)", boxShadow: "inset 0 0 0 1px rgba(196,198,207,.3),0 18px 38px rgba(10,22,40,.3)" }}
-            >
-              <span className="font-ui italic" style={{ color: INK, fontSize: 14, lineHeight: 1.55 }}>
-                &quot;A space that honors the artistry of my work.&quot;
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* marquee */}
-        <div className="relative z-[3] overflow-hidden flex items-center" style={{ height: 34, background: GOLD }}>
-          <div className="marq">
-            {[0, 1].map(i => (
-              <span key={i} className="font-ui text-white pr-[.29em]" style={{ fontSize: 13, letterSpacing: ".26em" }}>
-                SALON · WELLNESS · SPA · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PHILOSOPHY ───────────────────────────────── */}
-      <section id="m-philosophy" className="relative" style={{ background: "rgb(243,236,220)" }}>
-        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-14">
-          <MEyebrow>OUR PHILOSOPHY</MEyebrow>
-          <motion.h2 {...rev} className="font-editorial font-normal" style={{ margin: "16px 0 0", color: INK, fontSize: "clamp(26px,7.5vw,32px)", lineHeight: 1.14 }}>
-            A refined space for professionals who care deeply about their work.
-          </motion.h2>
-          <motion.p {...rev} className="font-ui font-normal" style={{ margin: "20px 0 0", color: BODY, fontSize: 15, lineHeight: 1.65 }}>
-            LUXYN was founded on the belief that environment dictates energy. We provide more than four walls — a curated atmosphere designed to enhance the client experience and support your growth with architectural elegance.
-          </motion.p>
-          <motion.div {...rev} className="flex flex-col gap-2 mt-7" style={{ borderTop: "1px solid rgba(196,198,207,.6)", borderBottom: "1px solid rgba(196,198,207,.6)", padding: "16px 0" }}>
-            <span className="font-ui font-semibold italic" style={{ color: INK, fontSize: 15.5, lineHeight: 1.55 }}>
-              &quot;Luxyn has completely transformed how my clients perceive my brand.&quot;
-            </span>
-            <span className="font-ui font-semibold" style={{ color: BODY, fontSize: 11.5, letterSpacing: 1.6 }}>— SARAH J., MASTER COLORIST</span>
-          </motion.div>
-
-          <div className="grid grid-cols-2 gap-3 mt-9">
-            {["/assets/about-2.png", "/assets/about-1.png"].map((img) => (
-              <motion.div
-                key={img} {...rev}
-                className="w-full overflow-hidden"
-                style={{ aspectRatio: "3 / 4", borderRadius: ARCH, background: `url(${img}) 50% 50%/cover no-repeat` }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── DIVERSE ARTISTRY ─────────────────────────── */}
-      <section id="m-gallery" className="relative" style={{ background: "rgb(251,248,241)" }}>
-        <div className="mx-auto w-full max-w-[560px] px-6 pt-16 pb-14">
-          <MEyebrow center>DIVERSE ARTISTRY</MEyebrow>
-          <motion.h2 {...rev} className="font-display font-semibold text-center mx-auto" style={{ margin: "10px auto 0", maxWidth: 420, color: "rgb(33,58,92)", fontSize: "clamp(28px,8.4vw,38px)", lineHeight: 1.05 }}>
-            A space for independent beauty &amp; wellness professionals.
-          </motion.h2>
-          {/* 2-col grid with explicit row-span to balance column heights and eliminate empty space */}
-          <div className="mt-10" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {/* Row 1-2: left = tall Estheticians, right = stacked Colorists + Hair Stylists */}
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ gridRow: "1 / 3", minHeight: 320 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-1.png) 41.808% 8.108%/634.711% 218.337% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "50%", padding: "0 10px 16px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Estheticians</span>
-              </div>
-            </motion.div>
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ minHeight: 150 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-2.png) 49.597% 81.944%/366.587% 272.34% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "55%", padding: "0 10px 14px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Colorists</span>
-              </div>
-            </motion.div>
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ minHeight: 150 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-2.png) 7.79% 7.154%/355.556% 268.766% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "55%", padding: "0 10px 14px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Hair Stylists</span>
-              </div>
-            </motion.div>
-
-            {/* Row 3-4: left = stacked Brow & Lash + Nail Artists, right = tall Massage & Wellness */}
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ minHeight: 150 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-1.png) 16.764% 94.851%/447.813% 358.042% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "55%", padding: "0 10px 14px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Brow & Lash Artists</span>
-              </div>
-            </motion.div>
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ gridRow: "3 / 5", minHeight: 320 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-2.png) 88.462% 8.602%/391.837% 274.531% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "50%", padding: "0 10px 16px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Massage & Wellness</span>
-              </div>
-            </motion.div>
-            <motion.div {...rev} className="relative overflow-hidden rounded-[22px]" style={{ minHeight: 150 }}>
-              <div className="absolute inset-0" style={{ background: `url(/assets/gallery-2.png) 90% 81.364%/378.325% 281.319% no-repeat` }} />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-center" style={{ height: "55%", padding: "0 10px 14px", background: "linear-gradient(to top,rgba(28,18,8,.82) 0%,rgba(28,18,8,0) 100%)" }}>
-                <span className="font-accent text-white text-center" style={{ fontSize: 11, letterSpacing: 2.4 }}>Nail Artists</span>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── THE LUXYN DIFFERENCE ─────────────────────── */}
-      <section id="m-difference" className="relative" style={{ background: "rgb(244,238,225)" }}>
-        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-14">
-          <MEyebrow color="rgb(184,153,104)" center>THE LUXYN DIFFERENCE</MEyebrow>
-          <motion.h2 {...rev} className="font-display font-semibold text-center" style={{ margin: "10px 0 0", color: "rgb(33,58,92)", fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.05 }}>
-            A sanctuary, not a rented room
-          </motion.h2>
-          <div className="flex flex-col gap-4 mt-10">
-            {DIFF.map(({ icon, title, body }) => (
-              <motion.div
-                key={title} {...rev}
-                className="flex gap-4 rounded-[16px] p-6"
-                style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
-              >
-                <span className="shrink-0 mt-0.5" style={{ color: "rgb(33,58,92)" }}>{icon}</span>
-                <div className="flex flex-col gap-2">
-                  <span className="font-display font-semibold" style={{ color: "rgb(33,58,92)", fontSize: 21, lineHeight: 1.1 }}>{title}</span>
-                  <span className="font-accent font-normal" style={{ color: "rgb(22,38,60)", opacity: .85, fontSize: 14, lineHeight: 1.55 }}>{body}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── BANNER ───────────────────────────────────── */}
-      <section id="m-banner" className="relative overflow-hidden flex items-center justify-center" style={{ minHeight: 380, background: NAVY }}>
-        <div className="absolute inset-0" style={{ background: "url(/assets/cta-bg.png) center/cover no-repeat" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgb(20,35,59) 0%,rgba(45,79,127,.55) 55%,rgba(70,122,194,.15) 100%)" }} />
-        <div className="relative z-[2] flex flex-col items-center gap-5 text-center px-7 py-16">
-          <motion.h2 {...rev} className="m-0 font-display font-bold text-white" style={{ fontSize: "clamp(34px,10vw,52px)", lineHeight: 1.04 }}>
-            Your suite. Your schedule. Your brand.
-          </motion.h2>
-          <motion.p {...rev} className="m-0 font-ui font-medium" style={{ maxWidth: 420, color: "rgb(255,220,164)", fontSize: 15, lineHeight: 1.55 }}>
-            Create a space that feels like your own, serve clients with privacy, and grow your business inside a calm, elevated environment.
-          </motion.p>
-        </div>
-      </section>
-
-      {/* ── AMENITIES ────────────────────────────────── */}
-      <section id="m-amenities" className="relative overflow-hidden" style={{ background: NAVY }}>
-        <div className="absolute pointer-events-none opacity-40" style={{ left: "50%", top: 0, transform: "translateX(-50%)", width: "150%", height: "100%", background: "url(/assets/amenities-illustration.png) center/cover no-repeat" }} />
-        <div className="relative z-[2] mx-auto w-full max-w-[520px] px-6 pt-16 pb-16">
-          <MEyebrow color="rgb(184,153,104)" center>AMENITIES</MEyebrow>
-          <motion.h2 {...rev} className="font-display font-bold text-white text-center mx-auto" style={{ margin: "10px auto 0", maxWidth: 360, fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.06 }}>
-            Designed around comfort, care, and craft.
-          </motion.h2>
-          <div className="flex flex-col gap-4 mt-10">
-            {AMEN.map(({ icon, title, body }) => (
-              <motion.div
-                key={title} {...rev}
-                className="flex flex-col gap-3 rounded-[22px] bg-white p-7"
-                style={{ boxShadow: "inset 0 0 0 1px rgba(196,198,207,.2)" }}
-              >
-                <span style={{ color: "rgb(198,155,95)" }}>{icon}</span>
-                <span className="font-ui font-medium" style={{ color: INK, fontSize: 13.5, letterSpacing: 1.3 }}>{title}</span>
-                <span className="font-ui font-normal" style={{ color: BODY, fontSize: 15, lineHeight: 1.6 }}>{body}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FIND A PRO ───────────────────────────────── */}
-      <section id="m-findpro" className="relative" style={{ background: "rgb(244,238,225)" }}>
-        <div className="mx-auto w-full max-w-[520px] px-6 pt-16 pb-16 flex flex-col items-center text-center">
-          <motion.div
-            {...rev}
-            className="relative"
-            style={{ width: "70%", maxWidth: 280, aspectRatio: "1 / 1" }}
-          >
-            <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: ARCH, background: "url(/assets/findpro-a.png) center/cover no-repeat", boxShadow: "0 24px 50px rgba(20,35,59,.2)" }} />
-            <div className="floaty absolute inset-0" style={{ background: "url(/assets/findpro-stylist.png) bottom center/contain no-repeat", filter: "drop-shadow(0 18px 28px rgba(20,35,59,.32))" }} />
-          </motion.div>
-          <div className="mt-9"><MEyebrow color="rgb(74,98,106)" center>FOR CLIENTS</MEyebrow></div>
-          <motion.h2 {...rev} className="m-0 mt-3 font-display font-bold" style={{ color: INK, fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.05 }}>
-            Looking for a professional?
-          </motion.h2>
-          <motion.p {...rev} className="m-0 mt-4 font-ui font-normal" style={{ maxWidth: 400, color: BODY, fontSize: 15, lineHeight: 1.65 }}>
-            Explore independent beauty and wellness professionals working from LUXYN.
-          </motion.p>
-          <motion.button
-            {...rev}
-            onClick={() => nav("gallery")}
-            className="h-[50px] px-9 mt-7 rounded-full font-ui font-bold text-white transition-transform duration-300 active:scale-[.98]"
-            style={{ fontSize: 13.5, letterSpacing: .5, background: NAVY }}
-          >
-            Find a Pro
-          </motion.button>
-        </div>
-      </section>
-
-      {/* ── READY CTA ────────────────────────────────── */}
-      <section id="m-cta" className="relative overflow-hidden flex items-center justify-center" style={{ background: NAVY }}>
-        <div className="absolute inset-0 opacity-25 overflow-hidden" style={{ background: "linear-gradient(180deg,rgb(20,35,59) 0%,rgb(55,96,161) 100%)" }}>
-          {[1.0, 1.6, 2.2].map((s, i) => (
-            <div key={i} className="absolute rounded-full" style={{ left: "50%", top: "120%", width: `${s * 100}vw`, height: `${s * 100}vw`, transform: "translate(-50%,-50%)", border: `1px solid rgba(255,255,255,${0.5 - i * 0.12})` }} />
-          ))}
-        </div>
-        <div className="relative z-[2] flex flex-col items-center gap-5 text-center px-7 py-16">
-          <motion.h2 {...rev} className="font-display font-bold text-white" style={{ fontSize: "clamp(30px,8.6vw,40px)", lineHeight: 1.08 }}>
-            Ready to make LUXYN your new professional home?
-          </motion.h2>
-          <motion.p {...rev} className="font-ui font-normal" style={{ color: "rgba(255,255,255,.85)", maxWidth: 380, fontSize: 15, lineHeight: 1.6 }}>
-            Book a private tour and explore available suites designed for your next chapter.
-          </motion.p>
-          <motion.div {...rev} className="flex flex-col gap-3 w-full max-w-[320px] mt-1">
-            <button onClick={() => nav("findpro")} className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]" style={{ background: GOLD, color: NAVY }}>Lease a Suite</button>
-            <button onClick={() => nav("gallery")} className="h-[50px] rounded-full font-bold text-[14px] transition-transform duration-300 active:scale-[.98]" style={{ boxShadow: `inset 0 0 0 1px ${GOLD}`, color: GOLD }}>Book a Tour</button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── FOOTER ───────────────────────────────────── */}
-      <section id="m-footer" className="relative overflow-hidden" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 40%,rgb(62,120,197) 100%)" }}>
-        <div className="flex flex-col items-center px-6 pt-12 pb-8">
-          <button onClick={() => nav("hero")} aria-label="Back to top" style={{ width: 150, height: 44, background: "url(/assets/logo.png) 50% 66.194%/146.25% 455.339% no-repeat" }} />
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mt-7">
-            {[
-              { label: "Suites",            id: "gallery"    },
-              { label: "For Professionals", id: "difference" },
-              { label: "Find a Pro",        id: "findpro"    },
-              { label: "Amenities",         id: "amenities"  },
-              { label: "Contact",           id: "cta"        },
-            ].map(({ label, id }) => (
-              <button key={label} onClick={() => nav(id)} className="font-accent text-white/90 transition-colors duration-300 active:text-champagne" style={{ fontSize: 14 }}>
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="w-full h-px my-8" style={{ background: "rgba(138,146,157,.6)" }} />
-          <div className="mx-auto" style={{ width: 200, height: 60, background: "url(/assets/logo.png) 50% 60.271%/146.25% 699.668% no-repeat", opacity: .9 }} />
-          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-9">
-            {["Privacy Policy", "Terms of Service", "Cookies Settings"].map(l => (
-              <button key={l} className="font-ui text-white/80 transition-colors duration-300 active:text-white" style={{ fontSize: 13 }}>{l}</button>
-            ))}
-          </div>
-          <span className="font-ui text-white/90 mt-4" style={{ fontSize: 13 }}>© 2026 LUXYN. All rights reserved.</span>
-        </div>
-      </section>
-
-    </div>
   );
 }
