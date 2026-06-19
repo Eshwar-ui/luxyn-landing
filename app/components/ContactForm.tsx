@@ -4,27 +4,68 @@ import { useId, useState } from "react";
 import { site, isFormConfigured } from "../lib/site";
 
 type Status = "idle" | "submitting" | "success" | "error";
-
-const INTERESTS = ["Lease a suite", "Book a tour", "Find a professional", "General enquiry"] as const;
+export type ContactVariant = "lease" | "tour";
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Permissive phone check — any common formatting, but must carry ≥7 digits. */
+const isPhone = (v: string) => /^[+]?[\d\s().-]{7,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7;
 
-type Fields = { name: string; email: string; phone: string; interest: string; message: string };
+const SUITE_TYPES = ["Hair", "Skin & esthetics", "Nails", "Brows & lashes", "Massage & wellness", "Other"] as const;
+const TOUR_TIMES = ["Morning (9am–12pm)", "Afternoon (12pm–4pm)", "Evening (4pm–7pm)"] as const;
+
+type Fields = {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  // lease-only
+  suiteType: string;
+  moveIn: string;
+  // tour-only
+  preferredDate: string;
+  preferredTime: string;
+};
 type Errors = Partial<Record<keyof Fields, string>>;
+
+const emptyFields: Fields = {
+  name: "", email: "", phone: "", message: "",
+  suiteType: SUITE_TYPES[0], moveIn: "",
+  preferredDate: "", preferredTime: TOUR_TIMES[0],
+};
 
 const FIELD_BASE =
   "lx-field w-full rounded-[12px] bg-white px-4 py-3 font-ui text-[15px] text-[rgb(2,36,72)] outline-none transition-[box-shadow] duration-200 placeholder:text-[rgb(150,150,150)]";
 
 const fieldCls = (invalid: boolean) => `${FIELD_BASE}${invalid ? " lx-field--invalid" : ""}`;
 
-/** Brand-styled, accessible lease/tour enquiry form. POSTs to the endpoint in
- *  site.ts (a static export can't run a server, so this targets a third-party
- *  form service such as Formspree). */
-export default function ContactForm({ defaultInterest = "Lease a suite" }: { defaultInterest?: string }) {
+const COPY: Record<ContactVariant, {
+  interest: string;
+  submit: string;
+  messageLabel: string;
+  messagePlaceholder: string;
+}> = {
+  lease: {
+    interest: "Lease a suite",
+    submit: "Request leasing details",
+    messageLabel: "About your craft",
+    messagePlaceholder: "Tell us about your craft, your business, and the space you envision.",
+  },
+  tour: {
+    interest: "Book a tour",
+    submit: "Request a tour",
+    messageLabel: "Anything we should know? (optional)",
+    messagePlaceholder: "Let us know what you'd like to see, or any questions.",
+  },
+};
+
+/** Brand-styled, accessible enquiry form. Renders one of two intent-based field
+ *  sets — `lease` (leasing a suite) or `tour` (booking a visit). Both require a
+ *  phone number for follow-up. POSTs to the endpoint in site.ts (a static export
+ *  can't run a server, so this targets a third-party form service like Formspree). */
+export default function ContactForm({ variant = "lease" }: { variant?: ContactVariant }) {
   const uid = useId();
-  const [fields, setFields] = useState<Fields>({
-    name: "", email: "", phone: "", interest: defaultInterest, message: "",
-  });
+  const copy = COPY[variant];
+  const [fields, setFields] = useState<Fields>(emptyFields);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
   const [serverMsg, setServerMsg] = useState("");
@@ -37,10 +78,21 @@ export default function ContactForm({ defaultInterest = "Lease a suite" }: { def
   const validate = (): boolean => {
     const next: Errors = {};
     if (!fields.name.trim()) next.name = "Please enter your name.";
+
     if (!fields.email.trim()) next.email = "Please enter your email.";
     else if (!emailRe.test(fields.email.trim())) next.email = "Please enter a valid email.";
-    if (!fields.message.trim()) next.message = "Tell us a little about what you need.";
-    else if (fields.message.trim().length < 10) next.message = "A few more words, please.";
+
+    // Phone is mandatory for every enquiry — we need a number to follow up.
+    if (!fields.phone.trim()) next.phone = "Please enter your phone number.";
+    else if (!isPhone(fields.phone.trim())) next.phone = "Please enter a valid phone number.";
+
+    if (variant === "tour") {
+      if (!fields.preferredDate.trim()) next.preferredDate = "Please choose a preferred date.";
+    } else {
+      if (!fields.message.trim()) next.message = "Tell us a little about what you need.";
+      else if (fields.message.trim().length < 10) next.message = "A few more words, please.";
+    }
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -65,21 +117,31 @@ export default function ContactForm({ defaultInterest = "Lease a suite" }: { def
     setStatus("submitting");
     setServerMsg("");
     try {
+      // Send only the fields relevant to this enquiry type.
+      const payload: Record<string, string> = {
+        name: fields.name.trim(),
+        email: fields.email.trim(),
+        phone: fields.phone.trim(),
+        interest: copy.interest,
+        message: fields.message.trim(),
+        _subject: `New ${copy.interest} enquiry — ${site.name}`,
+      };
+      if (variant === "lease") {
+        payload.suiteType = fields.suiteType;
+        payload.moveIn = fields.moveIn.trim();
+      } else {
+        payload.preferredDate = fields.preferredDate.trim();
+        payload.preferredTime = fields.preferredTime;
+      }
+
       const res = await fetch(site.formEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: fields.name.trim(),
-          email: fields.email.trim(),
-          phone: fields.phone.trim(),
-          interest: fields.interest,
-          message: fields.message.trim(),
-          _subject: `New ${fields.interest} enquiry — ${site.name}`,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       setStatus("success");
-      setFields({ name: "", email: "", phone: "", interest: defaultInterest, message: "" });
+      setFields(emptyFields);
     } catch {
       setStatus("error");
       setServerMsg(
@@ -109,7 +171,7 @@ export default function ContactForm({ defaultInterest = "Lease a suite" }: { def
           Thank you — we&apos;ll be in touch.
         </h3>
         <p className="m-0 font-ui" style={{ color: "rgb(67,71,78)", fontSize: 15, maxWidth: 360, lineHeight: 1.6 }}>
-          Your enquiry is on its way to our team. We typically respond within one business day.
+          Your {variant === "tour" ? "tour request" : "enquiry"} is on its way to our team. We typically respond within one business day.
         </p>
         <button
           type="button"
@@ -148,31 +210,62 @@ export default function ContactForm({ defaultInterest = "Lease a suite" }: { def
             className={fieldCls(!!errors.email)} placeholder="you@example.com"
           />
         </Field>
-        <Field id={`${uid}-phone`} label="Phone" optional>
+        <Field id={`${uid}-phone`} label="Phone" error={errors.phone}>
           <input
-            id={`${uid}-phone`} name="phone" type="tel" autoComplete="tel"
+            id={`${uid}-phone`} name="phone" type="tel" autoComplete="tel" inputMode="tel"
             value={fields.phone} onChange={set("phone")}
-            className={fieldCls(false)} placeholder="Optional"
+            aria-invalid={!!errors.phone} aria-describedby={errors.phone ? `${uid}-phone-err` : undefined}
+            className={fieldCls(!!errors.phone)} placeholder="+91 98765 43210"
           />
         </Field>
       </div>
 
-      <Field id={`${uid}-interest`} label="I'm interested in">
-        <select
-          id={`${uid}-interest`} name="interest" value={fields.interest} onChange={set("interest")}
-          className={`${fieldCls(false)} lx-select cursor-pointer appearance-none`}
-        >
-          {INTERESTS.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
-      </Field>
+      {variant === "lease" ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field id={`${uid}-suite`} label="Suite type">
+            <select
+              id={`${uid}-suite`} name="suiteType" value={fields.suiteType} onChange={set("suiteType")}
+              className={`${fieldCls(false)} lx-select cursor-pointer appearance-none`}
+            >
+              {SUITE_TYPES.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </Field>
+          <Field id={`${uid}-movein`} label="Target move-in" optional>
+            <input
+              id={`${uid}-movein`} name="moveIn" type="month"
+              value={fields.moveIn} onChange={set("moveIn")}
+              className={fieldCls(false)}
+            />
+          </Field>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field id={`${uid}-date`} label="Preferred date" error={errors.preferredDate}>
+            <input
+              id={`${uid}-date`} name="preferredDate" type="date"
+              value={fields.preferredDate} onChange={set("preferredDate")}
+              aria-invalid={!!errors.preferredDate} aria-describedby={errors.preferredDate ? `${uid}-date-err` : undefined}
+              className={fieldCls(!!errors.preferredDate)}
+            />
+          </Field>
+          <Field id={`${uid}-time`} label="Preferred time">
+            <select
+              id={`${uid}-time`} name="preferredTime" value={fields.preferredTime} onChange={set("preferredTime")}
+              className={`${fieldCls(false)} lx-select cursor-pointer appearance-none`}
+            >
+              {TOUR_TIMES.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </Field>
+        </div>
+      )}
 
-      <Field id={`${uid}-message`} label="Message" error={errors.message}>
+      <Field id={`${uid}-message`} label={copy.messageLabel} error={errors.message}>
         <textarea
           id={`${uid}-message`} name="message" rows={4}
           value={fields.message} onChange={set("message")}
           aria-invalid={!!errors.message} aria-describedby={errors.message ? `${uid}-message-err` : undefined}
           className={`${fieldCls(!!errors.message)} resize-y`}
-          placeholder="Tell us about your craft and what you're looking for."
+          placeholder={copy.messagePlaceholder}
         />
       </Field>
 
@@ -194,7 +287,7 @@ export default function ContactForm({ defaultInterest = "Lease a suite" }: { def
         className="mt-1 h-[50px] rounded-full font-ui font-bold text-white transition-[transform,box-shadow,opacity] duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
         style={{ fontSize: 14, letterSpacing: 0.4, background: "rgb(20,35,59)" }}
       >
-        {status === "submitting" ? "Sending…" : "Send enquiry"}
+        {status === "submitting" ? "Sending…" : copy.submit}
       </button>
       <p className="m-0 text-center font-ui" style={{ color: "rgb(120,124,131)", fontSize: 12, lineHeight: 1.5 }}>
         We&apos;ll only use your details to respond to this enquiry.

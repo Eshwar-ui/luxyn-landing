@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import ContactForm from "./ContactForm";
+import ContactForm, { type ContactVariant } from "./ContactForm";
 import { site, fullAddress } from "../lib/site";
 
 /* ─── animation helpers ─────────────────────────────────── */
@@ -79,6 +79,7 @@ export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrollY, setScrollY]   = useState(0);
   const [heroH,   setHeroH]     = useState(750);
+  const [contactVariant, setContactVariant] = useState<ContactVariant>("lease");
   const heroRef  = useRef<HTMLElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +90,9 @@ export default function Landing() {
     window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64), behavior: "smooth" });
   };
   const menuNav = (id: string) => { setMenuOpen(false); setTimeout(() => nav(id), 50); };
+
+  /* open the contact section pre-set to the right enquiry form */
+  const openContact = (variant: ContactVariant) => { setContactVariant(variant); nav("contact"); };
 
   /* measure hero height once */
   useEffect(() => { if (heroRef.current) setHeroH(heroRef.current.offsetHeight); }, []);
@@ -222,14 +226,14 @@ export default function Landing() {
             />
 
             <button
-              onClick={() => nav("contact")}
+              onClick={() => openContact("lease")}
               className={`${btnGold} hidden md:block shrink-0`}
               style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
             >
               LEASE A SUITE
             </button>
             <button
-              onClick={() => nav("contact")}
+              onClick={() => openContact("lease")}
               aria-label="Lease a suite"
               className={`md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full shrink-0`}
               style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}
@@ -284,14 +288,14 @@ export default function Landing() {
               </motion.p>
               <motion.div variants={FU} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mt-10">
                 <button
-                  onClick={() => nav("contact")}
+                  onClick={() => openContact("lease")}
                   className={btnGold}
                   style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
                 >
                   LEASE A SUITE
                 </button>
                 <button
-                  onClick={() => nav("contact")}
+                  onClick={() => openContact("tour")}
                   className={btnOutline}
                   style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}
                 >
@@ -654,8 +658,8 @@ export default function Landing() {
               </motion.span>
             </div>
             <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)} className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full sm:w-auto px-4 sm:px-0">
-              <button onClick={() => nav("contact")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}>LEASE A SUITE</button>
-              <button onClick={() => nav("contact")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}>BOOK A TOUR</button>
+              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}>LEASE A SUITE</button>
+              <button onClick={() => openContact("tour")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}>BOOK A TOUR</button>
             </motion.div>
           </div>
         </section>
@@ -672,10 +676,12 @@ export default function Landing() {
                 GET IN TOUCH
               </span>
               <h2 className="m-0 font-display font-semibold text-[rgb(2,36,72)] text-3xl sm:text-4xl lg:text-[46px]" style={{ margin: "22px 0 0", lineHeight: 1.1 }}>
-                Reserve your suite at LUXYN.
+                {contactVariant === "tour" ? "Book a private tour." : "Reserve your suite at LUXYN."}
               </h2>
               <p className="font-ui font-normal text-[rgb(67,71,78)]" style={{ margin: "24px 0 0", fontSize: 16, lineHeight: 1.6 }}>
-                Tell us about your craft and the space you envision. Our team will reach out to arrange a private tour and walk you through availability.
+                {contactVariant === "tour"
+                  ? "Pick a date and time that suits you. Our team will confirm your visit and walk you through the available suites in person."
+                  : "Tell us about your craft and the space you envision. Our team will reach out to arrange a private tour and walk you through availability."}
               </p>
               <div className="flex flex-col gap-5 mt-9">
                 <ContactLine type="email" />
@@ -689,7 +695,37 @@ export default function Landing() {
               initial="hidden" whileInView="show" viewport={vp} variants={FR} {...delay(0.12)}
               className="w-full lg:w-[50%] xl:w-[520px] shrink-0"
             >
-              <ContactForm />
+              {/* intent switcher — keeps the two enquiry types distinct */}
+              <div
+                role="tablist" aria-label="Enquiry type"
+                className="mb-5 flex gap-1.5 rounded-full p-1.5"
+                style={{ background: "rgba(20,35,59,0.06)" }}
+              >
+                {([
+                  { key: "lease", label: "Lease a suite" },
+                  { key: "tour",  label: "Book a tour"   },
+                ] as const).map(({ key, label }) => {
+                  const active = contactVariant === key;
+                  return (
+                    <button
+                      key={key}
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setContactVariant(key)}
+                      className="flex-1 h-[42px] rounded-full font-ui font-bold transition-all duration-300"
+                      style={{
+                        fontSize: 13, letterSpacing: 0.3,
+                        background: active ? "rgb(20,35,59)" : "transparent",
+                        color: active ? "rgb(225,216,194)" : "rgb(67,71,78)",
+                        boxShadow: active ? "0 8px 20px rgba(20,35,59,.18)" : "none",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <ContactForm key={contactVariant} variant={contactVariant} />
             </motion.div>
           </div>
         </section>
@@ -721,9 +757,10 @@ export default function Landing() {
 
           <motion.div
             initial="hidden" whileInView="show" viewport={vp} variants={FI}
-            className="w-full max-w-[1440px] z-[1] flex justify-center overflow-hidden h-[100px] sm:h-[150px] md:h-[250px] lg:h-[300px]"
+            className="w-full max-w-[1440px] z-[1]"
+            style={{ aspectRatio: "1440 / 244" }}
           >
-            <div style={{ width: "100%", height: "100%", background: "url(/assets/logo.png) 50% 60.271% / 146.25% 699.668% no-repeat" }} />
+            <div role="img" aria-label="LUXYN" className="w-full h-full" style={{ background: "url('/assets/luxyn-wordmark.svg') center/contain no-repeat" }} />
           </motion.div>
 
           <div className="w-full max-w-[1240px] px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center z-[2] gap-6 pt-6">

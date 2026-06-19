@@ -13,28 +13,42 @@ export const site = {
   title: "LUXYN — Space to do your best work",
   description:
     "LUXYN leases private, design-led suites to independent beauty and wellness professionals — the freedom to build, serve, and grow in an elevated space.",
-  /** OG / Twitter share image (lives in /public/assets). */
+  /** Short, punchy strapline — used as the site's slogan in structured data. */
+  tagline: "Private, design-led suites for beauty & wellness professionals.",
+  /** OG / Twitter share image (lives in /public/assets). 1536×1024 source. */
   ogImage: "/assets/cta-bg.png",
+  /** Square brand mark (1200×1200) — used for the manifest, Apple touch icon,
+   *  and the `logo` field in Organization / LocalBusiness structured data. */
+  logo: "/assets/logo.png",
+
+  // ════════════════════════════════════════════════════════════════════
+  //  ⚠️  FILL BEFORE LAUNCH — every value below is fake placeholder data.
+  //  Replace with the real LUXYN business details. These feed the footer,
+  //  the contact section, AND the SEO/JSON-LD structured data, so getting
+  //  them right matters for both customers and search engines.
+  //  Checklist:  [ ] email   [ ] phone + phoneHref   [ ] full address
+  //              [ ] social handles   [ ] formEndpoint (see below)
+  // ════════════════════════════════════════════════════════════════════
 
   /** Contact details — surface in the footer + JSON-LD structured data. */
   contact: {
-    email: "hello@luxynstudios.com", // PLACEHOLDER — confirm the real inbox
-    phone: "+1 (555) 012-3456", // PLACEHOLDER
-    phoneHref: "+15550123456", // PLACEHOLDER — digits only, for tel:
+    email: "hello@luxynstudios.com", // TODO PLACEHOLDER — real inbox that monitors leads
+    phone: "+1 (555) 012-3456", // TODO PLACEHOLDER — display format
+    phoneHref: "+15550123456", // TODO PLACEHOLDER — same number, digits + leading "+" only, for tel:
     address: {
-      street: "100 Atelier Way", // PLACEHOLDER
-      locality: "Beverly Hills", // PLACEHOLDER
-      region: "CA", // PLACEHOLDER
-      postalCode: "90210", // PLACEHOLDER
-      country: "US",
+      street: "100 Atelier Way", // TODO PLACEHOLDER
+      locality: "Beverly Hills", // TODO PLACEHOLDER — city
+      region: "CA", // TODO PLACEHOLDER — state / region
+      postalCode: "90210", // TODO PLACEHOLDER
+      country: "US", // TODO PLACEHOLDER — ISO country code
     },
   },
 
   /** Social profiles — empty strings are hidden in the footer. */
   socials: {
-    instagram: "https://instagram.com/luxynstudios", // PLACEHOLDER — confirm handle
-    facebook: "", // PLACEHOLDER
-    linkedin: "https://linkedin.com/company/luxynstudios", // PLACEHOLDER — confirm handle
+    instagram: "https://instagram.com/luxynstudios", // TODO PLACEHOLDER — confirm handle (or "" to hide)
+    facebook: "", // TODO PLACEHOLDER — add URL or leave "" to hide
+    linkedin: "https://linkedin.com/company/luxynstudios", // TODO PLACEHOLDER — confirm handle (or "" to hide)
   },
 
   /**
@@ -44,7 +58,33 @@ export const site = {
    * the form short-circuits to a friendly "not configured" message instead of
    * silently failing.
    */
-  formEndpoint: "https://formspree.io/f/your-form-id", // PLACEHOLDER
+  // ⚠️ CRITICAL — until this is set to a real endpoint, NO enquiry is delivered.
+  //    The form detects the placeholder and shows a "not connected yet" message
+  //    instead of silently dropping leads. Create a free form at
+  //    https://formspree.io (or similar) and paste its endpoint here.
+  formEndpoint: "https://formspree.io/f/your-form-id", // TODO PLACEHOLDER — wire up before launch
+
+  /** Extra signals for richer search results (Google LocalBusiness rich data). */
+  business: {
+    /** Price band shown in LocalBusiness rich results: "$" – "$$$$". */
+    priceRange: "$$", // TODO PLACEHOLDER — confirm band
+    /** Map coordinates for the LocalBusiness "geo" — improves local/Maps SEO.
+     *  Leave both "" until known; empty values are omitted from structured data. */
+    geo: {
+      latitude: "", // TODO PLACEHOLDER — e.g. "34.0696"
+      longitude: "", // TODO PLACEHOLDER — e.g. "-118.4053"
+    },
+    /** Opening hours in schema.org format. Leave [] to omit.
+     *  Example: ["Mo-Fr 09:00-19:00", "Sa 10:00-17:00"] */
+    openingHours: [] as string[], // TODO PLACEHOLDER
+  },
+
+  /** Search-engine ownership verification tokens. Paste the value from the
+   *  provider's TXT/meta verification step; empty strings are omitted. */
+  verification: {
+    google: "", // TODO PLACEHOLDER — Google Search Console meta token
+    bing: "", // TODO PLACEHOLDER — Bing Webmaster Tools meta token
+  },
 } as const;
 
 /** True once a real form endpoint has been configured. */
