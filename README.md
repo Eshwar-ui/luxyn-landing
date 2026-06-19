@@ -28,7 +28,7 @@ a dedicated mobile layout, and hover micro-interactions.
 | `app/not-found.tsx` | Branded 404 |
 | `app/globals.css` | Ported `<style>` block (marquee / floaty keyframes, glass menu, gallery hover, CSS scroll-reveal, form fields, skip-link, legal prose) + Google Fonts |
 | `public/assets/` | All design imagery |
-| `firebase.json` / `.firebaserc` | Firebase Hosting config (serves `out/`, project `luxyn-demo-a66a8`) |
+| `firebase.json` / `.firebaserc` | Firebase Hosting config (serves `out/`, project `luxyn-landing`) |
 | `.github/workflows/` | CI/CD — live deploy on push to `main`, preview deploy on PRs |
 
 ## Before launch — replace placeholders
@@ -66,7 +66,7 @@ npm run build    # outputs a static site to ./out
 
 ```bash
 npm run build
-firebase deploy --only hosting --project luxyn-demo-a66a8
+firebase deploy --only hosting --project luxyn-landing
 ```
 
 ## CI/CD
@@ -81,13 +81,13 @@ Two workflows in `.github/workflows/`:
 Both workflows need a repository secret named **`FIREBASE_SERVICE_ACCOUNT`** holding
 a Firebase service-account JSON key with Hosting deploy permission:
 
-1. [Firebase Console](https://console.firebase.google.com/project/luxyn-demo-a66a8/settings/serviceaccounts/adminsdk)
+1. [Firebase Console](https://console.firebase.google.com/project/luxyn-landing/settings/serviceaccounts/adminsdk)
    → **Project settings → Service accounts → Generate new private key** (downloads a JSON file).
 2. Store it as the repo secret (do **not** commit the file):
    ```bash
    gh secret set FIREBASE_SERVICE_ACCOUNT \
-     --repo kalyan1421/luxyn-landing \
-     < ~/Downloads/luxyn-demo-a66a8-firebase-adminsdk-XXXXX.json
+     --repo Eshwar-ui/luxyn-landing \
+     < ~/Downloads/luxyn-landing-firebase-adminsdk-XXXXX.json
    ```
 3. Delete the downloaded key file.
   
