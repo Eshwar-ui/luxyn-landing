@@ -60,8 +60,8 @@ const COPY: Record<ContactVariant, {
 
 /** Brand-styled, accessible enquiry form. Renders one of two intent-based field
  *  sets — `lease` (leasing a suite) or `tour` (booking a visit). Both require a
- *  phone number for follow-up. POSTs to the endpoint in site.ts (a static export
- *  can't run a server, so this targets a third-party form service like Formspree). */
+ *  phone number for follow-up. POSTs to the variant's endpoint in site.ts (a static
+ *  export can't run a server, so this targets a third-party form service like Formspree). */
 export default function ContactForm({ variant = "lease" }: { variant?: ContactVariant }) {
   const uid = useId();
   const copy = COPY[variant];
@@ -105,7 +105,7 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
     // honeypot — bots fill hidden fields; humans don't
     if ((e.currentTarget.elements.namedItem("_gotcha") as HTMLInputElement)?.value) return;
 
-    if (!isFormConfigured) {
+    if (!isFormConfigured(variant)) {
       setStatus("error");
       setServerMsg(
         "The contact form isn't connected to a delivery service yet. Reach us directly at " +
@@ -134,7 +134,7 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         payload.preferredTime = fields.preferredTime;
       }
 
-      const res = await fetch(site.formEndpoint, {
+      const res = await fetch(site.formEndpoints[variant], {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),

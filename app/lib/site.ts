@@ -27,7 +27,7 @@ export const site = {
   //  the contact section, AND the SEO/JSON-LD structured data, so getting
   //  them right matters for both customers and search engines.
   //  Checklist:  [ ] email   [x] phone + phoneHref   [x] full address
-  //              [ ] social handles   [ ] formEndpoint (see below)
+  //              [ ] social handles   [x] formEndpoints (see below)
   // ════════════════════════════════════════════════════════════════════
 
   /** Contact details — surface in the footer + JSON-LD structured data. */
@@ -52,17 +52,16 @@ export const site = {
   },
 
   /**
-   * Contact-form submission endpoint. This is a static export, so the form
-   * POSTs to a third-party service. Create a free form at https://formspree.io
-   * (or similar) and paste its endpoint here. While left as the placeholder,
-   * the form short-circuits to a friendly "not configured" message instead of
-   * silently failing.
+   * Contact-form submission endpoints — one per enquiry type. This is a static
+   * export, so the form POSTs to a third-party service (Formspree). Each variant
+   * targets its own form so leads land in the right inbox. While a value is left
+   * as the placeholder, that variant short-circuits to a friendly "not
+   * configured" message instead of silently dropping leads.
    */
-  // ⚠️ CRITICAL — until this is set to a real endpoint, NO enquiry is delivered.
-  //    The form detects the placeholder and shows a "not connected yet" message
-  //    instead of silently dropping leads. Create a free form at
-  //    https://formspree.io (or similar) and paste its endpoint here.
-  formEndpoint: "https://formspree.io/f/your-form-id", // TODO PLACEHOLDER — wire up before launch
+  formEndpoints: {
+    lease: "https://formspree.io/f/xlgkqeqp",
+    tour: "https://formspree.io/f/xjgdnvnw",
+  },
 
   /** Extra signals for richer search results (Google LocalBusiness rich data). */
   business: {
@@ -87,8 +86,9 @@ export const site = {
   },
 } as const;
 
-/** True once a real form endpoint has been configured. */
-export const isFormConfigured = !site.formEndpoint.includes("your-form-id");
+/** True once a real form endpoint has been configured for the given variant. */
+export const isFormConfigured = (variant: keyof typeof site.formEndpoints): boolean =>
+  !site.formEndpoints[variant].includes("your-form-id");
 
 export const fullAddress = [
   site.contact.address.street,
