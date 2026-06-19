@@ -135,6 +135,13 @@ body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased
 .gallery-card:hover .card-overlay { opacity: 1; }
 .gallery-card:hover .card-label { opacity: 1; transform: translateY(0); }
 
+/* touch devices have no hover — keep the overlay + label permanently visible
+   so the category names are never hidden on mobile/tablet */
+@media (hover: none), (pointer: coarse) {
+  .card-overlay { opacity: 1; }
+  .card-label { opacity: 1; transform: none; }
+}
+
 /* ── contact form fields — focus ring + invalid state ────── */
 .lx-field { box-shadow: inset 0 0 0 1px rgb(218,210,190); }
 .lx-field:focus {
