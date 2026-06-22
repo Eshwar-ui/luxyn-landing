@@ -32,7 +32,7 @@ export const site = {
 
   /** Contact details — surface in the footer + JSON-LD structured data. */
   contact: {
-    email: "hello@luxynstudios.com", // TODO PLACEHOLDER — real inbox that monitors leads
+    email: "luxynsales@gmail.com", // primary sales/lead inbox
     phone: "+1 737-287-7396", // display format
     phoneHref: "+17372877396", // same number, digits + leading "+" only, for tel:
     address: {
@@ -46,9 +46,9 @@ export const site = {
 
   /** Social profiles — empty strings are hidden in the footer. */
   socials: {
-    instagram: "https://instagram.com/luxynstudios", // TODO PLACEHOLDER — confirm handle (or "" to hide)
-    facebook: "", // TODO PLACEHOLDER — add URL or leave "" to hide
-    linkedin: "https://linkedin.com/company/luxynstudios", // TODO PLACEHOLDER — confirm handle (or "" to hide)
+    instagram: "https://www.instagram.com/luxynstudios/",
+    facebook: "https://facebook.com/luxynstudios",
+    linkedin: "", // none provided — hidden in the footer
   },
 
   /**
