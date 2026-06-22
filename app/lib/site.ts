@@ -48,7 +48,6 @@ export const site = {
   socials: {
     instagram: "https://www.instagram.com/luxynstudios/",
     facebook: "https://facebook.com/luxynstudios",
-    linkedin: "", // none provided — hidden in the footer
   },
 
   /**
