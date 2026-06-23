@@ -61,19 +61,115 @@ function allowedOrigin(request: Request, env: Env): string | null {
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-/** Render a label/value list as a simple branded HTML table. */
-function renderRows(rows: [string, string][]): string {
-  return `<table style="border-collapse:collapse;width:100%;max-width:560px">
+/* ── Email design system ──────────────────────────────────────────────────
+ * Bulletproof, table-based HTML that survives Gmail / Outlook / Apple Mail:
+ * inline styles only, web-safe fonts (Georgia for the serif display, Arial for
+ * body), no external CSS or background images. Brand palette — navy #142337,
+ * champagne #C2A06B, cream #F3ECDC. Static brand facts mirror app/lib/site.ts. */
+const BRAND = {
+  name: "LUXYN",
+  tagline: "Private, design-led salon & wellness suites",
+  url: "https://luxynstudios.com",
+  urlLabel: "luxynstudios.com",
+  address: "14300 Ronald Reagan Blvd, Building 8 · Leander, TX 78641",
+  instagram: "https://www.instagram.com/luxynstudios/",
+};
+
+/** Refined label/value details table. */
+function detailTable(rows: [string, string][]): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 0;border:1px solid #ece4d3;border-radius:10px;border-collapse:separate;overflow:hidden">
     ${rows
       .map(
-        ([k, v]) =>
+        ([k, v], i) => {
+          const last = i === rows.length - 1 ? "" : "border-bottom:1px solid #ece4d3;";
+          return `<tr>
+             <td width="36%" style="padding:13px 18px;background:#faf6ec;${last}font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#9a8d6a;font-weight:bold;vertical-align:top">${esc(k)}</td>
+             <td style="padding:13px 18px;${last}font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1b2c45;vertical-align:top">${esc(v).replace(/\n/g, "<br>")}</td>
+           </tr>`;
+        },
+      )
+      .join("")}
+  </table>`;
+}
+
+/** Bulletproof, pill-shaped button. `tone` picks the brand fill. */
+function button(href: string, label: string, tone: "gold" | "navy"): string {
+  const bg = tone === "gold" ? "#C2A06B" : "#142337";
+  const fg = tone === "gold" ? "#142337" : "#ffffff";
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 4px"><tr>
+    <td align="center" bgcolor="${bg}" style="border-radius:40px">
+      <a href="${esc(href)}" style="display:inline-block;padding:14px 34px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;letter-spacing:1px;color:${fg};text-decoration:none;border-radius:40px">${esc(label)}</a>
+    </td></tr></table>`;
+}
+
+/** Numbered step list with champagne tokens. */
+function steps(items: string[]): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px">
+    ${items
+      .map(
+        (t, i) =>
           `<tr>
-             <td style="padding:8px 12px;background:#f3ecdc;border:1px solid #e8e0cd;font-weight:600;white-space:nowrap;vertical-align:top">${esc(k)}</td>
-             <td style="padding:8px 12px;border:1px solid #e8e0cd">${esc(v).replace(/\n/g, "<br>")}</td>
+             <td width="30" valign="top" style="padding:7px 0">
+               <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                 <td width="28" height="28" align="center" valign="middle" bgcolor="#f3ecdc" style="width:28px;height:28px;border-radius:14px;font-family:Georgia,'Times New Roman',serif;font-size:14px;color:#9a7b3e;font-weight:bold">${i + 1}</td>
+               </tr></table>
+             </td>
+             <td valign="middle" style="padding:7px 0 7px 14px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.55;color:#43474e">${esc(t)}</td>
            </tr>`,
       )
       .join("")}
   </table>`;
+}
+
+const eyebrow = (t: string) =>
+  `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#b08d4f;font-weight:bold;margin:0 0 10px">${esc(t)}</div>`;
+const heading = (t: string) =>
+  `<h1 style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:26px;line-height:1.25;color:#142337">${esc(t)}</h1>`;
+const para = (html: string) =>
+  `<p style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.65;color:#43474e">${html}</p>`;
+const subhead = (t: string) =>
+  `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8266;font-weight:bold;margin:26px 0 8px">${esc(t)}</div>`;
+const divider = `<div style="border-top:1px solid #ece4d3;margin:26px 0"></div>`;
+
+/** Wrap body content in the branded shell (header band + card + footer). */
+function emailShell(preheader: string, inner: string, env: Env): string {
+  const phone = env.BRAND_PHONE ? esc(env.BRAND_PHONE) : "";
+  const phoneHref = env.BRAND_PHONE ? env.BRAND_PHONE.replace(/[^\d+]/g, "") : "";
+  const phoneLine = phone
+    ? `<a href="tel:${phoneHref}" style="color:#C2A06B;text-decoration:none">${phone}</a>&nbsp;&nbsp;·&nbsp;&nbsp;`
+    : "";
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light only">
+<title>${BRAND.name}</title>
+</head>
+<body style="margin:0;padding:0;background:#efe8da;-webkit-text-size-adjust:100%">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#efe8da;font-size:1px;line-height:1px">${esc(preheader)}&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;&nbsp;&#8203;</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#efe8da">
+    <tr><td align="center" style="padding:32px 16px">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px">
+        <tr><td style="background:#142337;border-radius:16px 16px 0 0;padding:36px 40px 30px;text-align:center">
+          <div style="font-family:Georgia,'Times New Roman',serif;color:#ffffff;font-size:30px;letter-spacing:11px;font-weight:400;padding-left:11px">${BRAND.name}</div>
+          <div style="height:2px;width:44px;background:#C2A06B;margin:16px auto 0;line-height:2px;font-size:2px">&nbsp;</div>
+          <div style="font-family:Arial,Helvetica,sans-serif;color:#aeb8c7;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-top:15px">${esc(BRAND.tagline)}</div>
+        </td></tr>
+        <tr><td style="background:#ffffff;padding:40px">${inner}</td></tr>
+        <tr><td style="background:#0f1c30;border-radius:0 0 16px 16px;padding:26px 40px;text-align:center">
+          <div style="font-family:Arial,Helvetica,sans-serif;color:#c7cedb;font-size:12px;line-height:1.8">
+            ${esc(BRAND.address)}<br>
+            ${phoneLine}<a href="${BRAND.url}" style="color:#C2A06B;text-decoration:none">${BRAND.urlLabel}</a>
+          </div>
+          <div style="font-family:Arial,Helvetica,sans-serif;color:#6c7790;font-size:11px;margin-top:14px">© ${BRAND.name} · Salon &amp; wellness suites in Leander, TX</div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }
 
 /** Send one email through the Resend REST API. Returns true on success. */
@@ -101,6 +197,91 @@ async function sendEmail(
     return false;
   }
   return true;
+}
+
+/** Normalised enquiry, ready to render into either email. */
+export interface Enquiry {
+  variant: Variant;
+  name: string;
+  firstName: string;
+  email: string;
+  phone: string;
+  /** Human label for the enquiry type, e.g. "Lease a suite". */
+  interest: string;
+  /** Noun for prose, e.g. "enquiry" / "tour request". */
+  requestKind: string;
+  /** Verb phrase, e.g. "lease a suite" / "book a tour". */
+  action: string;
+  /** Label/value pairs shown in the details table. */
+  rows: [string, string][];
+}
+
+/** Email sent to the sales inbox. reply_to is the submitter (set by caller),
+ *  so a reply lands straight in the lead's inbox. */
+export function buildLeadEmail(d: Enquiry, env: Env): { subject: string; html: string; text: string } {
+  const replySubject = `Re: your ${d.requestKind} with LUXYN`;
+  const inner =
+    eyebrow(`New ${d.interest} enquiry`) +
+    heading(`${d.firstName} wants to ${d.action}`) +
+    para(`A fresh ${esc(d.requestKind)} just came in through the LUXYN website. The full details are below — reply to this email to respond to ${esc(d.firstName)} directly.`) +
+    detailTable(d.rows) +
+    button(`mailto:${esc(d.email)}?subject=${encodeURIComponent(replySubject)}`, `Reply to ${d.firstName}`, "navy") +
+    `<p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#9a9486">Reply-to is set to ${esc(d.email)}, so your reply reaches them — not this inbox.</p>`;
+  const text =
+    `NEW ${d.interest.toUpperCase()} ENQUIRY — via the LUXYN website\n` +
+    `${d.firstName} wants to ${d.action}. Reply to this email to reach them directly.\n\n` +
+    d.rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+  return {
+    subject: `New ${d.interest} enquiry — LUXYN`,
+    html: emailShell(`${d.interest} enquiry from ${d.firstName} — ${d.phone || d.email}`, inner, env),
+    text,
+  };
+}
+
+/** Confirmation sent to the person who submitted the form. reply_to is the
+ *  sales inbox (set by caller), so their reply reaches the team. */
+export function buildConfirmationEmail(d: Enquiry, env: Env): { subject: string; html: string; text: string } {
+  const callLine = env.BRAND_PHONE
+    ? ` or call us at <a href="tel:${env.BRAND_PHONE.replace(/[^\d+]/g, "")}" style="color:#b08d4f;text-decoration:none">${esc(env.BRAND_PHONE)}</a>`
+    : "";
+  const nextSteps =
+    d.variant === "tour"
+      ? [
+          "We confirm your preferred date and time, or suggest the closest opening.",
+          "A LUXYN host reaches out to finalise the details of your visit.",
+          "You tour the available suites in person and picture your craft in the space.",
+        ]
+      : [
+          "We review your enquiry and match you with suites that fit your craft.",
+          "A member of our team reaches out by phone or email to introduce LUXYN.",
+          "We arrange a private tour at a time that suits you — no pressure, no rush.",
+        ];
+  const inner =
+    eyebrow(d.interest) +
+    heading(`Thank you, ${d.firstName}.`) +
+    para(`We've received your ${esc(d.requestKind)} and a member of the LUXYN team will personally reach out within <strong style="color:#142337">one business day</strong>.`) +
+    subhead("What happens next") +
+    steps(nextSteps) +
+    divider +
+    para("For your records, here's a copy of what you sent us:") +
+    detailTable(d.rows) +
+    button(BRAND.url, "Explore LUXYN", "gold") +
+    para(`Anything change in the meantime? Just reply to this email${callLine}.`) +
+    `<p style="margin:22px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:16px;font-style:italic;color:#142337">With care,<br>The LUXYN Team</p>`;
+  const text =
+    `Thank you, ${d.firstName} — we've received your ${d.requestKind}.\n\n` +
+    `A member of the LUXYN team will personally reach out within one business day.\n\n` +
+    `WHAT HAPPENS NEXT\n` +
+    nextSteps.map((s, i) => `  ${i + 1}. ${s}`).join("\n") +
+    `\n\nFor your records, here's a copy of what you sent us:\n` +
+    d.rows.map(([k, v]) => `${k}: ${v}`).join("\n") +
+    `\n\nAnything change in the meantime? Just reply to this email${env.BRAND_PHONE ? ` or call us at ${env.BRAND_PHONE}` : ""}.\n\n` +
+    `With care,\nThe LUXYN Team\n${BRAND.urlLabel} · ${BRAND.address}`;
+  return {
+    subject: `We've received your ${d.requestKind} — LUXYN`,
+    html: emailShell(`We've received your ${d.requestKind} — we'll be in touch within one business day.`, inner, env),
+    text,
+  };
 }
 
 export default {
@@ -184,54 +365,17 @@ export default {
 
     const toList = env.TO_EMAIL.split(",").map(s => s.trim()).filter(Boolean);
     const salesInbox = toList[0];
+    const action = variant === "tour" ? "book a tour" : "lease a suite";
 
-    // 1) Lead email → sales inbox. reply_to is the submitter, so a reply goes
-    //    straight back to the lead.
-    const leadHtml = `
-      <div style="font-family:Inter,Arial,sans-serif;color:#142337;max-width:560px">
-        <h2 style="margin:0 0 4px">New ${esc(interest)} enquiry</h2>
-        <p style="margin:0 0 16px;color:#43474e">via the LUXYN website</p>
-        ${renderRows(rows)}
-      </div>`;
-    const leadText =
-      `New ${interest} enquiry — via the LUXYN website\n\n` +
-      rows.map(([k, v]) => `${k}: ${v}`).join("\n");
-
-    // 2) Confirmation email → the person who submitted the form. reply_to is the
-    //    sales inbox, so if they reply it reaches the team.
-    const callLine = env.BRAND_PHONE
-      ? ` or call us at ${esc(env.BRAND_PHONE)}`
-      : "";
-    const confHtml = `
-      <div style="font-family:Inter,Arial,sans-serif;color:#142337;max-width:560px;line-height:1.6">
-        <h2 style="margin:0 0 8px">Thanks, ${esc(firstName)} — we've received your ${esc(requestKind)}.</h2>
-        <p style="margin:0 0 16px;color:#43474e">A member of the LUXYN team will be in touch within one business day. Here's a copy of what you sent us:</p>
-        ${renderRows(rows)}
-        <p style="margin:16px 0 0;color:#43474e">If anything changes, just reply to this email${callLine}.</p>
-        <p style="margin:16px 0 0">— The LUXYN Team</p>
-      </div>`;
-    const confText =
-      `Thanks, ${firstName} — we've received your ${requestKind}.\n\n` +
-      `A member of the LUXYN team will be in touch within one business day. ` +
-      `Here's a copy of what you sent us:\n\n` +
-      rows.map(([k, v]) => `${k}: ${v}`).join("\n") +
-      `\n\nIf anything changes, just reply to this email${env.BRAND_PHONE ? ` or call us at ${env.BRAND_PHONE}` : ""}.\n— The LUXYN Team`;
+    const enquiry: Enquiry = { variant, name, firstName, email, phone, interest, requestKind, action, rows };
+    const lead = buildLeadEmail(enquiry, env);
+    const confirmation = buildConfirmationEmail(enquiry, env);
 
     const [leadOk, confOk] = await Promise.all([
-      sendEmail(env, {
-        to: toList,
-        replyTo: email,
-        subject: `New ${interest} enquiry — LUXYN`,
-        html: leadHtml,
-        text: leadText,
-      }),
-      sendEmail(env, {
-        to: [email],
-        replyTo: salesInbox,
-        subject: `We've received your ${requestKind} — LUXYN`,
-        html: confHtml,
-        text: confText,
-      }),
+      // Lead → sales inbox; reply-to is the submitter so a reply reaches the lead.
+      sendEmail(env, { to: toList, replyTo: email, subject: lead.subject, html: lead.html, text: lead.text }),
+      // Confirmation → submitter; reply-to is the sales inbox.
+      sendEmail(env, { to: [email], replyTo: salesInbox, subject: confirmation.subject, html: confirmation.html, text: confirmation.text }),
     ]);
 
     // The lead email is the one that must land. The confirmation is best-effort —
