@@ -1,7 +1,30 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Cormorant_Garamond, EB_Garamond, Inter, Jost } from "next/font/google";
 import "./globals.css";
 import { site, fullAddress } from "./lib/site";
+import { faqs, contentDates } from "./lib/content";
+
+/* Self-hosted via next/font — no render-blocking <link> to Google, automatic
+ * `font-display: swap`, and size-adjusted fallbacks that cut layout shift.
+ * Each exposes a CSS variable that globals.css maps onto the Tailwind font-* keys. */
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"], weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"], variable: "--font-cormorant", display: "swap",
+});
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"], weight: ["400", "500"],
+  style: ["normal", "italic"], variable: "--font-eb", display: "swap",
+});
+const inter = Inter({
+  subsets: ["latin"], weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"], variable: "--font-inter", display: "swap",
+});
+const jost = Jost({
+  subsets: ["latin"], weight: ["400", "500", "600"],
+  variable: "--font-jost", display: "swap",
+});
+const fontVars = `${cormorant.variable} ${ebGaramond.variable} ${inter.variable} ${jost.variable}`;
 
 const GA_MEASUREMENT_ID = "G-YRH0H9ZJPP";
 
@@ -152,6 +175,11 @@ const jsonLd = {
       priceRange: site.business.priceRange,
       currenciesAccepted: "USD",
       address: postalAddress,
+      areaServed: [
+        { "@type": "City", name: "Leander" },
+        { "@type": "City", name: "Cedar Park" },
+        { "@type": "City", name: "Austin" },
+      ],
       parentOrganization: { "@id": orgId },
       ...(sameAs.length ? { sameAs } : {}),
       ...(site.business.openingHours.length ? { openingHours: site.business.openingHours } : {}),
@@ -185,6 +213,33 @@ const jsonLd = {
         { "@type": "ListItem", position: 1, name: "Home", item: `${site.url}/` },
       ],
     },
+    {
+      // FAQ rich results + a clean source for AI answer engines. Mirrors the
+      // on-page FAQ exactly (Google requires the markup match visible content).
+      "@type": "FAQPage",
+      "@id": `${site.url}/#faq`,
+      isPartOf: { "@id": siteId },
+      mainEntity: faqs.map(({ q, a }) => ({
+        "@type": "Question",
+        name: q,
+        datePublished: contentDates.published,
+        dateModified: contentDates.updated,
+        acceptedAnswer: { "@type": "Answer", text: a },
+      })),
+    },
+    {
+      // Customer testimonial shown on the page, marked up as a Review of the
+      // business. NOTE: no numeric rating is asserted here because the
+      // testimonial carries none — to earn star snippets, wire a real
+      // AggregateRating sourced from genuine customer ratings (e.g. Google).
+      "@type": "Review",
+      "@id": `${site.url}/#review-sarah-j`,
+      itemReviewed: { "@id": businessId },
+      author: { "@type": "Person", name: "Sarah J." },
+      reviewBody:
+        "Luxyn has completely transformed how my clients perceive my brand.",
+      publisher: { "@id": orgId },
+    },
   ],
 };
 
@@ -194,14 +249,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={fontVars} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Jost:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
         <meta name="format-detection" content="telephone=no" />
         <link rel="author" href={`mailto:${site.contact.email}`} />
         <meta itemProp="name" content={site.name} />

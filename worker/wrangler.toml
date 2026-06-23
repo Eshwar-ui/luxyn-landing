@@ -1,0 +1,24 @@
+name = "luxyn-contact"
+main = "src/index.ts"
+compatibility_date = "2024-11-11"
+
+# Non-secret config. Edit these to match production before deploying.
+[vars]
+# Where leads are delivered (comma-separate for several recipients).
+TO_EMAIL = "luxynsales@gmail.com"
+# Must be a Resend-verified sender. Until the domain is verified in Resend, use
+# "onboarding@resend.dev" for testing (it can only deliver to your own Resend
+# account email).
+FROM_EMAIL = "LUXYN <noreply@luxynstudios.com>"
+# Origins allowed to call this Worker (the live site + local dev).
+ALLOWED_ORIGINS = "https://luxynstudios.com,https://www.luxynstudios.com,http://localhost:3000,http://luxyn-landing.web.app"
+# Optional — shown in the confirmation email sent to the person who enquired.
+BRAND_PHONE = "+1 737-287-7396"
+
+# RESEND_API_KEY is a SECRET — never put it here. Set it with:
+#   npx wrangler secret put RESEND_API_KEY
+#
+# Optional spam protection — Cloudflare Turnstile. When this secret is set, the
+# Worker verifies the token sent by the form (and rejects requests without one).
+# Pair it with `turnstileSiteKey` in app/lib/site.ts.
+#   npx wrangler secret put TURNSTILE_SECRET

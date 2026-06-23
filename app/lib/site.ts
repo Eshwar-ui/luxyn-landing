@@ -10,13 +10,16 @@ export const site = {
   name: "LUXYN",
   /** Production origin — used for canonical URLs, sitemap, and Open Graph. */
   url: "https://luxynstudios.com",
-  title: "LUXYN — Space to do your best work",
+  /** Home <title>. Leads with the primary keyword + city so the page can rank
+   *  for local intent ("salon suites Leander TX"), then the brand promise. */
+  title: "Salon & Wellness Suites for Rent in Leander, TX | LUXYN",
   description:
-    "LUXYN leases private, design-led suites to independent beauty and wellness professionals — the freedom to build, serve, and grow in an elevated space.",
+    "LUXYN leases private, design-led salon & wellness suites in Leander, TX to independent beauty professionals — hair, skin, nails, brows & massage. Flexible leasing, premium amenities, the freedom to build and grow.",
   /** Short, punchy strapline — used as the site's slogan in structured data. */
-  tagline: "Private, design-led suites for beauty & wellness professionals.",
-  /** OG / Twitter share image (lives in /public/assets). 1536×1024 source. */
-  ogImage: "/assets/cta-bg.png",
+  tagline: "Private, design-led salon & wellness suites in Leander, TX.",
+  /** OG / Twitter share image (lives in /public/assets). Purpose-built 1200×630
+   *  card — small + correctly sized so every share scraper accepts it. */
+  ogImage: "/assets/og.jpg",
   /** Square brand mark (1200×1200) — used for the manifest, Apple touch icon,
    *  and the `logo` field in Organization / LocalBusiness structured data. */
   logo: "/assets/logo.png",
@@ -27,7 +30,7 @@ export const site = {
   //  the contact section, AND the SEO/JSON-LD structured data, so getting
   //  them right matters for both customers and search engines.
   //  Checklist:  [ ] email   [x] phone + phoneHref   [x] full address
-  //              [ ] social handles   [x] formEndpoints (see below)
+  //              [ ] social handles   [ ] contactEndpoint (see below)
   // ════════════════════════════════════════════════════════════════════
 
   /** Contact details — surface in the footer + JSON-LD structured data. */
@@ -48,19 +51,26 @@ export const site = {
   socials: {
     instagram: "https://www.instagram.com/luxynstudios/",
     facebook: "https://facebook.com/luxynstudios",
+    x: "https://x.com/luxynstudios",
+    youtube: "https://www.youtube.com/@LuxynStudios",
+    pinterest: "https://www.pinterest.com/luxynstudios/",
+    linkedin: "https://www.linkedin.com/company/luxynstudios/",
   },
 
   /**
-   * Contact-form submission endpoints — one per enquiry type. This is a static
-   * export, so the form POSTs to a third-party service (Formspree). Each variant
-   * targets its own form so leads land in the right inbox. While a value is left
-   * as the placeholder, that variant short-circuits to a friendly "not
-   * configured" message instead of silently dropping leads.
+   * Contact-form delivery endpoint. This is a static export with no server, so
+   * the form POSTs to a Cloudflare Worker (see /worker) that sends the enquiry
+   * via Resend. Both enquiry types (lease + tour) POST here with a `variant`
+   * field. Deploy the Worker, then paste its URL below. While left as the
+   * placeholder, the form short-circuits to a friendly "not configured" message
+   * instead of silently dropping leads.
    */
-  formEndpoints: {
-    lease: "https://formspree.io/f/xlgkqeqp",
-    tour: "https://formspree.io/f/xjgdnvnw",
-  },
+  contactEndpoint: "https://luxyn-contact.luxyn.workers.dev", // deployed Cloudflare Worker (see /worker)
+
+  /** Cloudflare Turnstile site key — spam protection for the contact form.
+   *  Leave "" to disable the widget entirely. When set, also configure the
+   *  matching TURNSTILE_SECRET in the Worker (see /worker). */
+  turnstileSiteKey: "", // optional — paste Turnstile site key, or leave "" to disable
 
   /** Extra signals for richer search results (Google LocalBusiness rich data). */
   business: {
@@ -69,12 +79,17 @@ export const site = {
     /** Map coordinates for the LocalBusiness "geo" — improves local/Maps SEO.
      *  Leave both "" until known; empty values are omitted from structured data. */
     geo: {
-      latitude: "", // TODO PLACEHOLDER — e.g. "34.0696"
-      longitude: "", // TODO PLACEHOLDER — e.g. "-118.4053"
+      // ⚠️ APPROXIMATE — derived from the street address (Ronald Reagan Blvd,
+      // Leander TX 78641). Replace with the exact rooftop pin from Google Maps
+      // before launch so the LocalBusiness marker lands on the building.
+      latitude: "30.5788",
+      longitude: "-97.8531",
     },
     /** Opening hours in schema.org format. Leave [] to omit.
-     *  Example: ["Mo-Fr 09:00-19:00", "Sa 10:00-17:00"] */
-    openingHours: [] as string[], // TODO PLACEHOLDER
+     *  ⚠️ TODO — set the real leasing-office hours before launch. Publishing
+     *  wrong hours here surfaces them in Google/Maps, so left empty until known.
+     *  Example: ["Mo-Fr 09:00-18:00", "Sa 10:00-16:00"] */
+    openingHours: [] as string[],
   },
 
   /** Search-engine ownership verification tokens. Paste the value from the
@@ -85,9 +100,9 @@ export const site = {
   },
 } as const;
 
-/** True once a real form endpoint has been configured for the given variant. */
-export const isFormConfigured = (variant: keyof typeof site.formEndpoints): boolean =>
-  !site.formEndpoints[variant].includes("your-form-id");
+/** True once the real Worker URL has been pasted into `contactEndpoint`. */
+export const isFormConfigured = (): boolean =>
+  !site.contactEndpoint.includes("YOUR-SUBDOMAIN");
 
 export const fullAddress = [
   site.contact.address.street,

@@ -1,0 +1,7 @@
+# LUXYN — security contact (RFC 9116)
+# How to report a security issue with luxynstudios.com.
+
+Contact: mailto:luxynsales@gmail.com
+Expires: 2027-06-22T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://luxynstudios.com/.well-known/security.txt

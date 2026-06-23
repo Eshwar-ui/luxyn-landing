@@ -1,7 +1,22 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { site, isFormConfigured } from "../lib/site";
+
+/** Cloudflare Turnstile (spam protection) — loaded only when a site key is set
+ *  in site.ts. Explicit-render mode so the widget survives the form remounting
+ *  when the user switches between the lease/tour tabs. */
+const TURNSTILE_API = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+      reset: (id?: string) => void;
+      remove: (id?: string) => void;
+    };
+  }
+}
 
 type Status = "idle" | "submitting" | "success" | "error";
 export type ContactVariant = "lease" | "tour";
@@ -70,6 +85,52 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
   const [status, setStatus] = useState<Status>("idle");
   const [serverMsg, setServerMsg] = useState("");
 
+  // Turnstile — only active when a site key is configured in site.ts.
+  const turnstileKey = site.turnstileSiteKey;
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | null>(null);
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    if (!turnstileKey) return;
+    let cancelled = false;
+    let pollId: ReturnType<typeof setInterval> | undefined;
+
+    const renderWidget = () => {
+      if (cancelled || !widgetRef.current || !window.turnstile || widgetId.current) return;
+      widgetId.current = window.turnstile.render(widgetRef.current, {
+        sitekey: turnstileKey,
+        theme: "light",
+        callback: (t: string) => setToken(t),
+        "expired-callback": () => setToken(""),
+        "error-callback": () => setToken(""),
+      });
+    };
+
+    const base = TURNSTILE_API.split("?")[0];
+    if (window.turnstile) {
+      renderWidget();
+    } else if (document.querySelector(`script[src^="${base}"]`)) {
+      pollId = setInterval(() => {
+        if (window.turnstile) { if (pollId) clearInterval(pollId); renderWidget(); }
+      }, 120);
+    } else {
+      const s = document.createElement("script");
+      s.src = TURNSTILE_API; s.async = true; s.defer = true;
+      s.onload = renderWidget;
+      document.head.appendChild(s);
+    }
+
+    return () => {
+      cancelled = true;
+      if (pollId) clearInterval(pollId);
+      if (widgetId.current && window.turnstile) {
+        try { window.turnstile.remove(widgetId.current); } catch {}
+      }
+      widgetId.current = null;
+    };
+  }, [turnstileKey]);
+
   const set = (k: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFields(f => ({ ...f, [k]: e.target.value }));
     if (errors[k]) setErrors(er => ({ ...er, [k]: undefined }));
@@ -105,7 +166,14 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
     // honeypot — bots fill hidden fields; humans don't
     if ((e.currentTarget.elements.namedItem("_gotcha") as HTMLInputElement)?.value) return;
 
-    if (!isFormConfigured(variant)) {
+    // Turnstile — require a verification token before sending.
+    if (turnstileKey && !token) {
+      setStatus("error");
+      setServerMsg("Please complete the verification challenge, then submit again.");
+      return;
+    }
+
+    if (!isFormConfigured()) {
       setStatus("error");
       setServerMsg(
         "The contact form isn't connected to a delivery service yet. Reach us directly at " +
@@ -117,14 +185,14 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
     setStatus("submitting");
     setServerMsg("");
     try {
-      // Send only the fields relevant to this enquiry type.
+      // Send the enquiry type + only the fields relevant to it. The Worker
+      // (see /worker) reads `variant` to format the email and hand it to Resend.
       const payload: Record<string, string> = {
+        variant,
         name: fields.name.trim(),
         email: fields.email.trim(),
         phone: fields.phone.trim(),
-        interest: copy.interest,
         message: fields.message.trim(),
-        _subject: `New ${copy.interest} enquiry — ${site.name}`,
       };
       if (variant === "lease") {
         payload.suiteType = fields.suiteType;
@@ -133,8 +201,9 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         payload.preferredDate = fields.preferredDate.trim();
         payload.preferredTime = fields.preferredTime;
       }
+      if (token) payload.turnstileToken = token;
 
-      const res = await fetch(site.formEndpoints[variant], {
+      const res = await fetch(site.contactEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
@@ -142,6 +211,8 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       setStatus("success");
       setFields(emptyFields);
+      setToken("");
+      if (turnstileKey && widgetId.current && window.turnstile) window.turnstile.reset(widgetId.current);
     } catch {
       setStatus("error");
       setServerMsg(
@@ -172,6 +243,13 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         </h3>
         <p className="m-0 font-ui" style={{ color: "rgb(67,71,78)", fontSize: 15, maxWidth: 360, lineHeight: 1.6 }}>
           Your {variant === "tour" ? "tour request" : "enquiry"} is on its way to our team. We typically respond within one business day.
+        </p>
+        <p className="m-0 font-ui" style={{ color: "rgb(120,124,131)", fontSize: 13, maxWidth: 360, lineHeight: 1.6 }}>
+          We&apos;ve also emailed you a confirmation — if it&apos;s not in your inbox, check your spam folder, or reach us at{" "}
+          <a href={`mailto:${site.contact.email}`} style={{ color: "rgb(160,128,72)", textDecoration: "underline" }}>
+            {site.contact.email}
+          </a>
+          .
         </p>
         <button
           type="button"
@@ -274,6 +352,9 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         type="text" name="_gotcha" tabIndex={-1} autoComplete="off" aria-hidden="true"
         className="absolute -left-[9999px] h-0 w-0 opacity-0"
       />
+
+      {/* Cloudflare Turnstile — renders here only when a site key is configured */}
+      {turnstileKey && <div ref={widgetRef} className="mt-1 flex justify-center" />}
 
       {status === "error" && (
         <p role="alert" className="m-0 font-ui" style={{ color: "rgb(176,58,46)", fontSize: 14, lineHeight: 1.5 }}>

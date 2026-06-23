@@ -70,6 +70,11 @@ Allow: /
 # Sitemap
 Sitemap: https://luxynstudios.com/sitemap.xml
 
+# AI answer-engine resources (llms.txt standard — llmstxt.org)
+# Curated site map + facts for ChatGPT, Claude, Gemini, Perplexity, etc.
+# LLM-Content: https://luxynstudios.com/llms.txt
+# LLM-Content-Full: https://luxynstudios.com/llms-full.txt
+
 # Private/System Paths
 Disallow: /api/
 Disallow: /admin/

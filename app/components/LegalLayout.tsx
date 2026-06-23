@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { site } from "../lib/site";
-
-const YEAR = 2026;
+import SiteHeader from "./SiteHeader";
+import SiteFooter from "./SiteFooter";
 
 const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy" },
@@ -24,7 +24,9 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen" style={{ background: "rgb(243,236,220)", fontFamily: "'Inter',sans-serif" }}>
+    <>
+      <SiteHeader />
+      <main className="min-h-screen" style={{ background: "rgb(243,236,220)", fontFamily: "var(--font-inter), sans-serif" }}>
       {/* header band */}
       <header className="relative overflow-hidden" style={{ background: "rgb(20,35,59)" }}>
         {/* decorative concentric arcs — brand motif */}
@@ -42,7 +44,7 @@ export default function LegalLayout({
           ))}
         </div>
 
-        <div className="relative mx-auto w-full max-w-[820px] px-6 pt-10 pb-14 sm:pt-14 sm:pb-20">
+        <div className="relative mx-auto w-full max-w-[820px] px-6 pt-28 pb-14 sm:pt-32 sm:pb-20">
           <Link
             href="/"
             className="inline-flex items-center gap-2 font-accent font-semibold transition-opacity duration-300 hover:opacity-70"
@@ -138,10 +140,9 @@ export default function LegalLayout({
           </Link>
         </div>
 
-        <p className="mt-10 font-ui" style={{ color: "rgb(120,124,131)", fontSize: 13 }}>
-          © {YEAR} {site.name}. All rights reserved.
-        </p>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

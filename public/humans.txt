@@ -1,0 +1,15 @@
+/* TEAM */
+  Business: LUXYN — private salon & wellness suites
+  Location: Leander, TX, USA
+  Contact: luxynsales [at] gmail.com
+
+/* SITE */
+  Standards: HTML5, CSS3, JSON-LD
+  Components: Next.js, React, Tailwind CSS, Framer Motion
+  Hosting: Firebase Hosting
+  Designed by: VELVO Media — https://velvomedia.com
+
+/* AI & ANSWER ENGINES */
+  Site map for LLMs: /llms.txt
+  Full content for LLMs: /llms-full.txt
+  Structured facts: /facts.json

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "./lib/site";
+import SiteHeader from "./components/SiteHeader";
+import SiteFooter from "./components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -9,10 +11,12 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center"
-      style={{ background: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
-    >
+    <>
+      <SiteHeader />
+      <main
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center"
+        style={{ background: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
+      >
       {/* decorative concentric arcs — brand motif */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         {[
@@ -63,6 +67,8 @@ export default function NotFound() {
           ))}
         </div>
       </div>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

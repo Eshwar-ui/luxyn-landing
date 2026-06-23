@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import ContactForm, { type ContactVariant } from "./ContactForm";
+import SiteHeader from "./SiteHeader";
+import SiteFooter from "./SiteFooter";
 import { site, fullAddress } from "../lib/site";
+import { faqs, contentDates } from "../lib/content";
 
 /* ─── animation helpers ─────────────────────────────────── */
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -11,31 +14,11 @@ const FU  = { hidden: { opacity: 0, y: 36 },  show: { opacity: 1, y: 0,    trans
 const FS  = { hidden: { opacity: 0, scale:.9}, show: { opacity: 1, scale:1, transition: { duration: 1,   ease } } };
 const FL  = { hidden: { opacity: 0, x: -48 }, show: { opacity: 1, x: 0,    transition: { duration: 1,   ease } } };
 const FR  = { hidden: { opacity: 0, x:  48 }, show: { opacity: 1, x: 0,    transition: { duration: 1,   ease } } };
-const FI  = { hidden: { opacity: 0 },          show: { opacity: 1,           transition: { duration: .8         } } };
 const vp  = { once: true, margin: "-10%" } as const;
 
 function delay(d: number) {
   return { transition: { delay: d, duration: 1, ease } };
 }
-
-/* ─── nav data ──────────────────────────────────────────── */
-const NAV = [
-  { label: "Suites",            target: "philosophy" },
-  { label: "Amenities",         target: "amenities"  },
-  { label: "For Professionals", target: "difference" },
-  { label: "Gallery",           target: "gallery"    },
-  { label: "Find a Pro",        target: "findpro"    },
-  { label: "Contact",           target: "contact"    },
-];
-
-/* ─── footer legal links + meta ─────────────────────────── */
-const LEGAL = [
-  { label: "Privacy Policy",   href: "/privacy" },
-  { label: "Terms of Service", href: "/terms"   },
-  { label: "Cookies Settings", href: "/cookies" },
-];
-const YEAR = 2026;
-const VELVO_URL = "https://velvomedia.com";
 
 /* ─── difference cards ──────────────────────────────────── */
 const DIFF = [
@@ -76,8 +59,6 @@ const btnGold = "h-[40px] px-6 rounded-full font-bold text-[13px] transition-all
 const btnOutline = "h-[40px] px-6 rounded-full font-bold text-[13px] transition-all duration-300 hover:-translate-y-0.5 cursor-pointer";
 
 export default function Landing() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrollY, setScrollY]   = useState(0);
   const [heroH,   setHeroH]     = useState(750);
   const [contactVariant, setContactVariant] = useState<ContactVariant>("lease");
   const heroRef  = useRef<HTMLElement>(null);
@@ -89,7 +70,6 @@ export default function Landing() {
     if (!el) return;
     window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64), behavior: "smooth" });
   };
-  const menuNav = (id: string) => { setMenuOpen(false); setTimeout(() => nav(id), 50); };
 
   /* open the contact section pre-set to the right enquiry form */
   const openContact = (variant: ContactVariant) => { setContactVariant(variant); nav("contact"); };
@@ -97,25 +77,36 @@ export default function Landing() {
   /* measure hero height once */
   useEffect(() => { if (heroRef.current) setHeroH(heroRef.current.offsetHeight); }, []);
 
-  /* scroll effects */
+  /* deep-link support: if the URL carries a section hash (e.g. /#gallery — used
+     by the /salon-suites, /gallery, … entry routes), scroll to that section
+     instead of treating it as a separate page. Also responds to later hash
+     changes from in-page or external links. */
+  useEffect(() => {
+    const scrollToHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (id) nav(id);
+    };
+    const t = window.setTimeout(scrollToHash, 80);
+    window.addEventListener("hashchange", scrollToHash);
+    return () => { window.clearTimeout(t); window.removeEventListener("hashchange", scrollToHash); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* scroll effects — progress bar + hero parallax */
   useEffect(() => {
     const tick = () => {
-      setScrollY(window.scrollY);
       const dh = document.documentElement.scrollHeight - window.innerHeight || 1;
       const p = document.getElementById("prog");
       if (p) p.style.width = Math.min(100, (window.scrollY / dh) * 100) + "%";
       if (heroBgRef.current && window.scrollY < heroH * 1.5)
         heroBgRef.current.style.transform = `translate3d(0,${window.scrollY * 0.28}px,0)`;
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
     window.addEventListener("scroll", tick, { passive: true });
     window.addEventListener("resize", tick);
-    window.addEventListener("keydown", onKey);
     requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("scroll", tick);
       window.removeEventListener("resize", tick);
-      window.removeEventListener("keydown", onKey);
     };
   }, [heroH]);
 
@@ -129,119 +120,11 @@ export default function Landing() {
       <div id="prog" className="fixed top-0 left-0 h-[3px] bg-champagne z-[120]" style={{ width: 0, transition: "width .1s linear" }} />
 
 
-      {/* ── glassmorphism menu overlay ────────────────── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[200]"
-            style={{ background: "rgba(5,12,24,.5)" }}
-            onClick={e => { if (e.target === e.currentTarget) setMenuOpen(false); }}
-          >
-            <motion.div
-              key="panel"
-              initial={{ opacity: 0, y: -20, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
-              style={{
-                background: "rgba(33,45,63,0.85)",
-                backdropFilter: "blur(24px) saturate(1.2)",
-                WebkitBackdropFilter: "blur(24px) saturate(1.2)",
-                border: "1px solid rgba(255,255,255,0.4)",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-              }}
-            >
-              <button
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-                className="absolute top-[24px] left-[24px] sm:top-[32px] sm:left-[32px] flex items-center justify-center transition-opacity duration-300 opacity-80 hover:opacity-100 p-2"
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgb(225,216,194)" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M1 1 L13 13 M13 1 L1 13"/>
-                </svg>
-              </button>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-y-6 gap-x-12 mt-6 sm:mt-0">
-                {NAV.map(({ label, target }) => (
-                  <button key={label} onClick={() => menuNav(target)} className="font-display text-left transition-opacity duration-300 hover:opacity-100 text-[22px] sm:text-[26px]" style={{ color: "rgb(225,216,194)", opacity: 0.9 }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── back to top ──────────────────────────────── */}
-      {/* <motion.button
-        onClick={() => nav("hero")}
-        className="fixed right-7 bottom-7 w-[50px] h-[50px] rounded-full flex items-center justify-center z-[115] cursor-pointer"
-        style={{ background: "rgb(194,160,107)", boxShadow: "0 10px 26px rgba(0,0,0,.3)" }}
-        animate={{ opacity: showTop ? 1 : 0, y: showTop ? 0 : 12, pointerEvents: showTop ? "auto" : "none" }}
-        transition={{ duration: 0.4 }}
-        whileHover={{ boxShadow: "0 16px 34px rgba(194,160,107,.55)" }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(20,35,59)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 19V5M5 12l7-7 7 7"/>
-        </svg>
-      </motion.button> */}
+      {/* ── site header (shared with the legal pages) ── */}
+      <SiteHeader />
 
       {/* ═══════════════ PAGE ROOT ════════════ */}
-      <div id="pageRoot" className="relative w-full overflow-x-hidden" style={{ fontFamily: "'Inter',sans-serif" }}>
-
-        {/* ── STICKY NAVBAR ──────────────────────────── */}
-          <div
-            className={`fixed top-0 left-0 z-[100] transition-all duration-300 flex justify-center w-full`}
-            style={{
-              paddingTop: scrollY > 50 ? 16 : 24,
-              paddingBottom: scrollY > 50 ? 16 : 24,
-              background: scrollY > 50 ? "rgba(13, 27, 46, 0.85)" : "transparent",
-              backdropFilter: scrollY > 50 ? "blur(16px)" : "none",
-              WebkitBackdropFilter: scrollY > 50 ? "blur(16px)" : "none",
-              borderBottom: scrollY > 50 ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
-            }}
-          >
-          <div className="relative w-full max-w-[1240px] px-6 lg:px-12 flex items-center justify-between h-[50px]">
-            <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-              className="w-[44px] h-[44px] md:w-[50px] md:h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20 shrink-0"
-              style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
-            >
-              <HamburgerSVG />
-            </button>
-
-            <div
-              onClick={() => nav("hero")}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-opacity hover:opacity-80 scale-[0.6] sm:scale-[0.8] md:scale-100"
-              style={{ width: 265, height: 76, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }}
-              aria-label="Back to top"
-              role="button"
-            />
-
-            <button
-              onClick={() => openContact("lease")}
-              className={`${btnGold} hidden md:block shrink-0`}
-              style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
-            >
-              LEASE A SUITE
-            </button>
-            <button
-              onClick={() => openContact("lease")}
-              aria-label="Lease a suite"
-              className={`md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full shrink-0`}
-              style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </button>
-          </div>
-        </div>
+      <div id="pageRoot" className="relative w-full overflow-x-hidden" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
 
         {/* ── HERO ───────────────────────────────────── */}
         <section
@@ -252,13 +135,15 @@ export default function Landing() {
         >
           <div
             ref={heroBgRef}
+            role="img"
+            aria-label="Interior of a private, design-led LUXYN salon and wellness suite in Leander, TX"
             className="absolute will-change-transform"
             style={{
               left: 0,
               top: "-15%",
               width: "100%",
               height: "130%",
-              background: "url(/assets/hero-bg.png) 50% 30% / cover no-repeat"
+              background: "url(/assets/hero-bg.webp) 50% 30% / cover no-repeat"
             }}
           />
           <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(110deg,rgba(20,35,59,.86) 0%,rgba(20,35,59,.45) 46%,rgba(20,35,59,.08) 70%)" }} />
@@ -284,20 +169,20 @@ export default function Landing() {
                 className="font-ui font-normal text-white/40 mt-6 text-sm sm:text-[15px]"
                 style={{ lineHeight: 1.6 }}
               >
-                LUXYN Leases Private, Design-Led Suites To Independent Beauty And Wellness Professionals — Giving You The Freedom To Build, Serve, And Grow In An Elevated Space.
+                LUXYN leases private, design-led salon &amp; wellness suites in Leander, TX to independent beauty professionals — giving you the freedom to build, serve, and grow in an elevated space.
               </motion.p>
               <motion.div variants={FU} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mt-10">
                 <button
                   onClick={() => openContact("lease")}
                   className={btnGold}
-                  style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}
+                  style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
                 >
                   LEASE A SUITE
                 </button>
                 <button
                   onClick={() => openContact("tour")}
                   className={btnOutline}
-                  style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}
+                  style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}
                 >
                   BOOK A TOUR
                 </button>
@@ -330,11 +215,13 @@ export default function Landing() {
                 }}
               >
                 <div
+                  role="img"
+                  aria-label="A beauty professional's styling space framed in a LUXYN arch suite"
                   className="absolute"
                   style={{
                     left: "-1.5%", top: "-1.5%", width: "103%", height: "103%",
                     borderRadius: "3333px 3333px 0 0",
-                    background: "url(/assets/hero-arch.png) 50% 0%/125% 132.27% no-repeat"
+                    background: "url(/assets/hero-arch.webp) 50% 0%/125% 132.27% no-repeat"
                   }}
                 />
               </div>
@@ -411,8 +298,9 @@ export default function Landing() {
                 style={{ width: "48%", maxWidth: 323, aspectRatio: "323/450", borderRadius: "500px 500px 0 0" }}
               >
                 <div
+                  role="img" aria-label="Interior of a private, design-led LUXYN salon suite in Leander, TX"
                   className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
-                  style={{ background: "url(/assets/about-2.png) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
+                  style={{ background: "url(/assets/about-2.webp) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
                 />
               </motion.div>
 
@@ -423,8 +311,9 @@ export default function Landing() {
                 style={{ width: "48%", maxWidth: 323, aspectRatio: "323/450", borderRadius: "500px 500px 0 0" }}
               >
                 <div
+                  role="img" aria-label="A stylist's private suite at LUXYN, finished to feel like a destination"
                   className="absolute inset-0 transition-[transform] duration-[900ms] group-hover:-translate-y-[10px] group-hover:scale-[1.06]"
-                  style={{ background: "url(/assets/about-1.png) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
+                  style={{ background: "url(/assets/about-1.webp) center/cover no-repeat", borderRadius: "500px 500px 0 0" }}
                 />
               </motion.div>
             </div>
@@ -443,7 +332,7 @@ export default function Landing() {
               className="font-display font-semibold text-[rgb(33,58,92)] text-center text-3xl sm:text-4xl lg:text-[46px]"
               style={{ margin: "10px 0 0", lineHeight: 1.1 }}
             >
-              A space for independent beauty &amp; wellness professionals.
+              A space for independent beauty &amp; wellness professionals in Leander, TX.
             </motion.h2>
           </div>
 
@@ -454,7 +343,7 @@ export default function Landing() {
               style={{ background: "#fff" }}
             >
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full min-h-full" style={{ aspectRatio: "228/483" }}>
-                <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: "-2.19%", top: "0%", width: "110.52%", height: "101.03%", background: "url(/assets/gallery-1.png) 41.808% 8.108%/634.711% 218.337% no-repeat" }} />
+                <div className="absolute transition-transform duration-[800ms] hover:scale-[1.07]" style={{ left: "-2.19%", top: "0%", width: "110.52%", height: "101.03%", background: "url(/assets/gallery-1.webp) 41.808% 8.108%/634.711% 218.337% no-repeat" }} />
               </div>
               <div className="card-overlay absolute inset-0 z-[3] flex items-end justify-center rounded-[32px]" style={{ padding: "0 14px 32px", background: "linear-gradient(to top,rgba(28,18,8,.85) 0%,rgba(28,18,8,.25) 100%)" }}>
                 <span className="card-label font-display font-medium text-white text-center text-[15px] sm:text-[22px] tracking-[2px] sm:tracking-[4px]">Brow & Lash Artists</span>
@@ -464,8 +353,8 @@ export default function Landing() {
             <div className="flex flex-col gap-4 flex-1">
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4">
                 {[
-                  { smFlex: "sm:grow-[454] sm:basis-0", smAsp: "sm:aspect-[454/231]", asp: "454/231", bg:"url(/assets/gallery-2.png) 7.79% 7.154%/355.556% 268.766% no-repeat", iL:"-3.74%", iT:"-41.56%", iW:"103.74%", iH:"180.09%", label:"Hair Stylists", d:0.08 },
-                  { smFlex: "sm:grow-[515] sm:basis-0", smAsp: "sm:aspect-[515/231]", asp: "515/231", bg:"url(/assets/gallery-2.png) 49.597% 81.944%/366.587% 272.34% no-repeat",  iL:"0%",   iT:"-105.63%",iW:"110.1%", iH:"219.91%", label:"Nail Artists",    d:0.16 },
+                  { smFlex: "sm:grow-[454] sm:basis-0", smAsp: "sm:aspect-[454/231]", asp: "454/231", bg:"url(/assets/gallery-2.webp) 7.79% 7.154%/355.556% 268.766% no-repeat", iL:"-3.74%", iT:"-41.56%", iW:"103.74%", iH:"180.09%", label:"Hair Stylists", d:0.08 },
+                  { smFlex: "sm:grow-[515] sm:basis-0", smAsp: "sm:aspect-[515/231]", asp: "515/231", bg:"url(/assets/gallery-2.webp) 49.597% 81.944%/366.587% 272.34% no-repeat",  iL:"0%",   iT:"-105.63%",iW:"110.1%", iH:"219.91%", label:"Nail Artists",    d:0.16 },
                 ].map(({ smFlex, smAsp, asp, bg, iL, iT, iW, iH, label, d }) => (
                   <motion.div key={label} initial="hidden" whileInView="show" viewport={vp} variants={FS} {...delay(d)}
                     className={`gallery-card relative overflow-hidden rounded-[32px] w-full h-[200px] sm:h-auto ${smAsp} ${smFlex}`}
@@ -481,9 +370,9 @@ export default function Landing() {
               </div>
               <div className="grid grid-cols-2 md:flex md:flex-row gap-4 items-stretch lg:items-end">
                 {[
-                  { span: "",            mdFlex: "md:grow-[406] md:basis-0", mdAsp: "md:aspect-[406/230]", asp: "406/230", bg:"url(/assets/gallery-1.png) 16.764% 94.851%/447.813% 358.042% no-repeat", iL:"0%",   iT:"-38.7%",  iW:"100%", iH:"147.39%", label:"Massage Therapists",  d:0.12 },
-                  { span: "",            mdFlex: "md:grow-[233] md:basis-0", mdAsp: "md:aspect-[233/227]", asp: "233/227", bg:"url(/assets/gallery-2.png) 90% 81.364%/378.325% 281.319% no-repeat",      iL:"-4.29%", iT:"0%",    iW:"108.58%", iH:"100%", label:"Wellness Practitioners",         d:0.20 },
-                  { span: "col-span-2",  mdFlex: "md:grow-[314] md:basis-0", mdAsp: "md:aspect-[314/231]", asp: "314/231", bg:"url(/assets/gallery-2.png) 88.462% 8.602%/391.837% 274.531% no-repeat",   iL:"-5.1%", iT:"-61.47%", iW:"124.84%", iH:"161.47%", label:"Estheticians",   d:0.28 },
+                  { span: "",            mdFlex: "md:grow-[406] md:basis-0", mdAsp: "md:aspect-[406/230]", asp: "406/230", bg:"url(/assets/gallery-1.webp) 16.764% 94.851%/447.813% 358.042% no-repeat", iL:"0%",   iT:"-38.7%",  iW:"100%", iH:"147.39%", label:"Massage Therapists",  d:0.12 },
+                  { span: "",            mdFlex: "md:grow-[233] md:basis-0", mdAsp: "md:aspect-[233/227]", asp: "233/227", bg:"url(/assets/gallery-2.webp) 90% 81.364%/378.325% 281.319% no-repeat",      iL:"-4.29%", iT:"0%",    iW:"108.58%", iH:"100%", label:"Wellness Practitioners",         d:0.20 },
+                  { span: "col-span-2",  mdFlex: "md:grow-[314] md:basis-0", mdAsp: "md:aspect-[314/231]", asp: "314/231", bg:"url(/assets/gallery-2.webp) 88.462% 8.602%/391.837% 274.531% no-repeat",   iL:"-5.1%", iT:"-61.47%", iW:"124.84%", iH:"161.47%", label:"Estheticians",   d:0.28 },
                 ].map(({ span, mdFlex, mdAsp, asp, bg, iL, iT, iW, iH, label, d }) => (
                   <motion.div key={label} initial="hidden" whileInView="show" viewport={vp} variants={FS} {...delay(d)}
                     className={`gallery-card relative overflow-hidden rounded-[32px] w-full h-[200px] md:h-auto ${span} ${mdAsp} ${mdFlex}`}
@@ -534,7 +423,7 @@ export default function Landing() {
 
         {/* ── CTA BANNER ─────────────────────────────── */}
         <section id="banner" className="relative w-full overflow-hidden flex items-center justify-center pt-20 lg:pt-32 pb-12 lg:pb-16" style={{ background: "rgb(20,35,59)" }}>
-          <div className="absolute" style={{ left: "-5%", top: "-10%", width: "110%", height: "130%", background: "url(/assets/cta-bg.png) center/cover no-repeat" }} />
+          <div className="absolute" style={{ left: "-5%", top: "-10%", width: "110%", height: "130%", background: "url(/assets/cta-bg.webp) center/cover no-repeat" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgb(20,35,59) 0%,rgba(45,79,127,.5) 50%,rgba(70,122,194,0) 100%)" }} />
           <div className="relative z-[2] flex flex-col items-center gap-6 text-center" style={{ maxWidth: 760, padding: "0 24px" }}>
             <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU}
@@ -552,7 +441,7 @@ export default function Landing() {
 
         {/* ── AMENITIES ──────────────────────────────── */}
         <section id="amenities" className="relative w-full pt-8 lg:pt-12 pb-12 lg:pb-20 flex flex-col items-center justify-center gap-12" style={{ background: "rgb(20,35,59)" }}>
-          <div className="absolute opacity-50 pointer-events-none" style={{ left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: "110%", minWidth: 1000, height: "120%", background: "url(/assets/amenities-illustration.png) center/cover no-repeat" }} />
+          <div className="absolute opacity-50 pointer-events-none" style={{ left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: "110%", minWidth: 1000, height: "120%", background: "url(/assets/amenities-illustration.webp) center/cover no-repeat" }} />
           <div className="relative z-[2] flex flex-col items-center gap-4 px-6 text-center">
             <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
               className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
@@ -589,7 +478,7 @@ export default function Landing() {
               <motion.div
                 initial="hidden" whileInView="show" viewport={vp} variants={FL}
                 className="absolute overflow-hidden"
-                style={{ left: "0%", top: "8.5%", width: "100%", height: "87.5%", borderRadius: "500px 500px 0 0", background: "url(/assets/findpro-a.png) center/cover no-repeat", boxShadow: "0 28px 60px rgba(20,35,59,.18)" }}
+                style={{ left: "0%", top: "8.5%", width: "100%", height: "87.5%", borderRadius: "500px 500px 0 0", background: "url(/assets/findpro-a.webp) center/cover no-repeat", boxShadow: "0 28px 60px rgba(20,35,59,.18)" }}
                 whileHover={{ y: -10, boxShadow: "0 40px 80px rgba(20,35,59,.28)" }}
               />
               <motion.div
@@ -599,7 +488,7 @@ export default function Landing() {
               >
                 <motion.div
                   className="absolute origin-bottom floaty"
-                  style={{ left: "0%", bottom: "-5%", width: "100%", height: "120%", background: "url(/assets/findpro-stylist.png) bottom center/contain no-repeat", filter: "drop-shadow(0 24px 36px rgba(20,35,59,.32))", willChange: "transform", WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}
+                  style={{ left: "0%", bottom: "-5%", width: "100%", height: "120%", background: "url(/assets/findpro-stylist.webp) bottom center/contain no-repeat", filter: "drop-shadow(0 24px 36px rgba(20,35,59,.32))", willChange: "transform", WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}
                   whileHover={{ y: -8, scale: 1.02 }}
                 />
               </motion.div>
@@ -658,9 +547,51 @@ export default function Landing() {
               </motion.span>
             </div>
             <motion.div initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.16)} className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full sm:w-auto px-4 sm:px-0">
-              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "'Inter',sans-serif" }}>LEASE A SUITE</button>
-              <button onClick={() => openContact("tour")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "'Inter',sans-serif" }}>BOOK A TOUR</button>
+              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}>LEASE A SUITE</button>
+              <button onClick={() => openContact("tour")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}>BOOK A TOUR</button>
             </motion.div>
+          </div>
+        </section>
+
+        {/* ── FAQ ────────────────────────────────────── */}
+        <section id="faq" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
+          <div className="flex flex-col items-center px-6 text-center" style={{ maxWidth: 760, marginBottom: 40 }}>
+            <motion.span initial="hidden" whileInView="show" viewport={vp} variants={FU}
+              className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
+            >
+              QUESTIONS &amp; ANSWERS
+            </motion.span>
+            <motion.h2 initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.08)}
+              className="m-0 font-display font-semibold text-[rgb(33,58,92)] text-3xl sm:text-4xl lg:text-[44px]" style={{ margin: "10px 0 0", lineHeight: 1.1 }}
+            >
+              Renting a salon suite in Leander, TX
+            </motion.h2>
+            <motion.p initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(0.14)}
+              className="font-ui text-[rgb(120,124,131)]" style={{ marginTop: 14, fontSize: 13, letterSpacing: 0.2 }}
+            >
+              Last updated {contentDates.updated}
+            </motion.p>
+          </div>
+
+          <div className="w-full max-w-[820px] px-6 flex flex-col gap-3">
+            {faqs.map(({ q, a }, i) => (
+              <motion.details
+                key={q}
+                initial="hidden" whileInView="show" viewport={vp} variants={FU} {...delay(Math.min(i, 4) * 0.05)}
+                className="group rounded-[14px] bg-white px-5 py-1 sm:px-7"
+                style={{ boxShadow: "inset 0 0 0 1px rgb(232,224,205)" }}
+              >
+                <summary className="flex cursor-pointer items-center justify-between gap-4 list-none py-5 font-display font-semibold text-[rgb(2,36,72)] text-[18px] sm:text-[21px]" style={{ lineHeight: 1.3 }}>
+                  {q}
+                  <svg className="shrink-0 transition-transform duration-300 group-open:rotate-45" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgb(194,160,107)" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </summary>
+                <p className="font-ui font-normal text-[rgb(67,71,78)] pb-5 pr-6" style={{ fontSize: 15.5, lineHeight: 1.65 }}>
+                  {a}
+                </p>
+              </motion.details>
+            ))}
           </div>
         </section>
 
@@ -730,59 +661,10 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ── FOOTER ─────────────────────────────────── */}
-        <section id="footer" className="relative overflow-hidden w-full pt-8 sm:pt-16 pb-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
-          <div className="flex flex-col items-center z-[2] gap-8 px-6">
-            <button onClick={() => nav("hero")} className="cursor-pointer transition-opacity hover:opacity-80 scale-[0.8] sm:scale-100" style={{ width: 265, height: 76, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }} aria-label="Back to top" />
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-12">
-              {[
-                { label: "Suites",            id: "gallery"    },
-                { label: "For Professionals", id: "difference" },
-                { label: "Find a Pro",        id: "findpro"    },
-                { label: "Amenities",         id: "amenities"  },
-                { label: "Contact",           id: "contact"    },
-              ].map(({ label, id }) => (
-                <button key={label} onClick={() => nav(id)}
-                  className="font-accent font-light text-white cursor-pointer whitespace-nowrap transition-colors duration-300 hover:text-champagne underline underline-offset-4 decoration-[1px] decoration-white/50 hover:decoration-champagne"
-                  style={{ fontSize: 18 }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <SocialLinks />
-          </div>
-
-          <div className="w-full h-px mt-16 z-[2]" style={{ background: "rgb(138,146,157)", opacity: 0.4 }} />
-
-          <motion.div
-            initial="hidden" whileInView="show" viewport={vp} variants={FI}
-            className="w-full max-w-[1440px] z-[1]"
-            style={{ aspectRatio: "1440 / 244" }}
-          >
-            <div role="img" aria-label="LUXYN" className="w-full h-full" style={{ background: "url('/assets/luxyn-wordmark.svg') center/contain no-repeat" }} />
-          </motion.div>
-
-          <div className="w-full max-w-[1240px] px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center z-[2] gap-6 pt-6">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 md:gap-8 w-full md:w-auto">
-              <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-8 w-full md:w-auto">
-                {LEGAL.map(({ label, href }) => (
-                  <a key={label} href={href} className="font-ui font-light text-white/85 transition-colors duration-300 hover:text-white cursor-pointer underline underline-offset-4 decoration-[1px] decoration-white/30 hover:decoration-white text-[13px] sm:text-[14px] md:text-[15.5px]">{label}</a>
-                ))}
-              </div>
-            </div>
-            <span className="font-ui text-white/85 text-center text-[12px] sm:text-[14px] md:text-[16px]">© {YEAR} LUXYN. All rights reserved.</span>
-          </div>
-
-          <div className="w-full flex justify-center z-[2] pt-5 pb-1">
-            <span className="font-ui text-white/55 text-center" style={{ fontSize: 13, letterSpacing: 0.2 }}>
-              Designed by{" "}
-              <a href={VELVO_URL} target="_blank" rel="noopener noreferrer" className="text-champagne transition-opacity duration-300 hover:opacity-70">VELVO Media</a>
-            </span>
-          </div>
-        </section>
-
       </div>{/* /pageRoot */}
+
+      {/* ── site footer (shared with the legal pages) ── */}
+      <SiteFooter />
     </div>
   );
 }
@@ -820,36 +702,3 @@ function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
   );
 }
 
-const SOCIAL_ICONS: Record<string, React.ReactNode> = {
-  instagram: <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 1.62c-3.15 0-3.5.01-4.74.07-.9.04-1.39.2-1.72.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.12.33-.28.82-.32 1.72-.06 1.24-.07 1.59-.07 4.36s.01 3.12.07 4.36c.04.9.2 1.39.32 1.72.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.12.82.28 1.72.32 1.24.06 1.59.07 4.36.07s3.12-.01 4.36-.07c.9-.04 1.39-.2 1.72-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.12-.33.28-.82.32-1.72.06-1.24.07-1.59.07-4.36s-.01-3.12-.07-4.36c-.04-.9-.2-1.39-.32-1.72a2.86 2.86 0 0 0-.69-1.06 2.86 2.86 0 0 0-1.06-.69c-.33-.12-.82-.28-1.72-.32-1.24-.06-1.59-.07-4.36-.07Zm0 2.76a5.3 5.3 0 1 1 0 10.6 5.3 5.3 0 0 1 0-10.6Zm0 1.62a3.68 3.68 0 1 0 0 7.36 3.68 3.68 0 0 0 0-7.36Zm5.48-1.06a1.24 1.24 0 1 1-2.48 0 1.24 1.24 0 0 1 2.48 0Z" />,
-  facebook:  <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />,
-};
-
-function SocialLinks() {
-  const entries = Object.entries(site.socials).filter(([, url]) => url);
-  if (!entries.length) return null;
-  return (
-    <div className="flex items-center gap-3">
-      {entries.map(([name, url]) => (
-        <a
-          key={name} href={url} target="_blank" rel="noopener noreferrer"
-          aria-label={`LUXYN on ${name[0].toUpperCase() + name.slice(1)}`}
-          className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-white transition-[background,transform,color] duration-300 hover:-translate-y-0.5 hover:text-champagne"
-          style={{ background: "rgba(255,255,255,.1)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.2)" }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            {SOCIAL_ICONS[name]}
-          </svg>
-        </a>
-      ))}
-    </div>
-  );
-}
-
-function HamburgerSVG() {
-  return (
-    <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
-      <path d="M1.571 0H9.429a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2ZM12.571 12.8h7.858a1.6 1.6 0 0 1 0 3.2h-7.858a1.6 1.6 0 0 1 0-3.2ZM1.571 6.4h18.858a1.6 1.6 0 0 1 0 3.2H1.571a1.6 1.6 0 0 1 0-3.2Z"/>
-    </svg>
-  );
-}

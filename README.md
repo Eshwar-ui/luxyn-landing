@@ -40,10 +40,10 @@ All site-wide values live in [`app/lib/site.ts`](app/lib/site.ts). Search it for
 1. **`url`** — your production domain (used for canonical URLs, the sitemap, and Open Graph).
 2. **`contact`** — business email, phone, and address (shown in the footer + structured data).
 3. **`socials`** — profile URLs (empty strings are hidden automatically).
-4. **`formEndpoints`** — create a free form at [Formspree](https://formspree.io) (or similar)
-   for each enquiry type (`lease` and `tour`) and paste their endpoints. Until a
-   variant's endpoint is set, that form shows a friendly "email us directly"
-   message instead of failing silently.
+4. **`contactEndpoint`** — the contact form emails submissions via Resend through
+   a small Cloudflare Worker (see [`worker/`](worker/README.md)). Deploy the
+   Worker, then paste its URL here. Until it's set, the form shows a friendly
+   "email us directly" message instead of failing silently.
 
 Also review the placeholder legal copy in `app/{privacy,terms,cookies}/page.tsx`
 with your own counsel.
