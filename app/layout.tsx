@@ -9,19 +9,19 @@ import { faqs, contentDates } from "./lib/content";
  * `font-display: swap`, and size-adjusted fallbacks that cut layout shift.
  * Each exposes a CSS variable that globals.css maps onto the Tailwind font-* keys. */
 const cormorant = Cormorant_Garamond({
-  subsets: ["latin"], weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"], variable: "--font-cormorant", display: "swap",
+  subsets: ["latin"], weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant", display: "swap",
 });
 const ebGaramond = EB_Garamond({
-  subsets: ["latin"], weight: ["400", "500"],
-  style: ["normal", "italic"], variable: "--font-eb", display: "swap",
+  subsets: ["latin"], weight: ["400"],
+  variable: "--font-eb", display: "swap",
 });
 const inter = Inter({
   subsets: ["latin"], weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"], variable: "--font-inter", display: "swap",
 });
 const jost = Jost({
-  subsets: ["latin"], weight: ["400", "500", "600"],
+  subsets: ["latin"], weight: ["400", "600"],
   variable: "--font-jost", display: "swap",
 });
 const fontVars = `${cormorant.variable} ${ebGaramond.variable} ${inter.variable} ${jost.variable}`;
@@ -251,6 +251,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={fontVars} suppressHydrationWarning>
       <head>
+        {/* Hero background is a CSS background-image, so the browser can't
+            discover it until stylesheets parse. Preload it at high priority to
+            cut LCP — it's the largest above-the-fold paint. */}
+        <link rel="preload" as="image" href="/assets/hero-bg.webp" fetchPriority="high" />
         <meta name="format-detection" content="telephone=no" />
         <link rel="author" href={`mailto:${site.contact.email}`} />
         <meta itemProp="name" content={site.name} />
