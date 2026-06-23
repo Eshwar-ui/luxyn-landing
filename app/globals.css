@@ -10,13 +10,13 @@
   --color-champagne:   #C2A06B;
   --color-champ-lit:   #D4B47E;
 
-  --font-display:   'Cormorant Garamond', serif;
-  --font-editorial: 'EB Garamond', serif;
-  --font-ui:        'Inter', sans-serif;
-  --font-accent:    'Jost', sans-serif;
+  /* Fonts are self-hosted via next/font (see layout.tsx); these map the
+     generated CSS variables onto the Tailwind font-* utilities. */
+  --font-display:   var(--font-cormorant), serif;
+  --font-editorial: var(--font-eb), serif;
+  --font-ui:        var(--font-inter), sans-serif;
+  --font-accent:    var(--font-jost), sans-serif;
 }
-
-/* Fonts are loaded via <link> in layout.tsx */
 
 /* LUXYN Landing — global styles ported from the Claude Design handoff
    (project/LUXYN Landing.dc.html <style> block).
@@ -26,7 +26,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; overflow-x: hidden; }
-body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: rgb(20,35,59); font-family: var(--font-inter), sans-serif; -webkit-font-smoothing: antialiased; }
 
 .rv {
   opacity: 0;
@@ -62,7 +62,7 @@ body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased
 
 .navlink {
   position: relative;
-  font-family: 'Jost', sans-serif;
+  font-family: var(--font-jost), sans-serif;
   font-size: 14px;
   letter-spacing: .4px;
   color: rgba(255, 255, 255, .82);
@@ -99,7 +99,7 @@ body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased
 .menu-overlay-box { animation: menuSlideIn .38s cubic-bezier(.16,1,.3,1) both; }
 
 .menu-link {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-cormorant), serif;
   font-size: 32px;
   font-weight: 400;
   color: rgba(249,245,238,.9);
@@ -135,26 +135,98 @@ body { margin: 0; background: rgb(20,35,59); -webkit-font-smoothing: antialiased
 .gallery-card:hover .card-overlay { opacity: 1; }
 .gallery-card:hover .card-label { opacity: 1; transform: translateY(0); }
 
-/* glass menu — single column / smaller wordmark on phones */
-@media (max-width: 640px) {
-  .menu-link { font-size: 26px; line-height: 1.45; }
+/* touch devices have no hover — keep the overlay + label permanently visible
+   so the category names are never hidden on mobile/tablet */
+@media (hover: none), (pointer: coarse) {
+  .card-overlay { opacity: 1; }
+  .card-label { opacity: 1; transform: none; }
 }
 
-/* mobile scroll-reveal — CSS-only via the view() timeline so it can never
-   leave content hidden: where the timeline is unsupported, or reduced-motion
-   is set, [data-rise] elements simply rest at their visible default. */
-@keyframes mRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    [data-rise] {
-      animation: mRise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 18%;
-    }
-  }
+/* ── contact form fields — focus ring + invalid state ────── */
+.lx-field { box-shadow: inset 0 0 0 1px rgb(218,210,190); }
+.lx-field:focus {
+  box-shadow: inset 0 0 0 1.5px rgb(194,160,107), 0 0 0 4px rgba(194,160,107,.18);
+}
+.lx-field--invalid { box-shadow: inset 0 0 0 1.5px rgb(176,58,46); }
+.lx-field--invalid:focus {
+  box-shadow: inset 0 0 0 1.5px rgb(176,58,46), 0 0 0 4px rgba(176,58,46,.16);
+}
+.lx-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2321395C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
 }
 
-/* quality floor — honor reduced-motion preference */
+/* visible keyboard-focus ring for interactive elements */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid rgb(194,160,107);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* skip-to-content link — hidden until focused */
+.skip-link {
+  position: fixed;
+  top: -120px;
+  left: 16px;
+  z-index: 300;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: rgb(194,160,107);
+  color: rgb(20,35,59);
+  font-family: var(--font-jost), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: top .25s cubic-bezier(.16,1,.3,1);
+}
+.skip-link:focus { top: 16px; outline: none; }
+
+/* legal / utility page prose */
+.legal-prose { color: rgb(67,71,78); }
+.legal-prose h2 {
+  font-family: var(--font-cormorant), serif;
+  font-weight: 600;
+  color: rgb(2,36,72);
+  font-size: 27px;
+  line-height: 1.2;
+  margin: 42px 0 14px;
+  padding-top: 18px;
+  border-top: 1px solid rgb(232,224,205);
+}
+/* first heading sits flush — no divider above it */
+.legal-prose > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.legal-prose p { font-size: 16px; line-height: 1.75; margin: 0 0 16px; }
+/* lead paragraph — slightly larger, sets the tone */
+.legal-prose > p:first-child { font-size: 17.5px; line-height: 1.7; color: rgb(45,52,64); }
+.legal-prose ul { margin: 0 0 16px; padding-left: 0; list-style: none; }
+.legal-prose li {
+  position: relative;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 10px;
+  padding-left: 26px;
+}
+.legal-prose li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgb(194,160,107);
+}
+.legal-prose a {
+  color: rgb(160,128,72);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .2s ease;
+}
+.legal-prose a:hover { color: rgb(120,94,48); }
+.legal-prose strong { color: rgb(2,36,92); font-weight: 600; }
+
+/* honor reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   .marq, .floaty, .floaty2 { animation: none !important; }
   * { scroll-behavior: auto !important; }

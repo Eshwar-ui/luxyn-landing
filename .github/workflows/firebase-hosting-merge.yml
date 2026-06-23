@@ -3,7 +3,7 @@
 #
 # Requires one repository secret: FIREBASE_SERVICE_ACCOUNT
 #   A Firebase service-account JSON key with Hosting deploy permission for
-#   project luxyn-demo-a66a8. See README "CI/CD" for the one-time setup.
+#   project luxyn-landing. See README "CI/CD" for the one-time setup.
 name: Deploy to Firebase Hosting (live)
 
 on:
@@ -36,4 +36,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
-          projectId: luxyn-demo-a66a8
+          projectId: luxyn-landing

@@ -45,6 +45,9 @@ next-env.d.ts
 firebase-debug.log*
 firestore-debug.log*
 database-debug.log*
+# service-account keys — NEVER commit these
+*-firebase-adminsdk-*.json
+serviceAccountKey*.json
 
 # local editor / harness config
 .claude/
