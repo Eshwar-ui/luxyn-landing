@@ -5,7 +5,7 @@ import ArticleProgress from "./ArticleProgress";
 import ArticleToc from "./ArticleToc";
 import ArticleShare from "./ArticleShare";
 import { site } from "../_lib/site";
-import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
+import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, adjacentPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
 
 /**
  * Renders a single blog article — an editorial layout with a sticky table of
@@ -17,6 +17,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
   const url = postUrl(post.slug);
   const toc = headings(post);
   const related = otherPosts(post.slug);
+  const { prev, next } = adjacentPosts(post.slug);
   const firstParaIdx = post.body.findIndex((b) => b.type === "p");
 
   const jsonLd = {
@@ -32,7 +33,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
         datePublished: post.published,
         dateModified: post.updated,
         inLanguage: "en-US",
-        wordCount: post.body.reduce((n, b) => n + ("text" in b ? b.text.split(/\s+/).length : 0), 0),
+        wordCount: post.body.reduce((n, b) => n + ("text" in b && b.text ? b.text.split(/\s+/).length : 0), 0),
         author: { "@type": "Organization", name: post.author, "@id": `${site.url}/#organization` },
         publisher: { "@id": `${site.url}/#organization` },
         isPartOf: { "@id": `${site.url}/#website` },
@@ -63,6 +64,21 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                 name: s.name,
                 text: s.text,
                 url: `${url}#${s.id}`,
+              })),
+            },
+          ]
+        : []),
+      // Articles with an FAQ section emit FAQPage so the Q&A is eligible for an
+      // FAQ rich result and gives answer engines clean question/answer pairs.
+      ...(post.faqs && post.faqs.length
+        ? [
+            {
+              "@type": "FAQPage",
+              "@id": `${url}#faq`,
+              mainEntity: post.faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
               })),
             },
           ]
@@ -115,6 +131,18 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                       </h2>
                     );
                   }
+                  if (block.type === "h3") {
+                    return (
+                      <h3
+                        key={i}
+                        id={slugify(block.text)}
+                        className="mt-4 scroll-mt-24 font-display font-semibold text-[rgb(33,58,92)] text-[19px] lg:text-[21px]"
+                        style={{ lineHeight: 1.3 }}
+                      >
+                        {block.text}
+                      </h3>
+                    );
+                  }
                   if (block.type === "quote") {
                     return (
                       <blockquote
@@ -140,6 +168,115 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                       </ul>
                     );
                   }
+                  if (block.type === "ol") {
+                    return (
+                      <ol key={i} className="flex flex-col gap-2.5 pl-1">
+                        {block.items.map((item, j) => (
+                          <li key={j} className="flex gap-3 font-ui font-normal text-[rgb(67,71,78)]" style={{ fontSize: 17, lineHeight: 1.7 }}>
+                            <span aria-hidden="true" className="mt-[1px] flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full font-ui font-bold text-[12px] text-white" style={{ background: "rgb(194,160,107)" }}>
+                              {j + 1}
+                            </span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    );
+                  }
+                  if (block.type === "image") {
+                    return (
+                      <figure key={i} className="my-4">
+                        <div className="overflow-hidden rounded-[16px]" style={{ boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={block.src} alt={block.alt} loading="lazy" decoding="async" className="block h-auto w-full object-cover" />
+                        </div>
+                        {block.caption && (
+                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(120,124,131)]" style={{ lineHeight: 1.5 }}>
+                            {block.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    );
+                  }
+                  if (block.type === "stat") {
+                    return (
+                      <div
+                        key={i}
+                        className="my-4 flex flex-col gap-2 rounded-[16px] p-6 sm:flex-row sm:items-center sm:gap-6"
+                        style={{ background: "rgba(194,160,107,.09)", boxShadow: "inset 0 0 0 1px rgba(194,160,107,.35)" }}
+                      >
+                        <span className="font-display font-bold text-[rgb(160,128,72)] text-[40px] leading-none sm:shrink-0">
+                          {block.value}
+                        </span>
+                        <span className="font-ui font-normal text-[rgb(67,71,78)]" style={{ fontSize: 16, lineHeight: 1.6 }}>
+                          {block.label}
+                          {block.source && (
+                            <span className="mt-1 block font-ui text-[12.5px] text-[rgb(120,124,131)]">Source: {block.source}</span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  }
+                  if (block.type === "cta") {
+                    return (
+                      <div
+                        key={i}
+                        className="my-4 flex flex-col gap-4 rounded-[16px] p-6 sm:flex-row sm:items-center sm:justify-between"
+                        style={{ background: "rgb(20,35,59)" }}
+                      >
+                        {block.text && (
+                          <p className="font-display font-semibold text-white text-[18px]" style={{ lineHeight: 1.3 }}>
+                            {block.text}
+                          </p>
+                        )}
+                        <a
+                          href={block.href}
+                          className="inline-flex h-[46px] shrink-0 items-center justify-center rounded-full px-7 font-ui font-bold transition-transform duration-300 hover:-translate-y-0.5"
+                          style={{ fontSize: 14, letterSpacing: 0.4, background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}
+                        >
+                          {block.label}
+                        </a>
+                      </div>
+                    );
+                  }
+                  if (block.type === "table") {
+                    return (
+                      <figure key={i} className="my-4">
+                        <div className="overflow-x-auto rounded-[14px]" style={{ boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}>
+                          <table className="w-full border-collapse font-ui text-[15px]" style={{ color: "rgb(67,71,78)" }}>
+                            <thead>
+                              <tr style={{ background: "rgb(20,35,59)" }}>
+                                {block.columns.map((c, k) => (
+                                  <th key={k} className="px-4 py-3 text-left font-semibold text-white" style={{ fontSize: 13.5 }}>
+                                    {c}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {block.rows.map((row, r) => (
+                                <tr key={r} style={{ background: r % 2 ? "rgb(252,250,244)" : "rgb(255,255,255)" }}>
+                                  {row.map((cell, c) => (
+                                    <td
+                                      key={c}
+                                      className={c === 0 ? "px-4 py-3 font-semibold text-[rgb(33,58,92)]" : "px-4 py-3"}
+                                      style={{ borderTop: "1px solid rgb(225,216,194)", lineHeight: 1.5 }}
+                                    >
+                                      {cell}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        {block.caption && (
+                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(120,124,131)]" style={{ lineHeight: 1.5 }}>
+                            {block.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    );
+                  }
                   const dropCap =
                     i === firstParaIdx
                       ? "first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:font-semibold first-letter:text-[58px] first-letter:leading-[0.8] first-letter:text-[rgb(160,128,72)]"
@@ -151,6 +288,34 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                   );
                 })}
               </div>
+
+              {/* FAQ */}
+              {post.faqs && post.faqs.length > 0 && (
+                <section id="faq" className="mt-12 scroll-mt-24" aria-label="Frequently asked questions">
+                  <h2 className="font-display font-bold text-[rgb(33,58,92)] text-[24px] lg:text-[28px]" style={{ lineHeight: 1.25 }}>
+                    Frequently asked questions
+                  </h2>
+                  <div className="mt-5 flex flex-col gap-3">
+                    {post.faqs.map((f, j) => (
+                      <details
+                        key={j}
+                        className="group rounded-[14px] p-5"
+                        style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
+                      >
+                        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-semibold text-[rgb(33,58,92)] text-[17px]" style={{ lineHeight: 1.4 }}>
+                          {f.q}
+                          <span aria-hidden="true" className="shrink-0 font-ui text-[22px] leading-none text-[rgb(194,160,107)] transition-transform duration-200 group-open:rotate-45">
+                            +
+                          </span>
+                        </summary>
+                        <p className="mt-3 font-ui font-normal text-[rgb(67,71,78)]" style={{ fontSize: 16, lineHeight: 1.7 }}>
+                          {f.a}
+                        </p>
+                      </details>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               {/* CTA card */}
               <div
@@ -174,8 +339,23 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                 </a>
               </div>
 
+              {/* tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-10 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="font-ui font-medium text-[13px] text-[rgb(67,71,78)]"
+                      style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)", borderRadius: 999, padding: "5px 13px" }}
+                    >
+                      #{tag.replace(/\s+/g, "")}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {/* share + author */}
-              <div className="mt-10 flex flex-col gap-6 border-t pt-8" style={{ borderColor: "rgb(225,216,194)" }}>
+              <div className="mt-8 flex flex-col gap-6 border-t pt-8" style={{ borderColor: "rgb(225,216,194)" }}>
                 <ArticleShare url={url} title={post.title} />
                 <div className="flex items-start gap-4">
                   <div
@@ -195,6 +375,42 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
               </div>
             </article>
           </div>
+
+          {/* prev / next pager */}
+          {(prev || next) && (
+            <nav className="mt-16 grid gap-4 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "rgb(225,216,194)" }} aria-label="More articles">
+              {prev ? (
+                <a
+                  href={`/blog/${prev.slug}`}
+                  className="group flex flex-col rounded-[14px] p-5 transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,35,59,.1)]"
+                  style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
+                >
+                  <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 2 }}>
+                    ← PREVIOUS
+                  </span>
+                  <span className="mt-1.5 font-display font-bold text-[rgb(33,58,92)] text-[16px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.35 }}>
+                    {prev.title}
+                  </span>
+                </a>
+              ) : (
+                <span aria-hidden="true" className="hidden sm:block" />
+              )}
+              {next && (
+                <a
+                  href={`/blog/${next.slug}`}
+                  className="group flex flex-col rounded-[14px] p-5 text-right transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,35,59,.1)]"
+                  style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
+                >
+                  <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 2 }}>
+                    NEXT →
+                  </span>
+                  <span className="mt-1.5 font-display font-bold text-[rgb(33,58,92)] text-[16px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.35 }}>
+                    {next.title}
+                  </span>
+                </a>
+              )}
+            </nav>
+          )}
 
           {/* related reading */}
           {related.length > 0 && (

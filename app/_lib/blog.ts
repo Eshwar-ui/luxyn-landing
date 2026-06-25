@@ -18,8 +18,22 @@ import { site } from "./site";
 export type BlogBlock =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
+  | { type: "h3"; text: string }
   | { type: "ul"; items: string[] }
-  | { type: "quote"; text: string };
+  | { type: "ol"; items: string[] }
+  | { type: "quote"; text: string }
+  /** A figure with caption — in-body image or diagram. `src` lives in /public. */
+  | { type: "image"; src: string; alt: string; caption?: string }
+  /** An inline call-to-action band placed mid-article. */
+  | { type: "cta"; label: string; href: string; text?: string }
+  /** A market-insight / stat callout — a big number with a label and source. */
+  | { type: "stat"; value: string; label: string; source?: string }
+  /** A comparison table. First row of `rows` is data; `columns` is the header. */
+  | { type: "table"; columns: string[]; rows: string[][]; caption?: string };
+
+/** A single FAQ entry shown in the article's FAQ section and emitted as FAQPage
+ *  JSON-LD so the article is eligible for an FAQ rich result. */
+export type BlogFaq = { q: string; a: string };
 
 export type BlogPost = {
   /** Clean URL slug — the article lives at /blog/<slug>. */
@@ -42,6 +56,10 @@ export type BlogPost = {
   image: string;
   /** Article body, rendered in order. */
   body: BlogBlock[];
+  /** Topic tags shown as a tag cloud at the foot of the article. */
+  tags?: string[];
+  /** Question/answer pairs rendered as an FAQ section + FAQPage JSON-LD. */
+  faqs?: BlogFaq[];
   /** Call-to-action at the foot of the article. */
   cta: { label: string; href: string };
   /** Set true for step-by-step guides whose H2s are numbered ("1. …", "2. …").
@@ -84,6 +102,7 @@ export const blogPosts: BlogPost[] = [
     body: [
       { type: "p", text: "If you're an independent stylist, esthetician, or wellness pro weighing the jump to your own suite, the first question is almost always the same: what will it actually cost? The honest answer is that it depends on suite size, location, and what's bundled into the lease — but you can get to a confident number quickly once you know what to look for." },
       { type: "p", text: "Below is a practical breakdown of how salon suite pricing works in the Leander and greater Austin area, what a lease typically includes, and the smaller costs people forget to plan for." },
+      { type: "image", src: "/assets/about-1.webp", alt: "A private, finished salon suite at LUXYN in Leander, TX", caption: "A private LUXYN suite — the kind of finished, brandable space a suite lease covers." },
       { type: "h2", text: "What you're actually paying for" },
       { type: "p", text: "A salon suite lease isn't just rent on four walls. At a well-run studio, your monthly rate bundles in the infrastructure that would otherwise be a stack of separate bills — and a stack of separate headaches." },
       { type: "ul", items: [
@@ -107,9 +126,25 @@ export const blogPosts: BlogPost[] = [
       ] },
       { type: "h2", text: "Does a suite pay for itself?" },
       { type: "p", text: "Here's the math that matters: in a commission salon, a large share of every ticket goes to the house. In your own suite, you pay a fixed lease and keep the rest. Once your book is steady, the suite usually costs less than the commission split you were already giving up — and everything above that line is yours." },
+      { type: "stat", value: "40–60%", label: "of every ticket can go to the house on a typical commission split — the share a fixed suite lease lets you keep instead.", source: "Industry commission-split norms" },
       { type: "p", text: "The break-even point is simply the number of services per week that covers your lease. For most established pros, that's a small fraction of a normal schedule, which is exactly why the model works: you're trading a percentage of every dollar for a predictable, fixed cost." },
+      { type: "h3", text: "A quick cost comparison" },
+      { type: "p", text: "It helps to see the three models side by side. The numbers vary by market, but the shape of the trade-off stays the same:" },
+      { type: "table", columns: ["Model", "What you pay", "What you keep"], rows: [
+        ["Commission chair", "A percentage of every ticket", "Your share after the split"],
+        ["Booth rental", "Weekly/monthly station fee", "Everything you earn at the chair"],
+        ["Private suite", "Fixed monthly lease (amenities included)", "Everything above your fixed lease"],
+      ], caption: "Costs vary by market — the trade-off between variable and fixed cost does not." },
+      { type: "cta", text: "Want a real number for your situation rather than a range?", label: "Book a tour for pricing", href: "/contact" },
       { type: "h2", text: "Getting an exact number for LUXYN" },
       { type: "p", text: "Lease rates at LUXYN depend on suite size and current availability, so the most reliable way to get an exact figure is a short private tour. You'll see the available suites in person, and we'll walk you through the terms with no guesswork. Book a tour and we'll share current pricing for the suite that fits your craft." },
+    ],
+    tags: ["salon suite cost", "salon suite rental", "booth rental", "Leander TX", "beauty business", "commission split"],
+    faqs: [
+      { q: "How much does it cost to rent a salon suite in Leander, TX?", a: "It depends on suite size, location, and what's bundled into the lease. The most reliable way to get an exact figure is a short private tour, where you can see the suite and we'll walk through current pricing and terms with no guesswork." },
+      { q: "What's included in a salon suite lease?", a: "At a well-run studio your monthly rate typically bundles a private lockable room, 24/7 secure access, high-speed Wi-Fi, on-site laundry, a styled client lounge, and daily cleaning of shared areas — infrastructure that would otherwise be several separate bills." },
+      { q: "Are there hidden costs beyond the monthly rent?", a: "Plan for liability insurance, product and back-bar supplies, booking/payment software, initial décor or equipment, and a small marketing budget. Most are modest, but budgeting for them up front gives you a realistic first-year picture." },
+      { q: "Is a salon suite cheaper than a commission chair?", a: "Once your book is steady, usually yes. You trade a percentage of every ticket for a fixed monthly lease, so everything you earn above your break-even line is yours to keep." },
     ],
     cta: { label: "Book a tour for pricing", href: "/contact" },
   },
@@ -144,9 +179,25 @@ export const blogPosts: BlogPost[] = [
         "A finished, design-led space that elevates how clients perceive your work",
       ] },
       { type: "p", text: "Best for: established pros ready to own the entire client experience and keep the full value of their work." },
+      { type: "h2", text: "The three models at a glance" },
+      { type: "p", text: "If you prefer to see the trade-offs side by side, here's how the three setups compare on the things that matter most day to day:" },
+      { type: "table", columns: ["", "Commission", "Booth rental", "Private suite"], rows: [
+        ["Privacy", "Shared floor", "Shared floor", "Fully private"],
+        ["Set your prices", "Rarely", "Yes", "Yes"],
+        ["Own your brand", "No", "Partly", "Fully"],
+        ["Income kept", "After split", "Most", "All above lease"],
+        ["Overhead/risk", "Lowest", "Medium", "Higher, predictable"],
+      ], caption: "A higher-level view of where each model sits on control versus support." },
       { type: "h2", text: "How to choose" },
       { type: "p", text: "Ask yourself three questions: How loyal is my book? How much do I care about controlling the client experience? And how much of every ticket am I comfortable giving away? If your clients follow you, you care deeply about the experience, and you're tired of splitting your income, a private suite is almost always the next move." },
       { type: "p", text: "LUXYN is built for exactly that moment — design-led private suites in Leander, TX with the amenities and support handled, so the only thing left for you to focus on is your craft. Book a tour to see whether a suite fits where your business is headed." },
+    ],
+    tags: ["salon suite", "booth rental", "commission salon", "going independent", "beauty business", "Leander TX"],
+    faqs: [
+      { q: "What's the difference between a salon suite and a booth rental?", a: "A booth rental is a station on a shared, open floor — you keep what you earn but share the space, noise, and client experience. A salon suite is your own private, lockable room, so you control the privacy, ambiance, brand, and full client experience." },
+      { q: "Is a salon suite better than a commission chair?", a: "It depends on where you are in your business. A commission chair is lowest-risk and supplies walk-ins, but you split every ticket and don't control your brand. A suite is the right move once your book is loyal and you want to own the experience and keep the full value of your work." },
+      { q: "Which model is best for someone just starting out?", a: "A commission chair is usually best for newer pros still building a client base, since it has zero overhead and a built-in stream of walk-ins. A booth or suite makes more sense once you have a steady book that will follow you." },
+      { q: "Do I lose my clients when I move to a suite?", a: "Not if you plan the move. Tell clients early and personally, make rebooking effortless, and give them a reason to be excited — a more private, comfortable experience. Most loyal clients follow without missing a beat." },
     ],
     cta: { label: "See the suites in person", href: "/contact" },
   },
@@ -164,6 +215,7 @@ export const blogPosts: BlogPost[] = [
     image: "/assets/about-2.webp",
     body: [
       { type: "p", text: "Going independent is one of the most rewarding moves a beauty or wellness pro can make — and it's far less daunting when you break it into steps. Here's a practical playbook for opening your own salon suite, from the paperwork to your first day with clients." },
+      { type: "image", src: "/assets/about-2.webp", alt: "A beauty professional working in her own private salon suite", caption: "Opening day in a space that's truly yours — the goal this playbook builds toward." },
       { type: "h2", text: "1. Get your licensing and business basics in order" },
       { type: "p", text: "Make sure your professional license is current, then set up the business side: register your business, get an EIN if you need one, open a separate business bank account, and pick up professional liability insurance. None of this is glamorous, but doing it cleanly up front saves real headaches later — and most suite leases will ask for proof of insurance anyway." },
       { type: "h2", text: "2. Define your brand and your numbers" },
@@ -181,10 +233,26 @@ export const blogPosts: BlogPost[] = [
       { type: "p", text: "Your book is your most valuable asset, so plan the move carefully. Tell clients early and personally, make rebooking effortless, and give them a reason to be excited — a more private, more comfortable experience that's entirely yours. A short announcement across your channels, plus direct messages to your regulars, moves most loyal clients without missing a beat." },
       { type: "quote", text: "Your book is your most valuable asset. Tell clients early, make rebooking effortless, and give them a reason to be excited about the move." },
       { type: "h2", text: "5. Set up systems before opening day" },
-      { type: "p", text: "Have your booking and payment tools live, your retail and back-bar stocked, and your cancellation and deposit policies written down before your first appointment. Walking into opening day with the boring stuff already solved lets you spend your energy where it counts — on your clients." },
+      { type: "p", text: "Have your booking and payment tools live, your retail and back-bar stocked, and your cancellation and deposit policies written down before your first appointment. A short pre-opening checklist keeps it simple:" },
+      { type: "ol", items: [
+        "Turn on online booking and a payment processor, and test a real transaction",
+        "Stock back-bar, retail, and disposables for your first few weeks",
+        "Write down your cancellation, deposit, and late policies",
+        "Set up a simple bookkeeping system to track income and expenses",
+        "Do a soft-launch day with a few regulars to shake out any kinks",
+      ] },
+      { type: "p", text: "Walking into opening day with the boring stuff already solved lets you spend your energy where it counts — on your clients." },
+      { type: "cta", text: "Picturing your own suite for opening day?", label: "Book a private tour", href: "/contact" },
       { type: "h2", text: "6. Open, then keep growing" },
       { type: "p", text: "Opening day isn't the finish line. Ask happy clients for reviews, keep your social presence consistent, and lean on the marketing and front-of-house support your studio provides. Independence doesn't mean doing everything alone — the best suite communities give you room to grow with real backing behind you." },
       { type: "p", text: "If Leander or the greater Austin area is home, LUXYN is built to be the easiest place to make this leap: design-led private suites with the amenities, security, and on-site care already handled. Book a tour and we'll help you picture opening day in a space that's truly yours." },
+    ],
+    tags: ["start a salon suite", "salon business", "going independent", "salon suite checklist", "beauty entrepreneur", "Leander TX"],
+    faqs: [
+      { q: "What do I need to open my own salon suite?", a: "A current professional license, the business basics (registration, EIN if needed, a business bank account, and liability insurance), a defined brand and pricing, the right suite, a plan to move your clients, and your booking and payment systems set up before opening day." },
+      { q: "How do I move my clients to a new salon suite?", a: "Tell clients early and personally, make rebooking effortless, and give them a reason to be excited about a more private experience. A short announcement across your channels plus direct messages to your regulars moves most loyal clients without missing a beat." },
+      { q: "Do I need business insurance for a salon suite?", a: "Yes — professional liability insurance is standard, and most suite leases will ask for proof of it. It's usually modest and worth having in place before you sign." },
+      { q: "How long does it take to launch a salon suite business?", a: "Once your license and insurance are sorted, the move itself can happen quickly. The pace usually depends on suite availability and how soon you want to bring your clients over — a tour is the fastest way to lock in timing." },
     ],
     cta: { label: "Start with a private tour", href: "/contact" },
     howTo: true,
@@ -282,4 +350,15 @@ export function otherPosts(slug: string): BlogPost[] {
   return blogPosts
     .filter((p) => p.slug !== slug)
     .sort((a, b) => b.published.localeCompare(a.published));
+}
+
+/** Previous/next article in publish order (newest → oldest), for the in-article
+ *  pager. `prev` is the newer neighbour, `next` the older one. */
+export function adjacentPosts(slug: string): { prev: BlogPost | null; next: BlogPost | null } {
+  const ordered = [...blogPosts].sort((a, b) => b.published.localeCompare(a.published));
+  const i = ordered.findIndex((p) => p.slug === slug);
+  return {
+    prev: i > 0 ? ordered[i - 1] : null,
+    next: i >= 0 && i < ordered.length - 1 ? ordered[i + 1] : null,
+  };
 }

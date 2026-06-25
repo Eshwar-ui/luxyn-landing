@@ -42,12 +42,22 @@ function build(): string {
       const body = p.body
         .map(b => {
           if (b.type === "h2") return `#### ${b.text}`;
+          if (b.type === "h3") return `##### ${b.text}`;
           if (b.type === "ul") return b.items.map(i => `- ${i}`).join("\n");
+          if (b.type === "ol") return b.items.map((i, n) => `${n + 1}. ${i}`).join("\n");
           if (b.type === "quote") return `> ${b.text}`;
+          if (b.type === "image") return `[Image: ${b.alt}${b.caption ? ` — ${b.caption}` : ""}]`;
+          if (b.type === "cta") return `${b.text ? b.text + " " : ""}[${b.label}: ${u}${b.href}]`;
+          if (b.type === "stat") return `${b.value} — ${b.label}${b.source ? ` (Source: ${b.source})` : ""}`;
+          if (b.type === "table")
+            return [b.columns.join(" | "), ...b.rows.map(r => r.join(" | "))].join("\n") + (b.caption ? `\n${b.caption}` : "");
           return b.text;
         })
         .join("\n\n");
-      return `### ${p.title}\nArticle: ${u}/blog/${p.slug}\nPublished: ${formatPostDate(p.published)} · Updated: ${p.updated} · ${p.readMins} min read\n\n${body}`;
+      const faqBody = p.faqs?.length
+        ? `\n\n##### FAQ\n\n${p.faqs.map(f => `**${f.q}**\n${f.a}`).join("\n\n")}`
+        : "";
+      return `### ${p.title}\nArticle: ${u}/blog/${p.slug}\nPublished: ${formatPostDate(p.published)} · Updated: ${p.updated} · ${p.readMins} min read\n\n${body}${faqBody}`;
     })
     .join("\n\n");
 
