@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { NAV, BLOG_LINK, scrollToId, SCROLL_TARGET_KEY } from "../_lib/nav";
+import { site } from "../_lib/site";
 
 const btnGold =
   "h-[40px] px-6 rounded-full font-bold text-[13px] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(194,160,107,.45)] cursor-pointer";
@@ -63,6 +64,13 @@ export default function SiteHeader() {
     }
   };
 
+  /** Flatten the menu into one numbered index: the home-page sections (which
+   *  smooth-scroll) followed by the Blog route (which just navigates). */
+  const menuItems: { label: string; href: string; id: string | null }[] = [
+    ...NAV.map(n => ({ label: n.label, href: "/", id: n.id })),
+    { label: BLOG_LINK.label, href: BLOG_LINK.href, id: null },
+  ];
+
   return (
     <>
       {/* ── glassmorphism menu overlay ────────────────── */}
@@ -93,38 +101,81 @@ export default function SiteHeader() {
                 boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
               }}
             >
-              <button
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-                className="absolute top-[24px] left-[24px] sm:top-[32px] sm:left-[32px] flex items-center justify-center transition-opacity duration-300 opacity-80 hover:opacity-100 p-2"
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgb(225,216,194)" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M1 1 L13 13 M13 1 L1 13" />
-                </svg>
-              </button>
-              <nav className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-y-6 gap-x-12 mt-6 sm:mt-0">
-                {NAV.map(({ label, id }) => (
-                  <a
-                    key={label}
-                    href="/"
-                    onClick={e => onNav(e, id)}
-                    className="font-display text-left transition-opacity duration-300 hover:opacity-100 text-[22px] sm:text-[26px]"
-                    style={{ color: "rgb(225,216,194)", opacity: 0.9 }}
-                  >
-                    {label}
-                  </a>
-                ))}
-                {/* Blog is a real route, not a home-page scroll target — link
-                    straight to it and just close the menu. */}
-                <a
-                  href={BLOG_LINK.href}
+              {/* top bar of the panel: overline label + close affordance */}
+              <div className="flex items-center justify-between mb-8 sm:mb-10">
+                <button
                   onClick={() => setMenuOpen(false)}
-                  className="font-display text-left transition-opacity duration-300 hover:opacity-100 text-[22px] sm:text-[26px]"
-                  style={{ color: "rgb(225,216,194)", opacity: 0.9 }}
+                  aria-label="Close menu"
+                  className="group flex items-center gap-2 text-cream/70 transition-colors duration-300 hover:text-champagne p-1"
                 >
-                  {BLOG_LINK.label}
-                </a>
-              </nav>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" className="transition-transform duration-300 group-hover:rotate-90">
+                    <path d="M1 1 L13 13 M13 1 L1 13" />
+                  </svg>
+                  <span className="font-ui text-[11px] tracking-[0.22em] uppercase hidden sm:inline">Close</span>
+                </button>
+                <span className="font-ui text-[11px] tracking-[0.32em] uppercase text-champagne/70">
+                  Explore
+                </span>
+              </div>
+
+              <div className="grid gap-y-10 lg:grid-cols-[1fr_auto]">
+                {/* ── numbered editorial index ───────────────── */}
+                <nav className="flex flex-col lg:grid lg:grid-flow-col lg:grid-rows-4 lg:grid-cols-2 lg:gap-x-12 lg:pr-16">
+                  {menuItems.map(({ label, href, id }, i) => (
+                    <a
+                      key={label}
+                      href={href}
+                      onClick={e => (id ? onNav(e, id) : setMenuOpen(false))}
+                      className="group relative flex items-center gap-5 py-[7px] sm:py-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-champagne/60"
+                    >
+                      <span className="w-7 shrink-0 font-ui text-[12px] sm:text-[13px] tabular-nums tracking-[0.18em] text-champagne/55 transition-colors duration-300 group-hover:text-champagne/30 group-focus-visible:text-champagne/30">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="relative flex items-center">
+                        {/* arrow slides in from the left on hover/focus */}
+                        <span
+                          aria-hidden
+                          className="absolute -left-6 flex text-champagne opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                        </span>
+                        <span className="font-display leading-none text-[26px] sm:text-[32px] text-cream transition-all duration-300 group-hover:translate-x-3 group-hover:text-champ-lit group-focus-visible:translate-x-3 group-focus-visible:text-champ-lit">
+                          {label}
+                        </span>
+                      </span>
+                    </a>
+                  ))}
+                </nav>
+
+                {/* ── supporting panel: where + how to reach us ─ */}
+                <aside className="flex flex-col gap-7 border-t border-white/15 pt-8 lg:w-[280px] lg:border-t-0 lg:border-l lg:pt-1 lg:pl-16">
+                  <div>
+                    <p className="font-ui text-[11px] tracking-[0.28em] uppercase text-champagne/70 mb-3">Visit</p>
+                    <p className="font-accent text-[15px] leading-relaxed text-cream/85">
+                      {site.contact.address.street}<br />
+                      {site.contact.address.locality}, {site.contact.address.region} {site.contact.address.postalCode}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-ui text-[11px] tracking-[0.28em] uppercase text-champagne/70 mb-3">Contact</p>
+                    <a href={`tel:${site.contact.phoneHref}`} className="block font-accent text-[15px] text-cream/85 transition-colors duration-300 hover:text-champagne">
+                      {site.contact.phone}
+                    </a>
+                    <a href={`mailto:${site.contact.email}`} className="block font-accent text-[15px] text-cream/85 transition-colors duration-300 hover:text-champagne break-all">
+                      {site.contact.email}
+                    </a>
+                  </div>
+                  <a
+                    href="/contact"
+                    onClick={onContactCta}
+                    className={`${btnGold} inline-flex items-center justify-center gap-2 w-full mt-1`}
+                    style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
+                  >
+                    LEASE A SUITE
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                  </a>
+                </aside>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -145,6 +196,7 @@ export default function SiteHeader() {
         <div className="relative w-full max-w-[1240px] px-6 lg:px-12 flex items-center justify-between h-[50px]">
           <button
             onClick={() => setMenuOpen(true)}
+            onMouseEnter={() => setMenuOpen(true)}
             aria-label="Open menu"
             className="w-[44px] h-[44px] md:w-[50px] md:h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20 shrink-0"
             style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
