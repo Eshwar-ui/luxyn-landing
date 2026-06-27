@@ -30,6 +30,9 @@ export default function PageHero({
   image?: { src: string; alt: string };
   children?: ReactNode;
 }) {
+  const containerWidth = image ? "max-w-[1100px]" : narrow ? "max-w-[760px]" : "max-w-[1100px]";
+  const textWidth = narrow ? "max-w-[760px]" : "max-w-[680px]";
+
   return (
     <header className="relative overflow-hidden" style={{ background: "rgb(20,35,59)" }}>
       {/* decorative concentric arcs — brand motif */}
@@ -47,9 +50,9 @@ export default function PageHero({
         ))}
       </div>
 
-      <div className={`relative mx-auto w-full ${narrow ? "max-w-[760px]" : "max-w-[1100px]"} px-6 lg:px-12 pt-28 pb-14 sm:pt-32 sm:pb-20`}>
+      <div className={`relative mx-auto w-full ${containerWidth} px-6 pt-28 pb-14 sm:pt-32 sm:pb-20 lg:px-12`}>
         <div className={image ? "grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]" : ""}>
-          <div>
+          <div className={`min-w-0 ${textWidth}`}>
             {/* breadcrumb */}
             <nav aria-label="Breadcrumb" className="font-ui text-[13px]" style={{ color: "rgba(225,216,194,.7)" }}>
               {crumbs.map((c, i) => (
@@ -67,7 +70,7 @@ export default function PageHero({
             <p className="font-accent font-semibold" style={{ margin: "26px 0 0", color: "rgb(194,160,107)", fontSize: 13, letterSpacing: 4 }}>
               {kicker}
             </p>
-            <h1 className="font-display font-semibold text-white" style={{ margin: "14px 0 0", fontSize: "clamp(34px,7vw,54px)", lineHeight: 1.06, letterSpacing: "-0.01em" }}>
+            <h1 className="font-display font-semibold text-[34px] text-white sm:text-[44px] lg:text-[54px]" style={{ margin: "14px 0 0", lineHeight: 1.06, letterSpacing: 0, textWrap: "balance" }}>
               {h1}
             </h1>
 

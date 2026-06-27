@@ -5,7 +5,7 @@ import ArticleProgress from "./ArticleProgress";
 import ArticleToc from "./ArticleToc";
 import ArticleShare from "./ArticleShare";
 import { site } from "../_lib/site";
-import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, adjacentPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
+import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
 
 /**
  * Renders a single blog article — an editorial layout with a sticky table of
@@ -17,7 +17,6 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
   const url = postUrl(post.slug);
   const toc = headings(post);
   const related = otherPosts(post.slug);
-  const { prev, next } = adjacentPosts(post.slug);
   const firstParaIdx = post.body.findIndex((b) => b.type === "p");
 
   const jsonLd = {
@@ -115,7 +114,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
             <ArticleToc items={toc} />
 
             {/* article body */}
-            <article className="min-w-0 max-w-[720px]">
+            <article className="mx-auto w-full min-w-0 max-w-[720px]">
               <div className="flex flex-col gap-5">
                 {post.body.map((block, i) => {
                   if (block.type === "h2") {
@@ -375,42 +374,6 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
               </div>
             </article>
           </div>
-
-          {/* prev / next pager */}
-          {(prev || next) && (
-            <nav className="mt-16 grid gap-4 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "rgb(225,216,194)" }} aria-label="More articles">
-              {prev ? (
-                <a
-                  href={`/blog/${prev.slug}`}
-                  className="group flex flex-col rounded-[14px] p-5 transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,35,59,.1)]"
-                  style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
-                >
-                  <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 2 }}>
-                    ← PREVIOUS
-                  </span>
-                  <span className="mt-1.5 font-display font-bold text-[rgb(33,58,92)] text-[16px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.35 }}>
-                    {prev.title}
-                  </span>
-                </a>
-              ) : (
-                <span aria-hidden="true" className="hidden sm:block" />
-              )}
-              {next && (
-                <a
-                  href={`/blog/${next.slug}`}
-                  className="group flex flex-col rounded-[14px] p-5 text-right transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,35,59,.1)]"
-                  style={{ background: "rgb(252,250,244)", boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}
-                >
-                  <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 2 }}>
-                    NEXT →
-                  </span>
-                  <span className="mt-1.5 font-display font-bold text-[rgb(33,58,92)] text-[16px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.35 }}>
-                    {next.title}
-                  </span>
-                </a>
-              )}
-            </nav>
-          )}
 
           {/* related reading */}
           {related.length > 0 && (

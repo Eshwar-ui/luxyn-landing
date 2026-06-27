@@ -43,7 +43,7 @@ export default function ArticleToc({ items }: { items: { id: string; text: strin
   if (items.length < 2) return null;
 
   return (
-    <nav aria-label="On this page" className="sticky top-28 hidden lg:block">
+    <nav aria-label="On this page" className="hidden self-start lg:sticky lg:top-28 lg:block">
       <p className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 3 }}>
         IN THIS ARTICLE
       </p>
