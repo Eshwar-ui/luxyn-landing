@@ -1,32 +1,62 @@
-# Builds the Next.js static export and deploys it to a temporary Firebase
-# Hosting preview channel for every pull request, commenting the preview URL
-# on the PR. Skips PRs from forks (no access to the secret).
-name: Deploy to Firebase Hosting (PR preview)
+name: CI and Deploy to Firebase Hosting (PR preview)
 
-on: pull_request
+on:
+  pull_request:
+    branches: [main]
 
 permissions:
   checks: write
   contents: read
   pull-requests: write
 
-jobs:
-  build_and_preview:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+concurrency:
+  group: firebase-hosting-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
-      - uses: actions/setup-node@v4
+jobs:
+  quality_gate:
+    name: Test, build, and verify static export
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit
 
-      - name: Build static export (out/)
-        run: npm run build
+      - name: Run CI checks
+        run: npm run ci
+
+      - name: Upload tested static export
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-static-export-pr-${{ github.event.pull_request.number }}
+          path: out
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy_preview:
+    name: Deploy tested export to preview Hosting
+    needs: quality_gate
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download tested static export
+        uses: actions/download-artifact@v4
+        with:
+          name: firebase-static-export-pr-${{ github.event.pull_request.number }}
+          path: out
 
       - name: Deploy preview to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0

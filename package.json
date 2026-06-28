@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit --pretty false",
+    "verify:export": "node scripts/verify-static-export.mjs",
+    "ci": "npm run typecheck && npm run build && npm run verify:export",
     "start": "next start"
   },
   "dependencies": {

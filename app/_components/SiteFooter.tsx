@@ -90,21 +90,23 @@ export default function SiteFooter() {
         <div role="img" aria-label="LUXYN" className="w-full h-full" style={{ background: "url('/assets/luxyn-wordmark.svg') center/contain no-repeat" }} />
       </motion.div>
 
-      <div className="w-full max-w-[1240px] px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center z-[2] gap-6 pt-6">
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-8 w-full md:w-auto">
+      <div className="w-full max-w-[1240px] px-6 lg:px-12 z-[2] pt-6">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-8">
           {LEGAL.map(({ label, href }) => (
             <a key={label} href={href} className="font-ui font-light text-white/85 transition-colors duration-300 hover:text-white cursor-pointer underline underline-offset-4 decoration-[1px] decoration-white/30 hover:decoration-white text-[13px] sm:text-[14px] md:text-[15.5px]">{label}</a>
           ))}
           <button type="button" onClick={openCookiePreferences} className="font-ui font-light text-white/85 transition-colors duration-300 hover:text-white cursor-pointer underline underline-offset-4 decoration-[1px] decoration-white/30 hover:decoration-white text-[13px] sm:text-[14px] md:text-[15.5px]">Cookie preferences</button>
         </div>
-        <span className="font-ui text-white/85 text-center text-[12px] sm:text-[14px] md:text-[16px]">© {YEAR} {site.name}. All rights reserved.</span>
       </div>
 
-      <div className="w-full flex justify-center z-[2] pt-5 pb-1">
-        <span className="font-ui text-white/55 text-center" style={{ fontSize: 13, letterSpacing: 0.2 }}>
-          Designed by{" "}
-          <a href={VELVO_URL} target="_blank" rel="noopener noreferrer" className="text-champagne transition-opacity duration-300 hover:opacity-70">VELVO Media</a>
-        </span>
+      <div className="w-full max-w-[1240px] px-6 lg:px-12 z-[2] pt-5 pb-1">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/15 pt-4 text-center sm:text-left">
+          <span className="font-ui text-white/75 text-[12px] sm:text-[13px]">© {YEAR} {site.name}. All rights reserved.</span>
+          <span className="font-ui text-white/58 text-[12px] sm:text-[13px] sm:text-right">
+            designed and developed by{" "}
+            <a href={VELVO_URL} target="_blank" rel="noopener noreferrer" className="font-medium text-champagne transition-colors duration-300 hover:text-cream">VELVO MEDIA</a>
+          </span>
+        </div>
       </div>
     </footer>
   );
