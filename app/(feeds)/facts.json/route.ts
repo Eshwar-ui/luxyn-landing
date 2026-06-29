@@ -28,10 +28,10 @@ function build() {
     lastUpdated: `${contentDates.updated}T00:00:00Z`,
     facts: [
       { id: "business_type", value: "Private salon & wellness suite leasing", source: `${site.url}/salon-suites`, as_of: asOf },
-      { id: "location", value: `${fullAddress}, US`, source: `${site.url}/contact`, as_of: asOf },
+      { id: "location", value: `${fullAddress}, US`, source: `${site.url}/lease-a-suite`, as_of: asOf },
       { id: "area_served", value: "Leander, Cedar Park, and the greater Austin, TX area", source: `${site.url}/`, as_of: asOf },
-      { id: "email", value: site.contact.email, source: `${site.url}/contact`, as_of: asOf },
-      { id: "phone", value: site.contact.phone, source: `${site.url}/contact`, as_of: asOf },
+      { id: "email", value: site.contact.email, source: `${site.url}/lease-a-suite`, as_of: asOf },
+      { id: "phone", value: site.contact.phone, source: `${site.url}/lease-a-suite`, as_of: asOf },
       {
         id: "tenants",
         value: "Independent hair stylists, colorists, nail artists, estheticians, brow & lash artists, massage therapists, and wellness practitioners",
@@ -52,7 +52,7 @@ function build() {
       },
       { id: "price_range", value: site.business.priceRange, source: `${site.url}/`, as_of: asOf },
       ...concreteFacts,
-      { id: "how_to_start", value: "Book a private tour or reserve a suite via the contact page", source: `${site.url}/contact`, as_of: asOf },
+      { id: "how_to_start", value: "Book a private tour at /book-a-tour, or reserve a suite at /lease-a-suite", source: `${site.url}/book-a-tour`, as_of: asOf },
     ],
   };
 }

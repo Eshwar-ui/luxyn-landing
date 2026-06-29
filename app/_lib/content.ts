@@ -125,7 +125,7 @@ export const seoPages: SeoPage[] = [
       { title: "On-site care", body: "A real person on site every day to welcome your clients and keep your space effortless." },
     ],
     homeAnchor: "philosophy",
-    cta: { label: "Lease a suite", href: "/contact" },
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
     image: "/assets/about-1.webp",
   },
   {
@@ -148,7 +148,7 @@ export const seoPages: SeoPage[] = [
       { title: "Custom branding", body: "Paint and decorate your suite to match your brand's unique identity and aesthetic." },
     ],
     homeAnchor: "amenities",
-    cta: { label: "Book a tour", href: "/contact" },
+    cta: { label: "Book a tour", href: "/book-a-tour" },
     image: "/assets/about-2.webp",
   },
   {
@@ -171,7 +171,7 @@ export const seoPages: SeoPage[] = [
       { title: "Wellness practitioners", body: "Flexible suites for the full range of wellness services." },
     ],
     homeAnchor: "gallery",
-    cta: { label: "Lease a suite", href: "/contact" },
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
     image: "/assets/findpro-b.webp",
   },
   {
@@ -196,20 +196,37 @@ export const seoPages: SeoPage[] = [
     image: "/assets/findpro-a.webp",
   },
   {
-    slug: "contact",
-    navLabel: "Contact",
-    title: "Lease a Suite or Book a Tour in Leander, TX",
+    slug: "lease-a-suite",
+    navLabel: "Lease a Suite",
+    title: "Lease a Private Salon Suite in Leander, TX",
     description:
-      "Get in touch with LUXYN in Leander, TX to reserve your private salon suite or book a tour. Email, call, or send an enquiry and we'll arrange your visit.",
-    kicker: "GET IN TOUCH",
-    h1: "Contact LUXYN in Leander, TX",
+      "Reserve your private, design-led salon suite at LUXYN in Leander, TX. Tell us about your craft and we'll confirm availability and walk you through the terms.",
+    kicker: "RESERVE YOUR SUITE",
+    h1: "Lease a private salon suite in Leander, TX",
     intro: [
-      "Ready to make LUXYN your professional home? Reserve a private suite or book a tour and our team will reach out to confirm availability and walk you through the space in person.",
+      "Ready to make LUXYN your professional home? Reserve a private suite and our team will reach out to confirm availability, share exact terms, and get you settled in.",
     ],
     points: [],
     homeAnchor: "contact",
-    cta: { label: "Reserve your suite", href: "/contact" },
+    // Links to itself so the on-page form is the CTA — SeoSectionPage hides it.
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
     image: "/assets/about-2.webp",
+  },
+  {
+    slug: "book-a-tour",
+    navLabel: "Book a Tour",
+    title: "Book a Private Tour of LUXYN in Leander, TX",
+    description:
+      "Book a private tour of LUXYN's salon suites in Leander, TX. See the available suites in person and get current pricing — we'll arrange a time that suits you.",
+    kicker: "BOOK A TOUR",
+    h1: "Book a private tour in Leander, TX",
+    intro: [
+      "See it in person. Book a private tour and we'll walk you through the available suites and share current pricing — no pressure, just a real look at the space.",
+    ],
+    points: [],
+    homeAnchor: "contact",
+    cta: { label: "Book a tour", href: "/book-a-tour" },
+    image: "/assets/findpro-a.webp",
   },
   {
     slug: "for-professionals",
@@ -230,7 +247,7 @@ export const seoPages: SeoPage[] = [
       { title: "On-site care", body: "A real person on site every day to welcome your clients and keep your space effortless." },
     ],
     homeAnchor: "difference",
-    cta: { label: "Lease a suite", href: "/contact" },
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
     image: "/assets/about-1.webp",
   },
   {
@@ -246,7 +263,7 @@ export const seoPages: SeoPage[] = [
     ],
     points: [],
     homeAnchor: "faq",
-    cta: { label: "Book a tour", href: "/contact" },
+    cta: { label: "Book a tour", href: "/book-a-tour" },
     image: "/assets/findpro-a.webp",
   },
 ];

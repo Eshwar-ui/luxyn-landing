@@ -45,12 +45,13 @@ function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
 }
 
 /**
- * Contact details + enquiry form for the dedicated /contact page. Mirrors the
- * contact section on the home page (intent switcher + ContactForm) so leads can
- * convert straight from the focused page.
+ * Contact details + enquiry form for the dedicated contact pages
+ * (/lease-a-suite, /book-a-tour). Mirrors the contact section on the home page
+ * (intent switcher + ContactForm) so leads can convert straight from the focused
+ * page. `initialVariant` pre-selects the tab that matches the page's intent.
  */
-export default function ContactPanel() {
-  const [variant, setVariant] = useState<ContactVariant>("lease");
+export default function ContactPanel({ initialVariant = "lease" }: { initialVariant?: ContactVariant }) {
+  const [variant, setVariant] = useState<ContactVariant>(initialVariant);
   const uid = useId();
   const tabId = (key: string) => `${uid}-tab-${key}`;
   const panelId = `${uid}-panel`;

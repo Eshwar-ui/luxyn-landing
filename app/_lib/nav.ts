@@ -21,15 +21,16 @@ export interface SectionRoute {
   label: string;
 }
 
-/** Primary menu — also the section↔slug map for clean-URL navigation. */
+/** Primary menu — also the section↔slug map for clean-URL navigation. The empty
+ *  slug is the home route ("/"). */
 export const SECTIONS: SectionRoute[] = [
+  { id: "hero",       slug: "",                  label: "Home" },
   { id: "philosophy", slug: "salon-suites",      label: "Suites" },
   { id: "amenities",  slug: "amenities",         label: "Amenities" },
   { id: "difference", slug: "for-professionals", label: "For Professionals" },
   { id: "gallery",    slug: "gallery",           label: "Gallery" },
   { id: "findpro",    slug: "find-a-pro",        label: "Find a Pro" },
   { id: "faq",        slug: "faq",               label: "FAQ" },
-  { id: "contact",    slug: "contact",           label: "Contact" },
 ];
 
 /** The header/footer menu renders from the same list. */

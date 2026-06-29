@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { NAV, BLOG_LINK, scrollToId } from "../_lib/nav";
+import { NAV, BLOG_LINK } from "../_lib/nav";
 import { site } from "../_lib/site";
 
 const btnGold =
@@ -37,15 +37,6 @@ export default function SiteHeader() {
     if (onHome) {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  /** Primary CTA: scroll to the contact section on the home page; otherwise let
-   *  the browser navigate to the dedicated /contact page (which has the form). */
-  const onContactCta = (e: React.MouseEvent) => {
-    if (onHome) {
-      e.preventDefault();
-      scrollToId("contact");
     }
   };
 
@@ -151,8 +142,8 @@ export default function SiteHeader() {
                     </a>
                   </div>
                   <a
-                    href="/contact"
-                    onClick={onContactCta}
+                    href="/lease-a-suite"
+                    onClick={() => setMenuOpen(false)}
                     className={`${btnGold} inline-flex items-center justify-center gap-2 w-full mt-1`}
                     style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
                   >
@@ -205,16 +196,14 @@ export default function SiteHeader() {
           </a>
 
           <a
-            href="/contact"
-            onClick={onContactCta}
+            href="/lease-a-suite"
             className={`${btnGold} hidden md:flex items-center shrink-0`}
             style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
           >
             LEASE A SUITE
           </a>
           <a
-            href="/contact"
-            onClick={onContactCta}
+            href="/lease-a-suite"
             aria-label="Lease a suite"
             className="md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full shrink-0"
             style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}

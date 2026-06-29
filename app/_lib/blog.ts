@@ -169,7 +169,7 @@ export const blogPosts: BlogPost[] = [
       { type: "h2", text: "Salon suite vs. booth rental" },
       { type: "p", text: "Salon suites and booth rentals are sometimes confused, but they offer different experiences. With a booth rental, you rent a chair or station inside an existing salon. You may operate independently, but you still share the reception, waiting area, and overall environment with other professionals." },
       { type: "p", text: "A salon suite gives you an enclosed, private workspace. Clients enjoy a more personalized experience, and you have far greater control over your operations and atmosphere. A suite may be the better choice if you want greater privacy, a premium client experience, freedom to design your space, more control over branding, and flexible operations. Booth rentals can suit professionals just starting out — many later transition to suites as their business grows." },
-      { type: "cta", text: "Want to see the difference in person rather than on paper?", label: "Book a tour", href: "/contact" },
+      { type: "cta", text: "Want to see the difference in person rather than on paper?", label: "Book a tour", href: "/book-a-tour" },
 
       { type: "h2", text: "What's included in a luxury salon suite?" },
       { type: "p", text: "Every location is different, but premium salon suites typically include features that let you start serving clients immediately:" },
@@ -225,7 +225,7 @@ export const blogPosts: BlogPost[] = [
       { type: "h2", text: "Why choose LUXYN Studios?" },
       { type: "p", text: "At LUXYN Studios, we know every beauty professional has a unique vision for their business. That's why we provide premium private salon suites in Leander, TX, designed to help independent professionals build successful brands. When you lease a suite with us, you gain more than a workspace — you gain an environment built for growth, professionalism, and exceptional client experiences." },
       { type: "p", text: "Whether you're launching your first independent business or expanding an established clientele, our move-in-ready luxury suites give you the flexibility and privacy you need to succeed — designed for hairstylists, estheticians, nail technicians, lash artists, massage therapists, and wellness professionals. Schedule a tour today to see how LUXYN can help you take the next step toward business independence." },
-      { type: "cta", text: "Ready to build your beauty business in a premium, professional environment?", label: "Schedule a tour today", href: "/contact" },
+      { type: "cta", text: "Ready to build your beauty business in a premium, professional environment?", label: "Schedule a tour today", href: "/book-a-tour" },
     ],
     tags: ["salon suite rentals", "salon suite for rent", "private salon suite", "salon suite lease", "salon suite cost", "luxury salon suites", "independent beauty business", "Leander TX"],
     faqs: [
@@ -236,7 +236,7 @@ export const blogPosts: BlogPost[] = [
       { q: "How long are salon suite leases?", a: "Lease terms vary by location and provider. Some offer flexible agreements, while others provide longer-term leases with renewal options." },
       { q: "Do I need my own business license?", a: "Requirements vary by state and local regulations. Check with your local licensing authority to ensure compliance before operating your business." },
     ],
-    cta: { label: "Schedule a tour today", href: "/contact" },
+    cta: { label: "Schedule a tour today", href: "/book-a-tour" },
   },
   {
     slug: "how-much-does-a-salon-suite-cost",
@@ -286,7 +286,7 @@ export const blogPosts: BlogPost[] = [
         ["Booth rental", "Weekly/monthly station fee", "Everything you earn at the chair"],
         ["Private suite", "Fixed monthly lease (amenities included)", "Everything above your fixed lease"],
       ], caption: "Costs vary by market — the trade-off between variable and fixed cost does not." },
-      { type: "cta", text: "Want a real number for your situation rather than a range?", label: "Book a tour for pricing", href: "/contact" },
+      { type: "cta", text: "Want a real number for your situation rather than a range?", label: "Book a tour for pricing", href: "/book-a-tour" },
       { type: "h2", text: "Getting an exact number for LUXYN" },
       { type: "p", text: "Lease rates at LUXYN depend on suite size and current availability, so the most reliable way to get an exact figure is a short private tour. You'll see the available suites in person, and we'll walk you through the terms with no guesswork. Book a tour and we'll share current pricing for the suite that fits your craft." },
     ],
@@ -297,7 +297,7 @@ export const blogPosts: BlogPost[] = [
       { q: "Are there hidden costs beyond the monthly rent?", a: "Plan for liability insurance, product and back-bar supplies, booking/payment software, initial décor or equipment, and a small marketing budget. Most are modest, but budgeting for them up front gives you a realistic first-year picture." },
       { q: "Is a salon suite cheaper than a commission chair?", a: "Once your book is steady, usually yes. You trade a percentage of every ticket for a fixed monthly lease, so everything you earn above your break-even line is yours to keep." },
     ],
-    cta: { label: "Book a tour for pricing", href: "/contact" },
+    cta: { label: "Book a tour for pricing", href: "/book-a-tour" },
   },
   {
     slug: "salon-suite-vs-booth-rental",
@@ -350,7 +350,7 @@ export const blogPosts: BlogPost[] = [
       { q: "Which model is best for someone just starting out?", a: "A commission chair is usually best for newer pros still building a client base, since it has zero overhead and a built-in stream of walk-ins. A booth or suite makes more sense once you have a steady book that will follow you." },
       { q: "Do I lose my clients when I move to a suite?", a: "Not if you plan the move. Tell clients early and personally, make rebooking effortless, and give them a reason to be excited — a more private, comfortable experience. Most loyal clients follow without missing a beat." },
     ],
-    cta: { label: "See the suites in person", href: "/contact" },
+    cta: { label: "See the suites in person", href: "/book-a-tour" },
   },
   {
     slug: "how-to-start-a-salon-suite-business",
@@ -393,7 +393,7 @@ export const blogPosts: BlogPost[] = [
         "Do a soft-launch day with a few regulars to shake out any kinks",
       ] },
       { type: "p", text: "Walking into opening day with the boring stuff already solved lets you spend your energy where it counts — on your clients." },
-      { type: "cta", text: "Picturing your own suite for opening day?", label: "Book a private tour", href: "/contact" },
+      { type: "cta", text: "Picturing your own suite for opening day?", label: "Book a private tour", href: "/book-a-tour" },
       { type: "h2", text: "6. Open, then keep growing" },
       { type: "p", text: "Opening day isn't the finish line. Ask happy clients for reviews, keep your social presence consistent, and lean on the marketing and front-of-house support your studio provides. Independence doesn't mean doing everything alone — the best suite communities give you room to grow with real backing behind you." },
       { type: "p", text: "If Leander or the greater Austin area is home, LUXYN is built to be the easiest place to make this leap: design-led private suites with the amenities, security, and on-site care already handled. Book a tour and we'll help you picture opening day in a space that's truly yours." },
@@ -405,7 +405,7 @@ export const blogPosts: BlogPost[] = [
       { q: "Do I need business insurance for a salon suite?", a: "Yes — professional liability insurance is standard, and most suite leases will ask for proof of it. It's usually modest and worth having in place before you sign." },
       { q: "How long does it take to launch a salon suite business?", a: "Once your license and insurance are sorted, the move itself can happen quickly. The pace usually depends on suite availability and how soon you want to bring your clients over — a tour is the fastest way to lock in timing." },
     ],
-    cta: { label: "Start with a private tour", href: "/contact" },
+    cta: { label: "Start with a private tour", href: "/book-a-tour" },
     howTo: true,
   },
 ];

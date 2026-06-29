@@ -4,6 +4,9 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+      { "source": "/contact", "destination": "/lease-a-suite", "type": 301 }
+    ],
     "headers": [
       {
         "source": "/_next/**",

@@ -166,7 +166,7 @@ export default function BlogIndexPage() {
               </p>
             </div>
             <a
-              href="/contact"
+              href="/book-a-tour"
               className="relative inline-flex h-[52px] shrink-0 items-center justify-center rounded-full px-9 font-ui font-bold transition-transform duration-300 hover:-translate-y-0.5"
               style={{ fontSize: 15, letterSpacing: 0.4, background: "rgb(194,160,107)", color: "rgb(20,35,59)" }}
             >
