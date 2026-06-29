@@ -6,6 +6,7 @@ import ArticleToc from "./ArticleToc";
 import ArticleShare from "./ArticleShare";
 import NewsletterSignup from "./NewsletterSignup";
 import { site } from "../_lib/site";
+import { isoDateTime } from "../_lib/content";
 import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
 
 /**
@@ -37,8 +38,8 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
         description: post.description,
         url,
         image: { "@id": `${url}#primaryimage` },
-        datePublished: post.published,
-        dateModified: post.updated,
+        datePublished: isoDateTime(post.published),
+        dateModified: isoDateTime(post.updated),
         inLanguage: "en-US",
         wordCount: post.body.reduce((n, b) => n + ("text" in b && b.text ? b.text.split(/\s+/).length : 0), 0),
         author: { "@type": "Organization", name: post.author, "@id": `${site.url}/#organization` },

@@ -3,6 +3,7 @@ import SiteFooter from "./SiteFooter";
 import PageHero from "./PageHero";
 import NewsletterSignup from "./NewsletterSignup";
 import { site } from "../_lib/site";
+import { isoDateTime } from "../_lib/content";
 import { blogIndex, blogPosts, formatPostDate, postUrl } from "../_lib/blog";
 
 /**
@@ -33,8 +34,8 @@ export default function BlogIndexPage() {
           headline: p.title,
           description: p.description,
           url: postUrl(p.slug),
-          datePublished: p.published,
-          dateModified: p.updated,
+          datePublished: isoDateTime(p.published),
+          dateModified: isoDateTime(p.updated),
           author: { "@type": "Organization", name: p.author, "@id": `${site.url}/#organization` },
         })),
       },

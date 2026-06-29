@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { NAV, BLOG_LINK, scrollToId, SCROLL_TARGET_KEY } from "../_lib/nav";
+import { NAV, BLOG_LINK, scrollToId } from "../_lib/nav";
 import { site } from "../_lib/site";
 
 const btnGold =
@@ -11,10 +11,9 @@ const btnGold =
 
 /**
  * Site-wide header — the glass menu overlay + sticky navbar. Shared by the home
- * page, the section SEO pages and the legal pages. The menu drives the home-page
- * scroll experience: on the home page links smooth-scroll to the section; from
- * any other page they navigate home (the href is "/") and hand off the target
- * section via sessionStorage so Landing scrolls to it on arrival.
+ * page, the section SEO pages and the legal pages. Each menu link navigates to
+ * the section's own dedicated, indexable SEO page at /slug (matching the footer),
+ * so the nav is plain page-to-page navigation rather than home-page scrolling.
  */
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -34,20 +33,6 @@ export default function SiteHeader() {
     };
   }, []);
 
-  /** Menu links: smooth-scroll on the home page; from elsewhere, store the
-   *  target section and let the browser follow the "/" href, where Landing reads
-   *  the hand-off and scrolls to it. */
-  const onNav = (e: React.MouseEvent, id: string) => {
-    const wasOpen = menuOpen;
-    setMenuOpen(false);
-    if (onHome) {
-      e.preventDefault();
-      window.setTimeout(() => scrollToId(id), wasOpen ? 60 : 0);
-    } else {
-      try { sessionStorage.setItem(SCROLL_TARGET_KEY, id); } catch { /* storage blocked */ }
-    }
-  };
-
   const onLogo = (e: React.MouseEvent) => {
     if (onHome) {
       e.preventDefault();
@@ -64,11 +49,11 @@ export default function SiteHeader() {
     }
   };
 
-  /** Flatten the menu into one numbered index: the home-page sections (which
-   *  smooth-scroll) followed by the Blog route (which just navigates). */
-  const menuItems: { label: string; href: string; id: string | null }[] = [
-    ...NAV.map(n => ({ label: n.label, href: "/", id: n.id })),
-    { label: BLOG_LINK.label, href: BLOG_LINK.href, id: null },
+  /** Flatten the menu into one numbered index: each section links to its own
+   *  dedicated /slug SEO page, followed by the Blog route. */
+  const menuItems: { label: string; href: string }[] = [
+    ...NAV.map(n => ({ label: n.label, href: `/${n.slug}` })),
+    { label: BLOG_LINK.label, href: BLOG_LINK.href },
   ];
 
   return (
@@ -121,11 +106,11 @@ export default function SiteHeader() {
               <div className="grid gap-y-10 lg:grid-cols-[1fr_auto]">
                 {/* ── numbered editorial index ───────────────── */}
                 <nav className="flex flex-col lg:grid lg:grid-flow-col lg:grid-rows-4 lg:grid-cols-2 lg:gap-x-12 lg:pr-16">
-                  {menuItems.map(({ label, href, id }, i) => (
+                  {menuItems.map(({ label, href }, i) => (
                     <a
                       key={label}
                       href={href}
-                      onClick={e => (id ? onNav(e, id) : setMenuOpen(false))}
+                      onClick={() => setMenuOpen(false)}
                       className="group relative flex items-center gap-5 py-[7px] sm:py-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-champagne/60"
                     >
                       <span className="w-7 shrink-0 font-ui text-[12px] sm:text-[13px] tabular-nums tracking-[0.18em] text-champagne/55 transition-colors duration-300 group-hover:text-champagne/30 group-focus-visible:text-champagne/30">

@@ -1,6 +1,6 @@
 import Landing from "../_components/Landing";
 import { site } from "../_lib/site";
-import { faqs, contentDates } from "../_lib/content";
+import { faqs, contentDates, isoDateTime } from "../_lib/content";
 
 /* Page-level JSON-LD for the home page only. The WebPage, BreadcrumbList,
  * FAQPage and Review all describe content that is actually rendered here (the
@@ -39,8 +39,8 @@ const homeJsonLd = {
       mainEntity: faqs.map(({ q, a }) => ({
         "@type": "Question",
         name: q,
-        datePublished: contentDates.published,
-        dateModified: contentDates.updated,
+        datePublished: isoDateTime(contentDates.published),
+        dateModified: isoDateTime(contentDates.updated),
         acceptedAnswer: { "@type": "Answer", text: a },
       })),
     },

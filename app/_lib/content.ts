@@ -16,6 +16,22 @@ export const contentDates = {
   updated: "2026-06-25",
 } as const;
 
+/** Convert a `YYYY-MM-DD` content stamp into a timezone-aware ISO 8601 datetime,
+ *  as schema.org date fields (datePublished, dateModified) expect — a bare date
+ *  triggers Google's "Invalid datetime value" / "missing a time zone" rich-result
+ *  warnings. Stamps are anchored to local noon in Leander, TX (America/Chicago)
+ *  with the correct Central offset for that calendar day (CDT/-05:00 in summer,
+ *  CST/-06:00 in winter). Deterministic, so it's safe for the static export. */
+export function isoDateTime(date: string): string {
+  const noonUTC = new Date(`${date}T12:00:00Z`);
+  const offset =
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", timeZoneName: "longOffset" })
+      .formatToParts(noonUTC)
+      .find((p) => p.type === "timeZoneName")
+      ?.value.replace("GMT", "") || "-06:00";
+  return `${date}T12:00:00${offset}`;
+}
+
 /* ── FAQ ──────────────────────────────────────────────────────────────────
  * Targets the real long-tail questions people ask before renting a salon
  * suite. Rendered on the home page AND emitted as FAQPage JSON-LD, which is
