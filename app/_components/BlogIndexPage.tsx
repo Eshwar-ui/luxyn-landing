@@ -34,6 +34,7 @@ export default function BlogIndexPage() {
           headline: p.title,
           description: p.description,
           url: postUrl(p.slug),
+          image: `${site.url}${p.image}`,
           datePublished: isoDateTime(p.published),
           dateModified: isoDateTime(p.updated),
           author: { "@type": "Organization", name: p.author, "@id": `${site.url}/#organization` },
