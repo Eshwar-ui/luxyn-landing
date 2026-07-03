@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import Reveal from "../_lib/reveal";
 import { site } from "../_lib/site";
 import { seoPages } from "../_lib/content";
 import { LEGAL, YEAR, VELVO_URL, BLOG_LINK } from "../_lib/nav";
@@ -58,7 +58,7 @@ export default function SiteFooter() {
   return (
     <footer id="footer" className="relative overflow-hidden w-full pt-8 sm:pt-16 pb-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
       <div className="flex flex-col items-center z-[2] gap-8 px-6">
-        <a href="/" onClick={onLogo} aria-label="LUXYN — home" className="cursor-pointer transition-opacity hover:opacity-80 scale-[0.8] sm:scale-100" style={{ width: 265, height: 76, background: "url(/assets/logo.png) 51.02% 65.351%/119.522% 416.667% no-repeat" }} />
+        <a href="/" onClick={onLogo} aria-label="LUXYN — home" className="cursor-pointer transition-opacity hover:opacity-80 scale-[0.8] sm:scale-100" style={{ width: 265, height: 76, background: "url(/assets/logo-mark.webp) 51.02% 65.351%/119.522% 416.667% no-repeat" }} />
 
         {/* Section links — each points at its dedicated /slug SEO page. */}
         <nav aria-label="LUXYN sections" className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-10">
@@ -82,13 +82,12 @@ export default function SiteFooter() {
 
       <div className="w-full h-px mt-16 z-[2]" style={{ background: "rgb(138,146,157)", opacity: 0.4 }} />
 
-      <motion.div
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }}
+      <Reveal
         className="w-full max-w-[1440px] z-[1]"
         style={{ aspectRatio: "1440 / 244" }}
       >
         <div role="img" aria-label="LUXYN" className="w-full h-full" style={{ background: "url('/assets/luxyn-wordmark.svg') center/contain no-repeat" }} />
-      </motion.div>
+      </Reveal>
 
       <div className="w-full max-w-[1240px] px-6 lg:px-12 z-[2] pt-6">
         <div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6 md:gap-8">

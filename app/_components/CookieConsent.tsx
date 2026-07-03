@@ -1,14 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   OPEN_PREFERENCES_EVENT,
   readConsent,
   writeConsent,
 } from "../_lib/consent";
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 const btnGold =
   "h-[44px] px-6 rounded-full font-ui font-semibold text-[13px] tracking-wide transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(194,160,107,.45)] cursor-pointer";
@@ -100,17 +97,11 @@ export default function CookieConsent() {
   return (
     <>
       {/* ── consent banner ───────────────────────────────── */}
-      <AnimatePresence>
-        {bannerOpen && !prefsOpen && (
-          <motion.div
-            key="cookie-banner"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 28 }}
-            transition={{ duration: 0.5, ease: EASE }}
+      {bannerOpen && !prefsOpen && (
+          <div
             role="region"
             aria-label="Cookie consent"
-            className="fixed bottom-4 left-4 right-4 z-[210] sm:left-6 sm:right-auto sm:bottom-6 sm:w-[420px] rounded-[20px] p-6 sm:p-7"
+            className="cookie-banner fixed bottom-4 left-4 right-4 z-[210] sm:left-6 sm:right-auto sm:bottom-6 sm:w-[420px] rounded-[20px] p-6 sm:p-7"
             style={{
               background: "rgb(249,245,238)",
               boxShadow: "0 24px 60px rgba(13,27,46,.28)",
@@ -158,34 +149,23 @@ export default function CookieConsent() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* ── preferences dialog ───────────────────────────── */}
-      <AnimatePresence>
-        {prefsOpen && (
-          <motion.div
-            key="cookie-prefs-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[220] flex items-center justify-center p-4"
+      {prefsOpen && (
+          <div
+            className="cookie-backdrop fixed inset-0 z-[220] flex items-center justify-center p-4"
             style={{ background: "rgba(5,12,24,.55)" }}
             onClick={e => { if (e.target === e.currentTarget) setPrefsOpen(false); }}
           >
-            <motion.div
+            <div
               ref={dialogRef}
               tabIndex={-1}
               role="dialog"
               aria-modal="true"
               aria-labelledby="cookie-prefs-title"
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.98 }}
-              transition={{ duration: 0.4, ease: EASE }}
-              className="w-full max-w-[480px] rounded-[22px] p-7 sm:p-8 outline-none"
+              className="cookie-dialog w-full max-w-[480px] rounded-[22px] p-7 sm:p-8 outline-none"
               style={{ background: "rgb(251,248,241)", boxShadow: "0 30px 80px rgba(13,27,46,.4)" }}
             >
               <div className="font-accent text-[11px] uppercase tracking-[2.5px] text-champagne font-semibold mb-2">
@@ -255,10 +235,9 @@ export default function CookieConsent() {
                   Accept all
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
     </>
   );
 }

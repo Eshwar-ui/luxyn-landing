@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { NAV, BLOG_LINK } from "../_lib/nav";
 import { site } from "../_lib/site";
 
@@ -50,25 +49,14 @@ export default function SiteHeader() {
   return (
     <>
       {/* ── glassmorphism menu overlay ────────────────── */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[200]"
+      {menuOpen && (
+          <div
+            className="menu-backdrop fixed inset-0 z-[200]"
             style={{ background: "rgba(5,12,24,.5)" }}
             onClick={e => { if (e.target === e.currentTarget) setMenuOpen(false); }}
           >
-            <motion.div
-              key="panel"
-              initial={{ opacity: 0, y: -20, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
+            <div
+              className="menu-overlay-box absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
               style={{
                 background: "rgba(33,45,63,0.85)",
                 backdropFilter: "blur(24px) saturate(1.2)",
@@ -152,10 +140,9 @@ export default function SiteHeader() {
                   </a>
                 </aside>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* ── sticky navbar ─────────────────────────────── */}
       <header

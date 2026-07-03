@@ -249,6 +249,15 @@ export default function RootLayout({
             discover it until stylesheets parse. Preload it at high priority to
             cut LCP — it's the largest above-the-fold paint. */}
         <link rel="preload" as="image" href="/assets/hero-bg.webp" fetchPriority="high" />
+        {/* The arch photo is an above-the-fold CSS background-image (discovered
+            only after CSS parses) and a likely LCP element — preload it too. */}
+        <link rel="preload" as="image" href="/assets/hero-arch.webp" fetchPriority="high" />
+        {/* Scroll-reveal starts elements at opacity:0, then JS reveals them. If JS
+            never runs (crawler without JS, or a blocked script), force `.rv`
+            visible so the content is always present. */}
+        <noscript>
+          <style>{`.rv{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
         <meta name="format-detection" content="telephone=no" />
         <link rel="author" href={`mailto:${site.contact.email}`} />
         <meta itemProp="name" content={site.name} />
@@ -262,11 +271,15 @@ export default function RootLayout({
         {children}
         <CookieConsent />
       </body>
+      {/* Google Analytics (~180KB) loads `lazyOnload` — after the page is idle —
+          so it never competes with the LCP hero image for bandwidth on slow
+          connections. Consent Mode defaults are already applied synchronously in
+          <head> above, so deferring gtag.js changes no consent behaviour. */}
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
-      <Script id="gtag-init" strategy="afterInteractive">
+      <Script id="gtag-init" strategy="lazyOnload">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
