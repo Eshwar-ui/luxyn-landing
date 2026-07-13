@@ -40,6 +40,10 @@ export const NAV = SECTIONS;
  *  links straight to its own route from the header menu and footer. */
 export const BLOG_LINK = { slug: "blog", label: "Blog", href: "/blog" } as const;
 
+/** The floor plan is its own dedicated route (an interactive suite map), not a
+ *  home-page scroll target, so it links straight to /floor-plan like the blog. */
+export const FLOORPLAN_LINK = { slug: "floor-plan", label: "Floor Plan", href: "/floor-plan" } as const;
+
 /** Legal/utility links shown in the footer. */
 export const LEGAL = [
   { label: "Privacy Policy",   href: "/privacy" },

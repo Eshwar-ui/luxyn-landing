@@ -127,6 +127,16 @@ export default function ContactPanel({ initialVariant = "lease" }: { initialVari
           <ContactForm key={variant} variant={variant} />
         </div>
       </div>
+
+      <div className="overflow-hidden rounded-[20px] lg:col-span-2" style={{ boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}>
+        <iframe
+          title={`Map showing LUXYN at ${fullAddress}`}
+          src={`https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="block h-[280px] w-full border-0 sm:h-[340px]"
+        />
+      </div>
     </div>
   );
 }

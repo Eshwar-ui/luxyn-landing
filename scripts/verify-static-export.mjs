@@ -74,6 +74,51 @@ check("sitemap routes have HTML files", () => {
   return true;
 });
 
+check("indexable HTML has unique metadata and canonical URLs", () => {
+  const htmlFiles = walkFiles(outDir)
+    .filter((file) => file.endsWith(".html"))
+    .filter((file) => !file.endsWith("404.html"))
+    .filter((file) => !file.endsWith("_not-found.html"));
+  const titles = new Map();
+  const canonicals = new Map();
+
+  for (const file of htmlFiles) {
+    const html = readFileSync(file, "utf8");
+    const route = relative(outDir, file);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = html.match(/<meta name="description" content="([^"]+)"/);
+    const canonical = html.match(/<link rel="canonical" href="([^"]+)"/);
+    if (!title || !description || !canonical) throw new Error(`Missing title, description, or canonical: ${route}`);
+    if (titles.has(title)) throw new Error(`Duplicate title: ${title}`);
+    if (canonicals.has(canonical[1])) throw new Error(`Duplicate canonical: ${canonical[1]}`);
+    titles.set(title, route);
+    canonicals.set(canonical[1], route);
+  }
+  return true;
+});
+
+check("indexable HTML contains structured data", () => {
+  const htmlFiles = walkFiles(outDir)
+    .filter((file) => file.endsWith(".html"))
+    .filter((file) => !file.endsWith("404.html"))
+    .filter((file) => !file.endsWith("_not-found.html"));
+  return htmlFiles.every((file) => readFileSync(file, "utf8").includes('type="application/ld+json"'));
+});
+
+check("new service and question routes are exported", () => {
+  const expected = [
+    "services/hair-stylist-suites.html",
+    "services/esthetician-room-rental.html",
+    "services/nail-suite-rental.html",
+    "services/lash-brow-studio.html",
+    "services/massage-wellness-room.html",
+    "questions/what-is-included-in-a-salon-suite-lease.html",
+    "questions/salon-suite-vs-booth-rent.html",
+    "questions/how-to-lease-a-salon-suite.html",
+  ];
+  return expected.every((file) => existsSync(join(outDir, file)));
+});
+
 check("home page contains brand and footer credit", () => {
   const home = readRequiredFile("index.html");
   return home.includes("LUXYN") && home.includes("designed and developed by") && home.includes("VELVO MEDIA");

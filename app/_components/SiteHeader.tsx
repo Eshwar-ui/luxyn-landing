@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { NAV, BLOG_LINK } from "../_lib/nav";
+import { NAV, BLOG_LINK, FLOORPLAN_LINK } from "../_lib/nav";
 import { site } from "../_lib/site";
 
 const btnGold =
@@ -43,6 +43,7 @@ export default function SiteHeader() {
    *  dedicated /slug SEO page, followed by the Blog route. */
   const menuItems: { label: string; href: string }[] = [
     ...NAV.map(n => ({ label: n.label, href: `/${n.slug}` })),
+    { label: FLOORPLAN_LINK.label, href: FLOORPLAN_LINK.href },
     { label: BLOG_LINK.label, href: BLOG_LINK.href },
   ];
 
@@ -84,7 +85,7 @@ export default function SiteHeader() {
 
               <div className="grid gap-y-10 lg:grid-cols-[1fr_auto]">
                 {/* ── numbered editorial index ───────────────── */}
-                <nav className="flex flex-col lg:grid lg:grid-flow-col lg:grid-rows-4 lg:grid-cols-2 lg:gap-x-12 lg:pr-16">
+                <nav className="flex flex-col lg:grid lg:grid-flow-col lg:grid-rows-5 lg:grid-cols-2 lg:gap-x-12 lg:pr-16">
                   {menuItems.map(({ label, href }, i) => (
                     <a
                       key={label}

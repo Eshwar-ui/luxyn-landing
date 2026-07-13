@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { site } from "./_lib/site";
-import { seoPages } from "./_lib/content";
+import { seoPages, servicePages, questionPages } from "./_lib/content";
 import { blogPosts } from "./_lib/blog";
 
 export const dynamic = "force-static";
@@ -39,10 +39,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ];
 
+  const topicRoutes: MetadataRoute.Sitemap = [
+    ...servicePages.map((p) => ({
+      url: `${site.url}/services/${p.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
+    })),
+    ...questionPages.map((p) => ({
+      url: `${site.url}/questions/${p.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  ];
+
   return [
     { url: `${site.url}/`,        lastModified, changeFrequency: "monthly", priority: 1,   images: homeImages },
     ...sectionRoutes,
+    ...topicRoutes,
     ...blogRoutes,
+    { url: `${site.url}/floor-plan`, lastModified, changeFrequency: "monthly", priority: 0.7 },
     { url: `${site.url}/privacy`, lastModified, changeFrequency: "yearly",  priority: 0.3 },
     { url: `${site.url}/terms`,   lastModified, changeFrequency: "yearly",  priority: 0.3 },
     { url: `${site.url}/cookies`, lastModified, changeFrequency: "yearly",  priority: 0.3 },

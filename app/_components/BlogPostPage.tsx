@@ -325,6 +325,16 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                 </section>
               )}
 
+              <div className="mt-12 rounded-[18px] p-7" style={{ background: "rgba(194,160,107,.09)", boxShadow: "inset 0 0 0 1px rgba(194,160,107,.35)" }}>
+                <p className="font-accent text-[12px] font-semibold tracking-[2px] text-[rgb(160,128,72)]">KEEP EXPLORING</p>
+                <p className="mt-2 font-display text-[21px] font-semibold text-[rgb(33,58,92)]">Make the next step practical.</p>
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 font-ui text-[14px] font-semibold">
+                  <a href="/services/hair-stylist-suites" className="underline underline-offset-4">Explore service suites</a>
+                  <a href="/questions/how-to-lease-a-salon-suite" className="underline underline-offset-4">How to lease a suite</a>
+                  <a href="/book-a-tour" className="underline underline-offset-4">Book a private tour</a>
+                </div>
+              </div>
+
               {/* CTA card */}
               <div
                 className="mt-12 flex flex-col gap-4 rounded-[18px] p-7 sm:flex-row sm:items-center sm:justify-between sm:p-8"

@@ -24,8 +24,19 @@ function build() {
   return {
     page: `${site.url}/`,
     organization: site.name,
+    description: site.description,
+    canonical: site.url,
     version: contentDates.updated,
     lastUpdated: `${contentDates.updated}T00:00:00Z`,
+    sourceUrls: {
+      homepage: `${site.url}/`,
+      suites: `${site.url}/salon-suites`,
+      amenities: `${site.url}/amenities`,
+      contact: `${site.url}/lease-a-suite`,
+      faq: `${site.url}/faq`,
+      sitemap: `${site.url}/sitemap.xml`,
+    },
+    unavailableUntilConfirmed: ["pricing", "suite_count", "suite_size", "lease_terms", "year_established", "opening_hours"],
     facts: [
       { id: "business_type", value: "Private salon & wellness suite leasing", source: `${site.url}/salon-suites`, as_of: asOf },
       { id: "location", value: `${fullAddress}, US`, source: `${site.url}/lease-a-suite`, as_of: asOf },

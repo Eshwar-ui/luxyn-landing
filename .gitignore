@@ -51,3 +51,6 @@ serviceAccountKey*.json
 
 # local editor / harness config
 .claude/
+
+# design sources kept local only (optimized assets are committed under public/)
+floor map.pdf

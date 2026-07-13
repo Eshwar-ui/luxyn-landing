@@ -52,9 +52,24 @@ LUXYN leases private, design-led salon and wellness suites to independent beauty
 - Lease model: professionals lease a private, lockable suite and keep full ownership of their business, schedule, and pricing
 ${concreteFactLines ? concreteFactLines + "\n" : ""}- How to start: book a private tour or reserve a suite via the contact page
 
+## Verified information boundaries
+Pricing, suite count, suite size range, lease terms, year established, and office hours are not published here until LUXYN confirms the values. Ask the team for current availability and terms.
+
 ## Sections (single-page site)
 - [Home](${u}/): ${site.description}
 ${sectionLines}
+
+## Service guides
+- [Hair stylist suites](${u}/services/hair-stylist-suites)
+- [Esthetician room rental](${u}/services/esthetician-room-rental)
+- [Nail suite rental](${u}/services/nail-suite-rental)
+- [Lash & brow studio](${u}/services/lash-brow-studio)
+- [Massage & wellness room](${u}/services/massage-wellness-room)
+
+## Practical questions
+- [What is included in a salon suite lease?](${u}/questions/what-is-included-in-a-salon-suite-lease)
+- [Salon suite vs booth rent](${u}/questions/salon-suite-vs-booth-rent)
+- [How to lease a salon suite](${u}/questions/how-to-lease-a-salon-suite)
 
 ## Frequently asked questions
 ${faqLines}

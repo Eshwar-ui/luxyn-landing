@@ -64,7 +64,7 @@ export const faqs = [
   },
   {
     q: "How much does it cost to rent a salon suite?",
-    a: "Lease rates depend on suite size and availability. The simplest way to get current pricing is to book a private tour — we'll walk you through the available suites in person and share exact terms.",
+    a: "Salon suite pricing depends on suite size and availability. LUXYN shares current rates and lease terms during a private tour so you can compare the available space in person and get an accurate answer for the suite that fits your business.",
   },
   {
     q: "How do I lease a suite or book a tour?",
@@ -75,6 +75,146 @@ export const faqs = [
     a: "LUXYN is home to a range of independent beauty and wellness professionals. Browse the artistry on our site to see the categories working from LUXYN, then connect with the professional that fits what you're looking for.",
   },
 ] as const;
+
+export type TopicPage = {
+  slug: string;
+  title: string;
+  description: string;
+  kicker: string;
+  h1: string;
+  intro: string;
+  points: { title: string; body: string }[];
+  image: string;
+  cta: { label: string; href: string };
+};
+
+/** Focused service pages use only claims already published on the site. */
+export const servicePages: TopicPage[] = [
+  {
+    slug: "hair-stylist-suites",
+    title: "Hair Stylist Suites for Rent in Leander, TX",
+    description: "Private salon suites for hair stylists and colorists in Leander, TX, with secure access, fiber Wi-Fi, laundry, and a client lounge.",
+    kicker: "FOR HAIR PROS",
+    h1: "Private hair stylist suites for rent in Leander, TX",
+    intro: "LUXYN gives hair stylists and colorists a private, lockable studio where they can welcome clients, shape their own experience, and run their business independently.",
+    points: [
+      { title: "A private client experience", body: "Work in a calm, dedicated suite rather than an open salon floor." },
+      { title: "Built for independence", body: "Set your own schedule, pricing, brand, and client relationships." },
+      { title: "Support around the suite", body: "Use secure access, fiber Wi-Fi, laundry, common-area care, and the client lounge." },
+    ],
+    image: "/assets/gallery-1.webp",
+    cta: { label: "Book a private tour", href: "/book-a-tour" },
+  },
+  {
+    slug: "esthetician-room-rental",
+    title: "Esthetician Room Rental in Leander, TX",
+    description: "Lease a private esthetician room in Leander, TX and build an independent skin-care studio at LUXYN.",
+    kicker: "FOR ESTHETICIANS",
+    h1: "A private esthetician room in Leander, TX",
+    intro: "Create a focused treatment environment for your skin-care business in a private LUXYN suite, with the freedom to manage your own clients, schedule, pricing, and brand.",
+    points: [
+      { title: "Quiet and private", body: "Give clients a dedicated room designed around a calm, personal service experience." },
+      { title: "Your studio, your way", body: "Operate independently while LUXYN handles the building, amenities, and upkeep." },
+      { title: "A polished arrival", body: "Welcome clients through a styled lounge and a design-led environment." },
+    ],
+    image: "/assets/about-2.webp",
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
+  },
+  {
+    slug: "nail-suite-rental",
+    title: "Nail Suite Rental in Leander, TX",
+    description: "Explore private nail suite rental in Leander, TX for independent nail artists who want their own client experience and schedule.",
+    kicker: "FOR NAIL ARTISTS",
+    h1: "A private nail suite for your independent business",
+    intro: "LUXYN gives nail artists a dedicated space to build a calm, premium service experience while keeping full ownership of their business and client relationships.",
+    points: [
+      { title: "Designed for your brand", body: "Shape a private suite around the atmosphere and identity your clients know you for." },
+      { title: "Flexible independence", body: "Run your own hours, pricing, services, and client policies." },
+      { title: "Premium shared amenities", body: "Give clients access to a styled lounge, secure facility, fiber Wi-Fi, and cared-for common areas." },
+    ],
+    image: "/assets/gallery-2.webp",
+    cta: { label: "Book a private tour", href: "/book-a-tour" },
+  },
+  {
+    slug: "lash-brow-studio",
+    title: "Lash & Brow Studio Rental in Leander, TX",
+    description: "Rent a private lash and brow studio in Leander, TX and create a focused, independent beauty business at LUXYN.",
+    kicker: "FOR LASH & BROW PROS",
+    h1: "A focused lash and brow studio in Leander, TX",
+    intro: "Give detailed lash and brow services the privacy and calm they deserve in a private LUXYN suite, with the independence to grow your own brand and book of clients.",
+    points: [
+      { title: "A calm service setting", body: "Create a quiet, personal experience for detailed work and returning clients." },
+      { title: "Full business ownership", body: "Keep control of your schedule, pricing, brand, and client relationships." },
+      { title: "A welcoming destination", body: "Meet clients in a design-led environment with a styled lounge and on-site care." },
+    ],
+    image: "/assets/findpro-b.webp",
+    cta: { label: "Lease a suite", href: "/lease-a-suite" },
+  },
+  {
+    slug: "massage-wellness-room",
+    title: "Massage & Wellness Room Rental in Leander, TX",
+    description: "Lease a private massage or wellness room in Leander, TX for an independent practice with privacy, flexibility, and on-site support.",
+    kicker: "FOR WELLNESS PROS",
+    h1: "A private massage and wellness room in Leander, TX",
+    intro: "LUXYN supports massage therapists and wellness practitioners with a private setting where they can build a trusted client experience and operate their own business.",
+    points: [
+      { title: "Privacy for every appointment", body: "Welcome clients into a dedicated room instead of a busy shared floor." },
+      { title: "Independent by design", body: "Own your hours, pricing, services, brand, and client relationships." },
+      { title: "Support that stays in the background", body: "LUXYN provides the space, amenities, upkeep, and on-site care." },
+    ],
+    image: "/assets/findpro-a.webp",
+    cta: { label: "Book a private tour", href: "/book-a-tour" },
+  },
+];
+
+export const questionPages: TopicPage[] = [
+  {
+    slug: "what-is-included-in-a-salon-suite-lease",
+    title: "What Is Included in a Salon Suite Lease? | LUXYN",
+    description: "Learn what LUXYN includes with a private salon suite lease in Leander, TX, from secure access and Wi-Fi to laundry and common-area care.",
+    kicker: "A PRACTICAL GUIDE",
+    h1: "What is included in a salon suite lease?",
+    intro: "A salon suite lease usually combines a private workspace with shared building amenities and the support needed to welcome clients. At LUXYN, the published inclusions are designed to let independent professionals focus on their craft.",
+    points: [
+      { title: "Private, lockable space", body: "Your suite is your dedicated studio for serving clients and building your brand." },
+      { title: "Published LUXYN amenities", body: "LUXYN lists 24/7 secure access, high-speed fiber Wi-Fi, on-site laundry, a client lounge, daily common-area cleaning, and custom suite branding." },
+      { title: "Business independence", body: "You keep control of your hours, pricing, brand, and client relationships." },
+    ],
+    image: "/assets/amenities-illustration.webp",
+    cta: { label: "Ask about current terms", href: "/lease-a-suite" },
+  },
+  {
+    slug: "salon-suite-vs-booth-rent",
+    title: "Salon Suite vs Booth Rent: What Is the Difference? | LUXYN",
+    description: "Compare salon suite leasing and booth rent, including privacy, business control, client experience, and the questions to ask before choosing.",
+    kicker: "MAKE THE RIGHT MOVE",
+    h1: "Salon suite vs booth rent: what is the difference?",
+    intro: "Booth rent typically places an independent professional inside a shared salon, while a salon suite gives them a private, dedicated room. The right choice depends on how much privacy, control, and ownership you want in the client experience.",
+    points: [
+      { title: "Privacy", body: "A suite gives each appointment a private setting; booth rent generally shares the salon floor with other professionals." },
+      { title: "Control", body: "Both models can support independence, but a suite gives you a dedicated environment for your schedule, pricing, brand, and client experience." },
+      { title: "Fit for your business", body: "Consider your service type, client expectations, growth plans, and the amenities that matter to your workflow." },
+    ],
+    image: "/assets/about-1.webp",
+    cta: { label: "See LUXYN in person", href: "/book-a-tour" },
+  },
+  {
+    slug: "how-to-lease-a-salon-suite",
+    title: "How to Lease a Salon Suite: 4 Practical Steps | LUXYN",
+    description: "Follow four practical steps to explore, compare, and lease a private salon or wellness suite at LUXYN in Leander, TX.",
+    kicker: "YOUR NEXT FOUR STEPS",
+    h1: "How to lease a salon suite",
+    intro: "Leasing a salon suite starts with understanding your business, seeing the space, reviewing availability, and choosing the next step that fits your timeline. LUXYN keeps the first step simple: book a private tour.",
+    points: [
+      { title: "1. Define your studio", body: "Know your specialty, the client experience you want, and the kind of space your work needs." },
+      { title: "2. Book a private tour", body: "See the available suites, shared amenities, access, parking, and client journey in person." },
+      { title: "3. Review current terms", body: "Ask the LUXYN team about availability, current pricing, and the lease terms for the suite that fits." },
+      { title: "4. Plan your opening", body: "Once you choose a suite, prepare your branding, booking flow, supplies, and client communication." },
+    ],
+    image: "/assets/cta-bg.webp",
+    cta: { label: "Book a private tour", href: "/book-a-tour" },
+  },
+];
 
 /* ── Dedicated SEO landing pages ──────────────────────────────────────────
  * Each entry becomes a real crawlable route (/<slug>) with its own <title>,
@@ -285,6 +425,17 @@ export function sectionMetadata(slug: string): Metadata {
       description: p.description,
       url: path,
     },
+    robots: { index: true, follow: true },
+  };
+}
+
+export function topicMetadata(page: TopicPage, section: "services" | "questions"): Metadata {
+  const path = `/${section}/${page.slug}`;
+  return {
+    title: page.title,
+    description: page.description,
+    alternates: { canonical: path },
+    openGraph: { type: "website", title: page.title, description: page.description, url: path },
     robots: { index: true, follow: true },
   };
 }

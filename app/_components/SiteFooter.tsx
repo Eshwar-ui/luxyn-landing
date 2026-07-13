@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Reveal from "../_lib/reveal";
 import { site } from "../_lib/site";
 import { seoPages } from "../_lib/content";
-import { LEGAL, YEAR, VELVO_URL, BLOG_LINK } from "../_lib/nav";
+import { LEGAL, YEAR, VELVO_URL, BLOG_LINK, FLOORPLAN_LINK } from "../_lib/nav";
 import { openCookiePreferences } from "../_lib/consent";
 
 /* Social glyphs (24×24, filled). Keyed by the social handle in site.ts so any
@@ -70,6 +70,12 @@ export default function SiteFooter() {
               {navLabel}
             </a>
           ))}
+          <a href={FLOORPLAN_LINK.href}
+            className="font-accent font-light text-white whitespace-nowrap transition-colors duration-300 hover:text-champagne underline underline-offset-4 decoration-[1px] decoration-white/50 hover:decoration-champagne"
+            style={{ fontSize: 18 }}
+          >
+            {FLOORPLAN_LINK.label}
+          </a>
           <a href={BLOG_LINK.href}
             className="font-accent font-light text-white whitespace-nowrap transition-colors duration-300 hover:text-champagne underline underline-offset-4 decoration-[1px] decoration-white/50 hover:decoration-champagne"
             style={{ fontSize: 18 }}

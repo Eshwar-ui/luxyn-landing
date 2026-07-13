@@ -41,6 +41,17 @@ export default function Page() {
           </details>
         ))}
       </div>
+      <div className="mt-10 max-w-[760px] rounded-[16px] p-6" style={{ background: "rgba(20,35,59,.06)" }}>
+        <h2 className="font-display text-[24px] font-bold text-[rgb(33,58,92)]">Keep researching</h2>
+        <p className="mt-2 font-ui text-[15px] text-[rgb(67,71,78)]" style={{ lineHeight: 1.65 }}>
+          Compare the suite model, understand what is included, and see the practical steps for getting started.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 font-ui text-[14px] font-semibold">
+          <a href="/questions/salon-suite-vs-booth-rent" className="underline underline-offset-4">Salon suite vs booth rent</a>
+          <a href="/questions/what-is-included-in-a-salon-suite-lease" className="underline underline-offset-4">What is included</a>
+          <a href="/questions/how-to-lease-a-salon-suite" className="underline underline-offset-4">How to lease a suite</a>
+        </div>
+      </div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
     </SeoSectionPage>
   );
