@@ -12,8 +12,9 @@ import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, authorBio
 /**
  * Renders a single blog article — an editorial layout with a sticky table of
  * contents, reading-progress bar, drop-cap intro, pull-quotes, a share row, an
- * author note and related reading. Emits BlogPosting + BreadcrumbList JSON-LD
- * scoped to the article URL so it can earn an article result and breadcrumb.
+ * author note and related reading. Emits BlogPosting + BreadcrumbList + a
+ * table-of-contents ItemList JSON-LD scoped to the article URL so it can earn
+ * an article result, breadcrumb, and section deep-links.
  */
 export default function BlogPostPage({ post }: { post: BlogPost }) {
   const url = postUrl(post.slug);
@@ -47,6 +48,26 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
         isPartOf: { "@id": `${site.url}/#website` },
         mainEntityOfPage: { "@type": "WebPage", "@id": `${url}#webpage` },
       },
+      // Table-of-contents schema — an ordered ItemList of the article's H2
+      // anchors (the same headings that drive the on-page ToC), so search and
+      // answer engines can deep-link into individual sections.
+      ...(toc.length
+        ? [
+            {
+              "@type": "ItemList",
+              "@id": `${url}#toc`,
+              name: "Table of contents",
+              itemListOrder: "https://schema.org/ItemListOrderAscending",
+              numberOfItems: toc.length,
+              itemListElement: toc.map((h, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: h.text,
+                url: `${url}#${h.id}`,
+              })),
+            },
+          ]
+        : []),
       {
         "@type": "BreadcrumbList",
         "@id": `${url}#breadcrumb`,
