@@ -14,7 +14,7 @@ export const site = {
    *  for local intent ("salon suites Leander TX"), then the brand promise. */
   title: "Salon & Wellness Suites for Rent in Leander, TX | LUXYN",
   description:
-    "LUXYN leases private, design-led salon & wellness suites in Leander, TX to independent beauty professionals — hair, skin, nails, brows & massage. Flexible leasing, premium amenities, the freedom to build and grow.",
+    "Pre-book a premium private salon or wellness suite in Leander, TX. LUXYN leases private, design-led suites to independent beauty professionals — hair, skin, nails, brows & massage. Flexible leasing, premium amenities.",
   /** Short, punchy strapline — used as the site's slogan in structured data. */
   tagline: "Private, design-led salon & wellness suites in Leander, TX.",
   /** OG / Twitter share image (lives in /public/assets). Purpose-built 1200×630

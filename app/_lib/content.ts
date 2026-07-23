@@ -68,7 +68,7 @@ export const faqs = [
   },
   {
     q: "How do I lease a suite or book a tour?",
-    a: "Use the contact form on this site to either reserve a suite or book a private tour. Tell us about your craft and the space you envision, and our team will reach out to confirm availability and arrange your visit.",
+    a: "Use the contact form on this site to pre-book a premium private salon or wellness suite in Leander, TX, or to book a private tour. Tell us about your craft and the space you envision, and our team will reach out to confirm availability and arrange your visit.",
   },
   {
     q: "I'm a client — how do I find a professional at LUXYN?",
@@ -255,7 +255,7 @@ export const seoPages: SeoPage[] = [
     kicker: "PRIVATE SUITES",
     h1: "Private salon suites for rent in Leander, TX",
     intro: [
-      "LUXYN leases private, design-led salon suites to independent beauty and wellness professionals in Leander, TX. Each suite is a finished, lockable studio — a destination for your clients, not a cubicle.",
+      "Pre-book a premium private salon or wellness suite in Leander, TX. LUXYN leases private, design-led salon suites to independent beauty and wellness professionals. Each suite is a finished, lockable studio — a destination for your clients, not a cubicle.",
       "Founded on the belief that environment dictates energy, LUXYN gives you a curated atmosphere that elevates the client experience and supports your growth, with the independence to run your business your way.",
     ],
     points: [
@@ -340,11 +340,11 @@ export const seoPages: SeoPage[] = [
     navLabel: "Lease a Suite",
     title: "Lease a Private Salon Suite in Leander, TX",
     description:
-      "Reserve your private, design-led salon suite at LUXYN in Leander, TX. Tell us about your craft and we'll confirm availability and walk you through the terms.",
+      "Pre-book a premium private salon or wellness suite in Leander, TX. Tell us about your craft and we'll confirm availability and walk you through the terms.",
     kicker: "RESERVE YOUR SUITE",
     h1: "Lease a private salon suite in Leander, TX",
     intro: [
-      "Ready to make LUXYN your professional home? Reserve a private suite and our team will reach out to confirm availability, share exact terms, and get you settled in.",
+      "Pre-book a premium private salon or wellness suite in Leander, TX. Ready to make LUXYN your professional home? Reserve a private suite and our team will reach out to confirm availability, share exact terms, and get you settled in.",
     ],
     points: [],
     homeAnchor: "contact",

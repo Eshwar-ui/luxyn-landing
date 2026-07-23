@@ -165,6 +165,17 @@ export default function Landing() {
             {/* left copy — above the fold, so it renders immediately (no reveal
                 gate) to keep the LCP text painting on first frame. */}
             <div className="flex flex-col w-full lg:w-[45%] xl:w-[513px] shrink-0 mt-0 lg:mt-28">
+              <span
+                className="self-start font-ui font-semibold uppercase rounded-full px-3.5 py-1.5 mb-5"
+                style={{
+                  fontSize: 11, letterSpacing: 1.6,
+                  color: "rgb(194,160,107)",
+                  background: "rgba(194,160,107,.12)",
+                  boxShadow: "inset 0 0 0 1px rgba(194,160,107,.45)",
+                }}
+              >
+                Now pre-booking
+              </span>
               <h1
                 className="m-0 font-display font-medium text-white text-4xl sm:text-5xl lg:text-[52px]"
                 style={{ lineHeight: 1.05, letterSpacing: "-0.01em" }}
@@ -172,7 +183,13 @@ export default function Landing() {
                 Space to Do Your Best Work — Private Salon &amp; Wellness Suites in Leander, TX.
               </h1>
               <p
-                className="font-ui font-normal text-white/40 mt-6 text-sm sm:text-[15px]"
+                className="font-ui font-medium text-white/90 mt-6 text-[15px] sm:text-[17px]"
+                style={{ lineHeight: 1.5 }}
+              >
+                Pre-book a premium private salon or wellness suite in Leander, TX.
+              </p>
+              <p
+                className="font-ui font-normal text-white/40 mt-3 text-sm sm:text-[15px]"
                 style={{ lineHeight: 1.6 }}
               >
                 LUXYN leases private, design-led salon &amp; wellness suites in Leander, TX to independent beauty professionals — giving you the freedom to build, serve, and grow in an elevated space.
@@ -183,7 +200,7 @@ export default function Landing() {
                   className={btnGold}
                   style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
                 >
-                  LEASE A SUITE
+                  PRE-BOOK A SUITE
                 </button>
                 <button
                   onClick={() => openContact("tour")}
@@ -251,7 +268,7 @@ export default function Landing() {
             <div className="marq">
               {[0, 1].map(i => (
                 <span key={i} className="font-ui text-white pr-[.29em] whitespace-nowrap" style={{ fontSize: 16, letterSpacing: ".29em" }}>
-                  SALON · WELLNESS · SPA · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
+                  SALON · WELLNESS · SPA · Now Pre-Booking · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
                 </span>
               ))}
             </div>
@@ -539,11 +556,11 @@ export default function Landing() {
               <Reveal as="span" delay={0.08}
                 className="font-ui font-normal" style={{ fontSize: 16, color: "rgba(255,255,255,0.85)" }}
               >
-                Book a private tour and explore available suites designed for your next chapter.
+                Pre-book a premium private salon or wellness suite in Leander, TX — and explore the space designed for your next chapter.
               </Reveal>
             </div>
             <Reveal delay={0.16} className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full sm:w-auto px-4 sm:px-0">
-              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}>LEASE A SUITE</button>
+              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}>PRE-BOOK A SUITE</button>
               <button onClick={() => openContact("tour")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}>BOOK A TOUR</button>
             </Reveal>
           </div>
@@ -604,12 +621,12 @@ export default function Landing() {
                 GET IN TOUCH
               </span>
               <h2 className="m-0 font-display font-semibold text-[rgb(2,36,72)] text-3xl sm:text-4xl lg:text-[46px]" style={{ margin: "22px 0 0", lineHeight: 1.1 }}>
-                {contactVariant === "tour" ? "Book a private tour." : "Reserve your suite at LUXYN."}
+                {contactVariant === "tour" ? "Book a private tour." : "Pre-book your suite at LUXYN."}
               </h2>
               <p className="font-ui font-normal text-[rgb(67,71,78)]" style={{ margin: "24px 0 0", fontSize: 16, lineHeight: 1.6 }}>
                 {contactVariant === "tour"
                   ? "Pick a date and time that suits you. Our team will confirm your visit and walk you through the available suites in person."
-                  : "Tell us about your craft and the space you envision. Our team will reach out to arrange a private tour and walk you through availability."}
+                  : "Pre-book a premium private salon or wellness suite in Leander, TX. Tell us about your craft and the space you envision, and our team will reach out to arrange a private tour and walk you through availability."}
               </p>
               <div className="flex flex-col gap-5 mt-9">
                 <ContactLine type="email" />
@@ -630,7 +647,7 @@ export default function Landing() {
                 style={{ background: "rgba(20,35,59,0.06)" }}
               >
                 {([
-                  { key: "lease", label: "Lease a suite" },
+                  { key: "lease", label: "Pre-book a suite" },
                   { key: "tour",  label: "Book a tour"   },
                 ] as const).map(({ key, label }) => {
                   const active = contactVariant === key;

@@ -5,7 +5,7 @@ import ContactForm, { type ContactVariant } from "./ContactForm";
 import { site, fullAddress } from "../_lib/site";
 
 const TABS = [
-  { key: "lease", label: "Lease a suite" },
+  { key: "lease", label: "Pre-book a suite" },
   { key: "tour",  label: "Book a tour"   },
 ] as const;
 
