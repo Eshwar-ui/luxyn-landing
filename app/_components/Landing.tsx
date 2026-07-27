@@ -690,6 +690,10 @@ const CONTACT_ICONS = {
   address: <><path d="M12 21s-7-6.4-7-11a7 7 0 0 1 14 0c0 4.6-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></>,
 };
 
+function reportPhoneClick(): void {
+  window.gtag?.("event", "phone_click", { phone_number: site.contact.phoneHref });
+}
+
 function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
   const data = {
     email:   { label: "EMAIL", value: site.contact.email, href: `mailto:${site.contact.email}` },
@@ -698,7 +702,7 @@ function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
   }[type];
 
   const value = data.href ? (
-    <a href={data.href} className="font-ui text-[rgb(2,36,72)] text-[15.5px] transition-opacity duration-300 hover:opacity-70">{data.value}</a>
+    <a href={data.href} onClick={type === "phone" ? reportPhoneClick : undefined} className="font-ui text-[rgb(2,36,72)] text-[15.5px] transition-opacity duration-300 hover:opacity-70">{data.value}</a>
   ) : (
     <span className="font-ui text-[rgb(2,36,72)] text-[15.5px]">{data.value}</span>
   );

@@ -256,6 +256,9 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${GOOGLE_ADS_TAG_ID}');
+            gtag('config', 'AW-18344601972/P5lkCP2JsNccEPTSsatE', {
+              'phone_conversion_number': '+1 737-287-7396'
+            });
             gtag('config', '${GA_MEASUREMENT_ID}');
           `}
         </Script>

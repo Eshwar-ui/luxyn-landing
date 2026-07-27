@@ -17,6 +17,10 @@ const CONTACT_ICONS = {
 
 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
 
+function reportPhoneClick(): void {
+  window.gtag?.("event", "phone_click", { phone_number: site.contact.phoneHref });
+}
+
 function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
   const data = {
     email:   { label: "EMAIL", value: site.contact.email, href: `mailto:${site.contact.email}`, external: false },
@@ -33,6 +37,7 @@ function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
         <span className="font-accent font-semibold text-[rgb(95,99,106)]" style={{ fontSize: 11, letterSpacing: 1.4 }}>{data.label}</span>
         <a
           href={data.href}
+          onClick={type === "phone" ? reportPhoneClick : undefined}
           {...(data.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           className="font-ui text-[rgb(2,36,72)] text-[15.5px] underline underline-offset-2 decoration-[rgb(214,205,182)] transition-colors duration-300 hover:text-[rgb(150,118,62)] hover:decoration-[rgb(150,118,62)]"
         >

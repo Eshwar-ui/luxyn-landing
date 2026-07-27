@@ -123,7 +123,7 @@ export default function SiteHeader() {
                   </div>
                   <div>
                     <p className="font-ui text-[11px] tracking-[0.28em] uppercase text-champagne/70 mb-3">Contact</p>
-                    <a href={`tel:${site.contact.phoneHref}`} className="block font-accent text-[15px] text-cream/85 transition-colors duration-300 hover:text-champagne">
+                    <a href={`tel:${site.contact.phoneHref}`} onClick={() => window.gtag?.("event", "phone_click", { phone_number: site.contact.phoneHref })} className="block font-accent text-[15px] text-cream/85 transition-colors duration-300 hover:text-champagne">
                       {site.contact.phone}
                     </a>
                     <a href={`mailto:${site.contact.email}`} className="block font-accent text-[15px] text-cream/85 transition-colors duration-300 hover:text-champagne break-all">
