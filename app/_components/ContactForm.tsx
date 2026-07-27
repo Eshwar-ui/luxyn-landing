@@ -7,15 +7,21 @@ import { site, isFormConfigured } from "../_lib/site";
  *  in site.ts. Explicit-render mode so the widget survives the form remounting
  *  when the user switches between the lease/tour tabs. */
 const TURNSTILE_API = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+const LEASE_CONVERSION_ID = "AW-18344601972/GiqqCNzZr9ccEPTSsatE";
 
 declare global {
   interface Window {
+    gtag?: (...args: unknown[]) => void;
     turnstile?: {
       render: (el: HTMLElement, opts: Record<string, unknown>) => string;
       reset: (id?: string) => void;
       remove: (id?: string) => void;
     };
   }
+}
+
+function reportLeaseConversion(): void {
+  window.gtag?.("event", "conversion", { send_to: LEASE_CONVERSION_ID });
 }
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -229,6 +235,7 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      if (variant === "lease") reportLeaseConversion();
       setStatus("success");
       setFields(emptyFields);
       setToken("");

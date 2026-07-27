@@ -28,6 +28,7 @@ const jost = Jost({
 const fontVars = `${cormorant.variable} ${ebGaramond.variable} ${inter.variable} ${jost.variable}`;
 
 const GA_MEASUREMENT_ID = "G-YRH0H9ZJPP";
+const GOOGLE_ADS_TAG_ID = "AW-18344601972";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -245,6 +246,19 @@ export default function RootLayout({
             `,
           }}
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_TAG_ID}`}
+          strategy="beforeInteractive"
+        />
+        <Script id="google-tag-init" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_ADS_TAG_ID}');
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         {/* Hero background is a CSS background-image, so the browser can't
             discover it until stylesheets parse. Preload it at high priority to
             cut LCP — it's the largest above-the-fold paint. */}
@@ -271,22 +285,6 @@ export default function RootLayout({
         {children}
         <CookieConsent />
       </body>
-      {/* Google Analytics (~180KB) loads `lazyOnload` — after the page is idle —
-          so it never competes with the LCP hero image for bandwidth on slow
-          connections. Consent Mode defaults are already applied synchronously in
-          <head> above, so deferring gtag.js changes no consent behaviour. */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="lazyOnload"
-      />
-      <Script id="gtag-init" strategy="lazyOnload">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}');
-        `}
-      </Script>
     </html>
   );
 }
