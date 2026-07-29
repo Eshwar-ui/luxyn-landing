@@ -11,7 +11,7 @@
  * structured data, nav discoverability and feeds all update automatically.
  */
 import type { Metadata } from "next";
-import { site } from "./site";
+import { site, brandSuffix } from "./site";
 
 /** A single block of article body copy. Kept deliberately small — enough to
  *  write a real, well-structured SEO article without an HTML parser. */
@@ -76,9 +76,9 @@ export const authorBio =
 export const blogIndex = {
   slug: "blog",
   navLabel: "Blog",
-  title: "Salon Suite Insights & Guides — Leander, TX",
+  title: `Salon Suite Tips & Beauty Business Blog | ${brandSuffix}`,
   description:
-    "Practical guides for independent beauty & wellness pros — salon suite costs, booth-rental comparisons, and how to launch your own studio in Leander, TX.",
+    `Read expert articles on salon business growth, spa trends, wellness insights, and salon suite success. ${brandSuffix}.`,
   kicker: "THE LUXYN JOURNAL",
   h1: "Insights for independent beauty & wellness pros",
   intro:
@@ -735,7 +735,9 @@ export function blogPostMetadata(slug: string): Metadata {
 /** Metadata for the /blog index. */
 export function blogIndexMetadata(): Metadata {
   return {
-    title: blogIndex.title,
+    // Absolute — blogIndex.title already ends with the full brand block, so the
+    // root layout's `%s — LUXYN` template must not append to it.
+    title: { absolute: blogIndex.title },
     description: blogIndex.description,
     alternates: { canonical: `/${blogIndex.slug}` },
     openGraph: {

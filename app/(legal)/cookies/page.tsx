@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalLayout from "../../_components/LegalLayout";
-import { site } from "../../_lib/site";
+import { site, brandSuffix } from "../../_lib/site";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy",
-  description: `How ${site.name} uses cookies and similar technologies.`,
+  // Absolute — the title already carries the brand block, so the root layout's
+  // `%s — LUXYN` template must not append to it.
+  title: { absolute: `Cookie Policy | ${brandSuffix}` },
+  description: `Understand how we use cookies and similar technologies to operate and improve our website. ${brandSuffix}.`,
   alternates: { canonical: "/cookies" },
 };
 

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import LegalLayout from "../../_components/LegalLayout";
-import { site } from "../../_lib/site";
+import { site, brandSuffix } from "../../_lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: `The terms governing your use of the ${site.name} website.`,
+  // Absolute — the title already carries the brand block, so the root layout's
+  // `%s — LUXYN` template must not append to it.
+  title: { absolute: `Terms & Conditions | ${brandSuffix}` },
+  description: `Review the terms governing the use of our website and salon suite leasing information. ${brandSuffix}.`,
   alternates: { canonical: "/terms" },
 };
 

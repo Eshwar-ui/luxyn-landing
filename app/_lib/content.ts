@@ -5,6 +5,7 @@
  * (a Google requirement for FAQ/▸ rich results).
  */
 import type { Metadata } from "next";
+import { brandSuffix } from "./site";
 
 /** Content freshness stamps — surfaced to humans ("Last updated") and to AI
  *  answer engines via schema dateModified, llms.txt, and facts.json. AI
@@ -170,7 +171,7 @@ export const servicePages: TopicPage[] = [
 export const questionPages: TopicPage[] = [
   {
     slug: "what-is-included-in-a-salon-suite-lease",
-    title: "What Is Included in a Salon Suite Lease? | LUXYN",
+    title: "What Is Included in a Salon Suite Lease?",
     description: "Learn what LUXYN includes with a private salon suite lease in Leander, TX, from secure access and Wi-Fi to laundry and common-area care.",
     kicker: "A PRACTICAL GUIDE",
     h1: "What is included in a salon suite lease?",
@@ -185,7 +186,7 @@ export const questionPages: TopicPage[] = [
   },
   {
     slug: "salon-suite-vs-booth-rent",
-    title: "Salon Suite vs Booth Rent: What Is the Difference? | LUXYN",
+    title: "Salon Suite vs Booth Rent: What Is the Difference?",
     description: "Compare salon suite leasing and booth rent, including privacy, business control, client experience, and the questions to ask before choosing.",
     kicker: "MAKE THE RIGHT MOVE",
     h1: "Salon suite vs booth rent: what is the difference?",
@@ -200,7 +201,7 @@ export const questionPages: TopicPage[] = [
   },
   {
     slug: "how-to-lease-a-salon-suite",
-    title: "How to Lease a Salon Suite: 4 Practical Steps | LUXYN",
+    title: "How to Lease a Salon Suite: 4 Practical Steps",
     description: "Follow four practical steps to explore, compare, and lease a private salon or wellness suite at LUXYN in Leander, TX.",
     kicker: "YOUR NEXT FOUR STEPS",
     h1: "How to lease a salon suite",
@@ -225,7 +226,8 @@ export type SeoPage = {
   slug: string;
   /** Short label for nav / footer / breadcrumb. */
   navLabel: string;
-  /** Page <title> — the layout template appends " — LUXYN". */
+  /** Page <title>, used verbatim — it already ends with `brandSuffix`, so
+   *  sectionMetadata emits it as an absolute title (no " — LUXYN" appended). */
   title: string;
   description: string;
   /** Small eyebrow above the H1. */
@@ -249,9 +251,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "salon-suites",
     navLabel: "Salon Suites",
-    title: "Private Salon Suites for Rent in Leander, TX",
+    title: `Luxury Salon Suites for Rent | ${brandSuffix}`,
     description:
-      "Lease a private, design-led salon suite in Leander, TX. Own your hours, your brand, and your client experience in a space built for independent beauty pros.",
+      `Explore modern private salon suites with premium amenities, flexible leasing, and professional spaces for hairstylists and beauty experts. ${brandSuffix}.`,
     kicker: "PRIVATE SUITES",
     h1: "Private salon suites for rent in Leander, TX",
     intro: [
@@ -271,9 +273,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "amenities",
     navLabel: "Amenities",
-    title: "Salon Suite Amenities in Leander, TX",
+    title: `Luxury Salon Suite Amenities | ${brandSuffix}`,
     description:
-      "Every LUXYN suite in Leander, TX includes 24/7 secure access, fiber Wi-Fi, on-site laundry, a styled client lounge, daily cleaning, and custom branding.",
+      `Discover premium amenities including secure access, Wi-Fi, laundry facilities, client waiting areas, and ample parking. ${brandSuffix}.`,
     kicker: "AMENITIES",
     h1: "Salon suite amenities designed around comfort, care, and craft",
     intro: [
@@ -294,9 +296,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "gallery",
     navLabel: "Gallery",
-    title: "Salon Suites for Beauty & Wellness Pros in Leander, TX",
+    title: `Salon, Spa & Wellness Suite Gallery | ${brandSuffix}`,
     description:
-      "From hair stylists and colorists to nail artists, estheticians, brow & lash artists and massage therapists — LUXYN suites in Leander, TX host diverse artistry.",
+      `Browse photos of our beautifully designed salon, spa, and wellness suites with modern interiors and premium facilities. ${brandSuffix}.`,
     kicker: "DIVERSE ARTISTRY",
     h1: "A space for independent beauty & wellness professionals",
     intro: [
@@ -317,9 +319,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "find-a-pro",
     navLabel: "Find a Pro",
-    title: "Find a Beauty or Wellness Professional in Leander, TX",
+    title: `Find a Beauty or Wellness Professional | ${brandSuffix}`,
     description:
-      "Looking for a stylist, nail artist, esthetician, or massage therapist near Leander, TX? Discover independent beauty & wellness pros working from LUXYN.",
+      `Find independent stylists, nail artists, estheticians, and massage therapists working from their own private suites. ${brandSuffix}.`,
     kicker: "FOR CLIENTS",
     h1: "Find a beauty or wellness professional in Leander, TX",
     intro: [
@@ -338,9 +340,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "lease-a-suite",
     navLabel: "Lease a Suite",
-    title: "Lease a Private Salon Suite in Leander, TX",
+    title: `Available Salon Suites for Lease | ${brandSuffix}`,
     description:
-      "Pre-book a premium private salon or wellness suite in Leander, TX. Tell us about your craft and we'll confirm availability and walk you through the terms.",
+      `Check current suite availability and find the ideal space to grow your salon, spa, or wellness business. ${brandSuffix}.`,
     kicker: "RESERVE YOUR SUITE",
     h1: "Lease a private salon suite in Leander, TX",
     intro: [
@@ -355,9 +357,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "book-a-tour",
     navLabel: "Book a Tour",
-    title: "Book a Private Tour of LUXYN in Leander, TX",
+    title: `Schedule a Salon Suite Tour | ${brandSuffix}`,
     description:
-      "Book a private tour of LUXYN's salon suites in Leander, TX. See the available suites in person and get current pricing — we'll arrange a time that suits you.",
+      `Book a personalized tour and experience our luxury salon, spa, and wellness suites before leasing. ${brandSuffix}.`,
     kicker: "BOOK A TOUR",
     h1: "Book a private tour in Leander, TX",
     intro: [
@@ -371,9 +373,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "for-professionals",
     navLabel: "For Professionals",
-    title: "Salon Suites for Independent Beauty Pros in Leander, TX",
+    title: `About Our Luxury Salon Suites | ${brandSuffix}`,
     description:
-      "A sanctuary, not a rented room. See why independent beauty & wellness pros choose LUXYN's private, design-led salon suites in Leander, TX.",
+      `Learn about our mission to provide premium salon, spa, and wellness suites that help independent professionals build successful businesses. ${brandSuffix}.`,
     kicker: "THE LUXYN DIFFERENCE",
     h1: "A sanctuary, not a rented room",
     intro: [
@@ -393,9 +395,9 @@ export const seoPages: SeoPage[] = [
   {
     slug: "faq",
     navLabel: "FAQ",
-    title: "Salon Suite Rental FAQ — Leander, TX",
+    title: `Salon Suite FAQs | ${brandSuffix}`,
     description:
-      "Common questions about renting a private salon or wellness suite at LUXYN in Leander, TX — what's included, pricing, who can lease, and how to book a tour.",
+      `Find answers to common questions about leasing, pricing, amenities, and operating your business from our suites. ${brandSuffix}.`,
     kicker: "QUESTIONS & ANSWERS",
     h1: "Renting a salon suite in Leander, TX",
     intro: [
@@ -416,7 +418,10 @@ export function sectionMetadata(slug: string): Metadata {
   if (!p) throw new Error(`sectionMetadata: unknown slug "${slug}"`);
   const path = `/${p.slug}`;
   return {
-    title: p.title,
+    // `absolute` opts out of the root layout's `%s — LUXYN` template: these
+    // titles already close with the full brand block, so appending would
+    // duplicate it and push the title further past Google's display limit.
+    title: { absolute: p.title },
     description: p.description,
     alternates: { canonical: path },
     openGraph: {

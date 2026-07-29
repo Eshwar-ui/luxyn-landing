@@ -3,17 +3,19 @@ import SiteHeader from "../../_components/SiteHeader";
 import SiteFooter from "../../_components/SiteFooter";
 import PageHero from "../../_components/PageHero";
 import FloorPlan from "../../_components/FloorPlan";
-import { site } from "../../_lib/site";
+import { site, brandSuffix } from "../../_lib/site";
 
 // Dedicated, indexable floor-plan page — its own title/description, self-
 // canonical, with the interactive suite map. Not part of the home-page scroll.
 const path = "/floor-plan";
-const title = "Floor Plan — Suite Map & Availability";
+const title = `Salon Suite Floor Plan & Suite Map | ${brandSuffix}`;
 const description =
-  "Explore the LUXYN Studios floor plan: 23 private salon & wellness suites from 126 to 209 SF, plus a conference room, shared reception, restrooms and common areas. Zoom the full plan and see each suite's location and size.";
+  `View the floor plan for 23 private suites from 126 to 209 SF, with a conference room, shared reception, and common areas. ${brandSuffix}.`;
 
 export const metadata: Metadata = {
-  title,
+  // Absolute — `title` already carries the brand block, so the root layout's
+  // `%s — LUXYN` template must not append to it.
+  title: { absolute: title },
   description,
   alternates: { canonical: path },
   openGraph: { type: "website", title, description, url: path },

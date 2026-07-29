@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit --pretty false",
     "verify:export": "node scripts/verify-static-export.mjs",
     "ci": "npm run typecheck && npm run build && npm run verify:export",
+    "deploy": "npm run ci && firebase deploy --only hosting --project luxyn-landing",
     "start": "next start"
   },
   "dependencies": {

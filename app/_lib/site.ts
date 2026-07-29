@@ -6,15 +6,20 @@
  * contact form) reads from here, so you only change it once.
  */
 
+/** Brand + category + city block that closes every page title and meta
+ *  description, so search results read consistently across the whole site.
+ *  Titles use it after a "|", descriptions as a closing sentence. */
+export const brandSuffix = "Luxyn Salon, Spa & Wellness Suites in Leander, TX";
+
 export const site = {
   name: "LUXYN",
   /** Production origin — used for canonical URLs, sitemap, and Open Graph. */
   url: "https://luxynstudios.com",
-  /** Home <title>. Leads with the primary keyword + city so the page can rank
-   *  for local intent ("salon suites Leander TX"), then the brand promise. */
-  title: "Salon & Wellness Suites for Rent in Leander, TX | LUXYN",
+  /** Home <title>. Carries the full brand + category + city block that every
+   *  page title on the site now ends with, so search results read consistently. */
+  title: `Luxyn Studios | ${brandSuffix}`,
   description:
-    "Pre-book a premium private salon or wellness suite in Leander, TX. LUXYN leases private, design-led suites to independent beauty professionals — hair, skin, nails, brows & massage. Flexible leasing, premium amenities.",
+    `Discover luxury private salon, spa, and wellness suites designed for independent beauty professionals with premium amenities and flexible leasing options. ${brandSuffix}.`,
   /** Short, punchy strapline — used as the site's slogan in structured data. */
   tagline: "Private, design-led salon & wellness suites in Leander, TX.",
   /** OG / Twitter share image (lives in /public/assets). Purpose-built 1200×630
