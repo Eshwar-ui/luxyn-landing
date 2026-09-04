@@ -137,7 +137,7 @@ export default function Landing() {
         <section
           ref={heroRef}
           id="hero"
-          className="relative w-full overflow-hidden flex flex-col items-center justify-center lg:h-[100svh] lg:min-h-[700px] pt-36 pb-24 lg:pt-20 lg:pb-10"
+          className="relative w-full overflow-hidden flex flex-col items-center justify-center lg:h-[100svh] lg:min-h-[700px] pt-28 pb-24 lg:pt-12 lg:pb-10"
           style={{ background: "rgb(20,35,59)" }}
         >
           {/* Real <img> (not a CSS background) so Googlebot-Image can crawl and
@@ -164,7 +164,7 @@ export default function Landing() {
           <div className="relative z-[4] w-full max-w-[1061px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-center lg:items-start justify-center gap-16 lg:gap-8 xl:gap-24">
             {/* left copy — above the fold, so it renders immediately (no reveal
                 gate) to keep the LCP text painting on first frame. */}
-            <div className="flex flex-col w-full lg:w-[45%] xl:w-[513px] shrink-0 mt-0 lg:mt-28">
+            <div className="flex flex-col w-full lg:w-[45%] xl:w-[513px] shrink-0 mt-0 lg:mt-8">
               <span
                 className="self-start font-ui font-semibold uppercase rounded-full px-3.5 py-1.5 mb-5"
                 style={{
