@@ -69,7 +69,7 @@ export default function BlogIndexPage() {
 
         <section className="w-full max-w-[1060px] mx-auto px-6 lg:px-12 pt-14 pb-16 lg:pt-16 lg:pb-24">
           {/* ── Featured lead article ─────────────────────────────── */}
-          <p className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 12, letterSpacing: 3 }}>
+          <p className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 12, letterSpacing: 3 }}>
             FEATURED
           </p>
           <a
@@ -82,14 +82,14 @@ export default function BlogIndexPage() {
               <img src={featured.image} alt={featured.title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]" />
             </div>
             <div className="flex flex-col justify-center p-7 lg:order-1 lg:p-10">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-ui text-[13px] text-[rgb(120,124,131)]">
-                <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ letterSpacing: 2 }}>{featured.kicker}</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-ui text-[13px] text-[rgb(95,99,106)]">
+                <span className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ letterSpacing: 2 }}>{featured.kicker}</span>
                 <span className="text-[rgb(196,198,207)]">·</span>
                 <time dateTime={featured.published}>{formatPostDate(featured.published)}</time>
                 <span className="text-[rgb(196,198,207)]">·</span>
                 <span>{featured.readMins} min read</span>
               </div>
-              <h2 className="mt-3 font-display font-bold text-[rgb(2,36,72)] text-[28px] lg:text-[34px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.18, letterSpacing: "-0.01em" }}>
+              <h2 className="mt-3 font-display font-bold text-[rgb(2,36,72)] text-[28px] lg:text-[34px] transition-colors duration-200 group-hover:text-[rgb(128,96,46)]" style={{ lineHeight: 1.18, letterSpacing: "-0.01em" }}>
                 {featured.title}
               </h2>
               <p className="mt-3 font-ui font-normal text-[rgb(22,38,60)] opacity-80 text-[15.5px]" style={{ lineHeight: 1.65 }}>
@@ -118,12 +118,12 @@ export default function BlogIndexPage() {
                       <img src={p.image} alt={p.title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.05]" />
                     </div>
                     <div className="flex flex-1 flex-col p-6 lg:p-7">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-ui text-[13px] text-[rgb(120,124,131)]">
-                        <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ letterSpacing: 2 }}>{p.kicker}</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-ui text-[13px] text-[rgb(95,99,106)]">
+                        <span className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ letterSpacing: 2 }}>{p.kicker}</span>
                         <span className="text-[rgb(196,198,207)]">·</span>
                         <span>{p.readMins} min read</span>
                       </div>
-                      <h3 className="mt-3 font-display font-bold text-[rgb(33,58,92)] text-[21px] lg:text-[23px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.25 }}>
+                      <h3 className="mt-3 font-display font-bold text-[rgb(33,58,92)] text-[21px] lg:text-[23px] transition-colors duration-200 group-hover:text-[rgb(128,96,46)]" style={{ lineHeight: 1.25 }}>
                         {p.title}
                       </h3>
                       <p className="mt-2 font-ui font-normal text-[rgb(22,38,60)] opacity-80 text-[14.5px]" style={{ lineHeight: 1.6 }}>

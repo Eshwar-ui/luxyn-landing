@@ -1,56 +1,15 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import type { CSSProperties, ElementType, ReactNode } from "react";
 
 /* ── scroll-reveal (framer-motion replacement) ──────────────────────────────
- * A single shared IntersectionObserver reveals any `.rv` element the first time
- * it scrolls into view by adding `.rv-in` (the fade/slide/scale transition lives
- * in globals.css). One observer for the whole page — far cheaper than shipping
- * framer-motion (~46KB gzip) just to fade sections in.
+ * <Reveal> is a plain, server-renderable wrapper: it only stamps the `.rv`
+ * classes. It ships no JS of its own, so sections built from it can stay server
+ * components. A single <RevealObserver> (mounted once in the root layout) adds
+ * `.rv-in` to every `.rv` element the first time it scrolls into view — the
+ * fade/slide/scale transition lives in globals.css.
  *
- * No-JS / no-IntersectionObserver: elements reveal immediately, and a <noscript>
- * rule in the layout forces `.rv` visible so crawlers and JS-off visitors always
- * see the content. Reduced-motion visitors get the content with no transition
- * (see globals.css). */
-
-let observer: IntersectionObserver | null = null;
-
-function getObserver(): IntersectionObserver | null {
-  if (typeof IntersectionObserver === "undefined") return null;
-  if (observer) return observer;
-  observer = new IntersectionObserver(
-    (entries, obs) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("rv-in");
-          obs.unobserve(entry.target);
-        }
-      }
-    },
-    // Reveal once the element is ~10% into the viewport (matches the old
-    // framer-motion viewport margin).
-    { rootMargin: "0px 0px -10% 0px", threshold: 0.01 },
-  );
-  return observer;
-}
-
-function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (el.classList.contains("rv-in")) return;
-    const obs = getObserver();
-    if (!obs) {
-      el.classList.add("rv-in"); // no IO support — just show it
-      return;
-    }
-    obs.observe(el);
-    return () => obs.unobserve(el);
-  }, []);
-  return ref;
-}
+ * Mobile (< lg), reduced-motion and no-JS visitors get no reveal at all: CSS
+ * shows `.rv` immediately and the observer never starts, so phones pay nothing
+ * for it (see globals.css + the <noscript> rule in the layout). */
 
 const VARIANT = { up: "", left: "rv-l", right: "rv-r", scale: "rv-s" } as const;
 
@@ -78,11 +37,10 @@ export default function Reveal({
   children,
   ...rest
 }: RevealProps) {
-  const ref = useReveal<HTMLElement>();
   const cls = ["rv", VARIANT[variant], className].filter(Boolean).join(" ");
   const mergedStyle = delay ? { ...style, transitionDelay: `${delay}s` } : style;
   return (
-    <Tag ref={ref} className={cls} style={mergedStyle} {...rest}>
+    <Tag className={cls} style={mergedStyle} {...rest}>
       {children}
     </Tag>
   );

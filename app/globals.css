@@ -28,16 +28,32 @@
 html { scroll-behavior: smooth; overflow-x: hidden; }
 body { margin: 0; background: rgb(20,35,59); font-family: var(--font-inter), sans-serif; -webkit-font-smoothing: antialiased; }
 
-.rv {
-  opacity: 0;
-  transform: translateY(38px);
-  transition: opacity 1.1s cubic-bezier(.16, 1, .3, 1), transform 1.1s cubic-bezier(.16, 1, .3, 1);
-  will-change: opacity, transform;
+/* Scroll-reveal is desktop-only (must match DESKTOP_QUERY in reveal-observer).
+   Below lg the `.rv` classes are inert, so content paints on first frame with
+   no JS, no transitions and no extra compositor layers. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .rv {
+    opacity: 0;
+    transform: translateY(38px);
+    transition: opacity 1.1s cubic-bezier(.16, 1, .3, 1), transform 1.1s cubic-bezier(.16, 1, .3, 1);
+  }
+  .rv-l { transform: translateX(-54px); }
+  .rv-r { transform: translateX(54px); }
+  .rv-s { transform: scale(.9); }
+  .rv-in { opacity: 1; transform: none; }
 }
-.rv-l { transform: translateX(-54px); }
-.rv-r { transform: translateX(54px); }
-.rv-s { transform: scale(.9); }
-.rv-in { opacity: 1; transform: none; }
+
+/* Below-the-fold home sections: the browser skips style, layout, paint — and
+   the CSS background-image fetches — for any section that isn't near the
+   viewport. That keeps ~550KB of photography off the startup path (it raced the
+   LCP heading on mobile) and cuts first-load layout work. `auto` remembers each
+   section's real height once it has rendered, so the scrollbar settles. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+/* set by scrollToId() before an in-page jump so the target is measured exactly */
+.cv-off .cv-auto { content-visibility: visible; }
 
 /* ── card hover-lift (framer-motion `whileHover` replacement) ───────────────
    Kept as CSS classes rather than inline styles so the hover box-shadow can win
@@ -208,7 +224,7 @@ a:focus-visible, button:focus-visible {
   border-radius: 999px;
   background: rgb(194,160,107);
   color: rgb(20,35,59);
-  font-family: var(--font-jost), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 600;
   font-size: 14px;
   transition: top .25s cubic-bezier(.16,1,.3,1);
@@ -251,12 +267,12 @@ a:focus-visible, button:focus-visible {
   background: rgb(194,160,107);
 }
 .legal-prose a {
-  color: rgb(160,128,72);
+  color: rgb(128,96,46);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color .2s ease;
 }
-.legal-prose a:hover { color: rgb(120,94,48); }
+.legal-prose a:hover { color: rgb(100,74,34); }
 .legal-prose strong { color: rgb(2,36,92); font-weight: 600; }
 
 /* Continuous decorative animations are pure battery/compositing cost on phones
@@ -265,9 +281,27 @@ a:focus-visible, button:focus-visible {
   .floaty, .floaty2 { animation: none !important; }
 }
 
+/* Mobile: no motion at all. Kill the marquee + float loops and every UI
+   transition/animation, and drop backdrop blurs (a full-screen re-blur on every
+   scroll frame is the costliest paint on low-end phones). */
+@media (max-width: 1023px) {
+  .marq, .floaty, .floaty2 { animation: none !important; }
+  *, *::before, *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+  .lx-noblur-sm {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
 /* honor reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   .marq, .floaty, .floaty2, .menu-overlay-box { animation: none !important; }
+  /* .rv is only ever hidden behind a no-preference query, so nothing to undo —
+     this stays as a belt-and-braces guard. */
   /* show scroll-reveal content instantly, no transition */
   .rv { opacity: 1 !important; transform: none !important; transition: none !important; }
   * { scroll-behavior: auto !important; }

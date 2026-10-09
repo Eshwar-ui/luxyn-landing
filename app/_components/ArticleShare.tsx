@@ -35,13 +35,13 @@ export default function ArticleShare({ url, title }: { url: string; title: strin
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <span className="mr-1 font-ui font-semibold text-[13px] text-[rgb(120,124,131)]">Share</span>
+      <span className="mr-1 font-ui font-semibold text-[13px] text-[rgb(95,99,106)]">Share</span>
       {links.map((l) => (
-        <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.label} className={`${chip} hover:text-[rgb(160,128,72)]`} style={chipStyle}>
+        <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.label} className={`${chip} hover:text-[rgb(128,96,46)]`} style={chipStyle}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{l.icon}</svg>
         </a>
       ))}
-      <button type="button" onClick={copy} aria-label="Copy link" className={`${chip} hover:text-[rgb(160,128,72)]`} style={chipStyle}>
+      <button type="button" onClick={copy} aria-label="Copy link" className={`${chip} hover:text-[rgb(128,96,46)]`} style={chipStyle}>
         {copied ? (
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgb(46,125,80)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
         ) : (

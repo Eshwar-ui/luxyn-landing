@@ -273,7 +273,7 @@ export default function ContactForm({ variant = "lease" }: { variant?: ContactVa
         </p>
         <p className="m-0 font-ui" style={{ color: "rgb(88,92,99)", fontSize: 13, maxWidth: 360, lineHeight: 1.6 }}>
           We&apos;ve also emailed you a confirmation — if it&apos;s not in your inbox, check your spam folder, or reach us at{" "}
-          <a href={`mailto:${site.contact.email}`} style={{ color: "rgb(160,128,72)", textDecoration: "underline" }}>
+          <a href={`mailto:${site.contact.email}`} style={{ color: "rgb(128,96,46)", textDecoration: "underline" }}>
             {site.contact.email}
           </a>
           .

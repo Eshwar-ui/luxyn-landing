@@ -108,7 +108,7 @@ export default function CookieConsent() {
               border: "1px solid rgba(194,160,107,.35)",
             }}
           >
-            <div className="font-accent text-[11px] uppercase tracking-[2.5px] text-champagne font-semibold mb-3">
+            <div className="font-accent text-[11px] uppercase tracking-[2.5px] text-[rgb(128,96,46)] font-semibold mb-3">
               Your privacy
             </div>
             <p className="font-ui text-[14px] leading-relaxed text-navy-mid/85 m-0">
@@ -116,7 +116,7 @@ export default function CookieConsent() {
               understand how the site is used. You choose what we may use.{" "}
               <a
                 href="/cookies"
-                className="text-[rgb(160,128,72)] underline underline-offset-2 hover:text-[rgb(120,94,48)] transition-colors"
+                className="text-[rgb(128,96,46)] underline underline-offset-2 hover:text-[rgb(100,74,34)] transition-colors"
               >
                 Cookie Policy
               </a>
@@ -168,7 +168,7 @@ export default function CookieConsent() {
               className="cookie-dialog w-full max-w-[480px] rounded-[22px] p-7 sm:p-8 outline-none"
               style={{ background: "rgb(251,248,241)", boxShadow: "0 30px 80px rgba(13,27,46,.4)" }}
             >
-              <div className="font-accent text-[11px] uppercase tracking-[2.5px] text-champagne font-semibold mb-2">
+              <div className="font-accent text-[11px] uppercase tracking-[2.5px] text-[rgb(128,96,46)] font-semibold mb-2">
                 Cookie preferences
               </div>
               <h2

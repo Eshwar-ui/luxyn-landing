@@ -103,7 +103,7 @@ export default function LegalLayout({
             </h2>
             <p className="m-0 font-ui" style={{ color: "rgb(67,71,78)", fontSize: 14.5, lineHeight: 1.6 }}>
               Reach our team at{" "}
-              <a href={`mailto:${site.contact.email}`} style={{ color: "rgb(160,128,72)", textDecoration: "underline" }}>
+              <a href={`mailto:${site.contact.email}`} style={{ color: "rgb(128,96,46)", textDecoration: "underline" }}>
                 {site.contact.email}
               </a>
               .

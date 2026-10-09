@@ -57,7 +57,7 @@ export default function SiteHeader() {
             onClick={e => { if (e.target === e.currentTarget) setMenuOpen(false); }}
           >
             <div
-              className="menu-overlay-box absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
+              className="menu-overlay-box lx-noblur-sm absolute top-3 left-[4%] right-[4%] sm:left-[5%] sm:right-[5%] rounded-[24px] px-6 py-12 sm:px-16"
               style={{
                 background: "rgba(33,45,63,0.85)",
                 backdropFilter: "blur(24px) saturate(1.2)",
@@ -147,7 +147,7 @@ export default function SiteHeader() {
 
       {/* ── sticky navbar ─────────────────────────────── */}
       <header
-        className="fixed top-0 left-0 z-[100] transition-all duration-300 flex justify-center w-full"
+        className="lx-noblur-sm fixed top-0 left-0 z-[100] transition-all duration-300 flex justify-center w-full"
         style={{
           paddingTop: scrolled ? 16 : 24,
           paddingBottom: scrolled ? 16 : 24,
@@ -162,7 +162,7 @@ export default function SiteHeader() {
             onClick={() => setMenuOpen(true)}
             onMouseEnter={() => setMenuOpen(true)}
             aria-label="Open menu"
-            className="w-[44px] h-[44px] md:w-[50px] md:h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20 shrink-0"
+            className="lx-noblur-sm w-[44px] h-[44px] md:w-[50px] md:h-[50px] rounded-full flex items-center justify-center transition-[background] duration-300 hover:bg-white/20 shrink-0"
             style={{ background: "rgba(255,255,255,.1)", backdropFilter: "blur(9.8px)", boxShadow: "inset 0 0 0 1px rgb(255,248,248)" }}
           >
             <svg width="22" height="16" viewBox="0 0 22 16" fill="rgb(255,255,255)">
@@ -179,6 +179,8 @@ export default function SiteHeader() {
             <img
               src="/assets/logo.svg"
               alt="LUXYN"
+              width={913}
+              height={211}
               className="h-7 sm:h-9 md:h-11 w-auto"
             />
           </a>

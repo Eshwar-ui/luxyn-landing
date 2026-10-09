@@ -56,7 +56,7 @@ export default function SiteFooter() {
   };
 
   return (
-    <footer id="footer" className="relative overflow-hidden w-full pt-8 sm:pt-16 pb-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
+    <footer id="footer" className="cv-auto relative overflow-hidden w-full pt-8 sm:pt-16 pb-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg,rgb(26,45,76) 49.52%,rgb(62,120,197) 100%)" }}>
       <div className="flex flex-col items-center z-[2] gap-8 px-6">
         <a href="/" onClick={onLogo} aria-label="LUXYN — home" className="cursor-pointer transition-opacity hover:opacity-80 scale-[0.8] sm:scale-100" style={{ width: 265, height: 76, background: "url(/assets/logo-mark.webp) 51.02% 65.351%/119.522% 416.667% no-repeat" }} />
 

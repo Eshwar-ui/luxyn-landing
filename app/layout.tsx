@@ -1,14 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Cormorant_Garamond, EB_Garamond, Inter, Jost } from "next/font/google";
 import "./globals.css";
 import { site, fullAddress } from "./_lib/site";
 import CookieConsent from "./_components/CookieConsent";
+import RevealObserver from "./_lib/reveal-observer";
 import { CONSENT_KEY, CONSENT_VERSION } from "./_lib/consent";
 
 /* Self-hosted via next/font — no render-blocking <link> to Google, automatic
  * `font-display: swap`, and size-adjusted fallbacks that cut layout shift.
- * Each exposes a CSS variable that globals.css maps onto the Tailwind font-* keys. */
+ * Each exposes a CSS variable that globals.css maps onto the Tailwind font-* keys.
+ * Jost isn't preloaded: on phones nothing in the first viewport uses it, so it
+ * loads when the sections/banner that need it render instead of racing the LCP
+ * heading. (Preloading a font that *is* needed early is still faster, so the
+ * other three stay preloaded.)
+ * Inter ships upright only: italics are three small captions, which the browser
+ * slants itself — saving a ~52KB high-priority preload that raced the LCP. */
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"], weight: ["400", "500", "600", "700"],
   variable: "--font-cormorant", display: "swap",
@@ -19,11 +25,11 @@ const ebGaramond = EB_Garamond({
 });
 const inter = Inter({
   subsets: ["latin"], weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"], variable: "--font-inter", display: "swap",
+  variable: "--font-inter", display: "swap",
 });
 const jost = Jost({
   subsets: ["latin"], weight: ["400", "600"],
-  variable: "--font-jost", display: "swap",
+  variable: "--font-jost", display: "swap", preload: false,
 });
 const fontVars = `${cormorant.variable} ${ebGaramond.variable} ${inter.variable} ${jost.variable}`;
 
@@ -246,29 +252,41 @@ export default function RootLayout({
             `,
           }}
         />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_TAG_ID}`}
-          strategy="beforeInteractive"
+        {/* Google tag (Ads + GA4). The config commands queue on dataLayer
+            right away, but gtag.js itself (~350KB across the Ads + GA bundles)
+            is only fetched on the visitor's first interaction, or once the page
+            has been idle for a few seconds after load — so it never competes
+            with first paint or blocks the main thread during startup. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              gtag('js', new Date());
+              gtag('config', '${GOOGLE_ADS_TAG_ID}');
+              gtag('config', 'AW-18344601972/P5lkCP2JsNccEPTSsatE', {
+                'phone_conversion_number': '+1 737-287-7396'
+              });
+              gtag('config', '${GA_MEASUREMENT_ID}');
+              (function () {
+                var done = false, evs = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
+                function load() {
+                  if (done) return;
+                  done = true;
+                  evs.forEach(function (e) { removeEventListener(e, load, { passive: true }); });
+                  var s = document.createElement('script');
+                  s.async = true;
+                  s.src = 'https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_TAG_ID}';
+                  document.head.appendChild(s);
+                }
+                evs.forEach(function (e) { addEventListener(e, load, { passive: true }); });
+                addEventListener('load', function () { setTimeout(load, 5000); });
+              })();
+            `,
+          }}
         />
-        <Script id="google-tag-init" strategy="beforeInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GOOGLE_ADS_TAG_ID}');
-            gtag('config', 'AW-18344601972/P5lkCP2JsNccEPTSsatE', {
-              'phone_conversion_number': '+1 737-287-7396'
-            });
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
-        {/* Hero background is a CSS background-image, so the browser can't
-            discover it until stylesheets parse. Preload it at high priority to
-            cut LCP — it's the largest above-the-fold paint. */}
-        <link rel="preload" as="image" href="/assets/hero-bg.webp" fetchPriority="high" />
-        {/* The arch photo is an above-the-fold CSS background-image (discovered
-            only after CSS parses) and a likely LCP element — preload it too. */}
-        <link rel="preload" as="image" href="/assets/hero-arch.webp" fetchPriority="high" />
+        {/* The hero <img> is in the HTML with fetchPriority="high", so the
+            browser finds it without a preload. The arch photo is decorative and
+            not the LCP element, so it isn't preloaded either — fewer high-priority
+            requests racing the hero heading on mobile. */}
         {/* Scroll-reveal starts elements at opacity:0, then JS reveals them. If JS
             never runs (crawler without JS, or a blocked script), force `.rv`
             visible so the content is always present. */}
@@ -286,6 +304,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <RevealObserver />
         <CookieConsent />
       </body>
     </html>

@@ -44,7 +44,7 @@ export default function ArticleToc({ items }: { items: { id: string; text: strin
 
   return (
     <nav aria-label="On this page" className="hidden self-start lg:sticky lg:top-28 lg:block">
-      <p className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 11, letterSpacing: 3 }}>
+      <p className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 11, letterSpacing: 3 }}>
         IN THIS ARTICLE
       </p>
       <ul className="mt-4 flex flex-col gap-1 border-l" style={{ borderColor: "rgb(225,216,194)" }}>
@@ -60,7 +60,7 @@ export default function ArticleToc({ items }: { items: { id: string; text: strin
                   fontSize: 13.5,
                   lineHeight: 1.4,
                   borderColor: on ? "rgb(194,160,107)" : "transparent",
-                  color: on ? "rgb(2,36,72)" : "rgb(120,124,131)",
+                  color: on ? "rgb(2,36,72)" : "rgb(95,99,106)",
                   fontWeight: on ? 600 : 400,
                 }}
               >

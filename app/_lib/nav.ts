@@ -68,6 +68,11 @@ export const SCROLL_TARGET_KEY = "luxyn:scrollTo";
 export function scrollToId(id: string): boolean {
   const el = document.getElementById(id);
   if (!el) return false;
+  // Below-the-fold sections use `content-visibility: auto` (globals.css), so
+  // until they've rendered their heights are only estimates and a long jump
+  // would land in the wrong place. Render them all for real before measuring —
+  // the page has long finished loading by the time anyone clicks.
+  document.documentElement.classList.add("cv-off");
   window.scrollTo({
     top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET),
     behavior: "smooth",

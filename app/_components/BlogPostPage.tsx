@@ -9,6 +9,19 @@ import { site } from "../_lib/site";
 import { isoDateTime } from "../_lib/content";
 import { type BlogPost, formatPostDate, postUrl, headings, otherPosts, authorBio, slugify, howToSteps } from "../_lib/blog";
 
+/** Intrinsic sizes of the photos used in article image blocks, so the browser
+ *  reserves their space before they lazy-load (no layout shift). */
+const IMAGE_SIZES: Record<string, { width: number; height: number }> = {
+  "/assets/about-1.webp":         { width: 512,  height: 512 },
+  "/assets/about-2.webp":         { width: 512,  height: 512 },
+  "/assets/cta-bg.webp":          { width: 1536, height: 1024 },
+  "/assets/findpro-a.webp":       { width: 1024, height: 1024 },
+  "/assets/findpro-b.webp":       { width: 1024, height: 1024 },
+  "/assets/findpro-stylist.webp": { width: 516,  height: 623 },
+  "/assets/gallery-1.webp":       { width: 1536, height: 1024 },
+  "/assets/gallery-2.webp":       { width: 1536, height: 1024 },
+};
+
 /**
  * Renders a single blog article — an editorial layout with a sticky table of
  * contents, reading-progress bar, drop-cap intro, pull-quotes, a share row, an
@@ -216,10 +229,10 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                       <figure key={i} className="my-4">
                         <div className="overflow-hidden rounded-[16px]" style={{ boxShadow: "inset 0 0 0 1px rgb(225,216,194)" }}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={block.src} alt={block.alt} loading="lazy" decoding="async" className="block h-auto w-full object-cover" />
+                          <img src={block.src} alt={block.alt} {...IMAGE_SIZES[block.src]} loading="lazy" decoding="async" className="block h-auto w-full object-cover" />
                         </div>
                         {block.caption && (
-                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(120,124,131)]" style={{ lineHeight: 1.5 }}>
+                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(95,99,106)]" style={{ lineHeight: 1.5 }}>
                             {block.caption}
                           </figcaption>
                         )}
@@ -233,13 +246,13 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                         className="my-4 flex flex-col gap-2 rounded-[16px] p-6 sm:flex-row sm:items-center sm:gap-6"
                         style={{ background: "rgba(194,160,107,.09)", boxShadow: "inset 0 0 0 1px rgba(194,160,107,.35)" }}
                       >
-                        <span className="font-display font-bold text-[rgb(160,128,72)] text-[40px] leading-none sm:shrink-0">
+                        <span className="font-display font-bold text-[rgb(128,96,46)] text-[40px] leading-none sm:shrink-0">
                           {block.value}
                         </span>
                         <span className="font-ui font-normal text-[rgb(67,71,78)]" style={{ fontSize: 16, lineHeight: 1.6 }}>
                           {block.label}
                           {block.source && (
-                            <span className="mt-1 block font-ui text-[12.5px] text-[rgb(120,124,131)]">Source: {block.source}</span>
+                            <span className="mt-1 block font-ui text-[12.5px] text-[rgb(95,99,106)]">Source: {block.source}</span>
                           )}
                         </span>
                       </div>
@@ -299,7 +312,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                           </table>
                         </div>
                         {block.caption && (
-                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(120,124,131)]" style={{ lineHeight: 1.5 }}>
+                          <figcaption className="mt-2.5 font-ui text-[13.5px] italic text-[rgb(95,99,106)]" style={{ lineHeight: 1.5 }}>
                             {block.caption}
                           </figcaption>
                         )}
@@ -308,7 +321,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                   }
                   const dropCap =
                     i === firstParaIdx
-                      ? "first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:font-semibold first-letter:text-[58px] first-letter:leading-[0.8] first-letter:text-[rgb(160,128,72)]"
+                      ? "first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:font-semibold first-letter:text-[58px] first-letter:leading-[0.8] first-letter:text-[rgb(128,96,46)]"
                       : "";
                   return (
                     <p key={i} className={`font-ui font-normal text-[rgb(67,71,78)] ${dropCap}`} style={{ fontSize: 17, lineHeight: 1.7 }}>
@@ -347,9 +360,9 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
               )}
 
               <div className="mt-12 rounded-[18px] p-7" style={{ background: "rgba(194,160,107,.09)", boxShadow: "inset 0 0 0 1px rgba(194,160,107,.35)" }}>
-                <p className="font-accent text-[12px] font-semibold tracking-[2px] text-[rgb(160,128,72)]">KEEP EXPLORING</p>
+                <p className="font-accent text-[12px] font-semibold tracking-[2px] text-[rgb(128,96,46)]">KEEP EXPLORING</p>
                 <p className="mt-2 font-display text-[21px] font-semibold text-[rgb(33,58,92)]">Make the next step practical.</p>
-                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 font-ui text-[14px] font-semibold">
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 font-ui text-[14px] font-semibold text-[rgb(33,58,92)]">
                   <a href="/services/hair-stylist-suites" className="underline underline-offset-4">Explore service suites</a>
                   <a href="/questions/how-to-lease-a-salon-suite" className="underline underline-offset-4">How to lease a suite</a>
                   <a href="/book-a-tour" className="underline underline-offset-4">Book a private tour</a>
@@ -432,8 +445,8 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                       <img src={p.image} alt={p.title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.05]" />
                     </div>
                     <div className="flex flex-col p-5 lg:p-6">
-                      <span className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 12, letterSpacing: 2 }}>{p.kicker}</span>
-                      <h3 className="mt-2 font-display font-bold text-[rgb(33,58,92)] text-[19px] transition-colors duration-200 group-hover:text-[rgb(160,128,72)]" style={{ lineHeight: 1.3 }}>
+                      <span className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 12, letterSpacing: 2 }}>{p.kicker}</span>
+                      <h3 className="mt-2 font-display font-bold text-[rgb(33,58,92)] text-[19px] transition-colors duration-200 group-hover:text-[rgb(128,96,46)]" style={{ lineHeight: 1.3 }}>
                         {p.title}
                       </h3>
                       <span className="mt-3 font-ui font-semibold text-[13.5px] text-[rgb(2,36,72)]">
@@ -444,7 +457,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
                 ))}
               </div>
 
-              <a href="/blog" className="mt-10 inline-block font-ui font-semibold text-[15px] text-[rgb(2,36,72)] transition-colors duration-200 hover:text-[rgb(160,128,72)]">
+              <a href="/blog" className="mt-10 inline-block font-ui font-semibold text-[15px] text-[rgb(2,36,72)] transition-colors duration-200 hover:text-[rgb(128,96,46)]">
                 ← All articles
               </a>
             </section>

@@ -1,17 +1,13 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import Reveal from "../_lib/reveal";
-import ContactForm, { type ContactVariant } from "./ContactForm";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
-import { site, fullAddress } from "../_lib/site";
+import { SectionButton, LandingEffects, ContactSection } from "./LandingIslands";
 import { faqs, contentDates } from "../_lib/content";
-import { SCROLL_TARGET_KEY } from "../_lib/nav";
 
-/* Scroll-reveal + hover-lift animations are pure CSS now (see globals.css +
- * _lib/reveal). Dropping framer-motion removes ~46KB gzip of JS from every page
- * and cuts the hydration/Total-Blocking-Time cost on low-end phones. */
+/* A server component: the page's markup ships as static HTML and only the small
+ * islands in LandingIslands (scroll buttons, scroll effects, contact form) plus
+ * the header/footer hydrate. Scroll-reveal + hover-lift are pure CSS (see
+ * globals.css + _lib/reveal), and reveal/parallax are desktop-only. */
 
 /* ─── difference cards ──────────────────────────────────── */
 const DIFF = [
@@ -52,79 +48,15 @@ const btnGold = "h-[40px] px-6 rounded-full font-bold text-[13px] transition-all
 const btnOutline = "h-[40px] px-6 rounded-full font-bold text-[13px] transition-all duration-300 hover:-translate-y-0.5 cursor-pointer";
 
 export default function Landing() {
-  const [heroH,   setHeroH]     = useState(750);
-  const [contactVariant, setContactVariant] = useState<ContactVariant>("lease");
-  const heroRef  = useRef<HTMLElement>(null);
-  const heroBgRef = useRef<HTMLImageElement>(null);
-
-  /* smooth-scroll to an in-page section (header menu + in-page buttons). */
-  const nav = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 64), behavior: "smooth" });
-  };
-
-  /* open the contact section pre-set to the right enquiry form */
-  const openContact = (variant: ContactVariant) => { setContactVariant(variant); nav("contact"); };
-
-  /* measure hero height once */
-  useEffect(() => { if (heroRef.current) setHeroH(heroRef.current.offsetHeight); }, []);
-
-  /* cross-page hand-off: when a header menu link is clicked from another page
-     (a section SEO page or a legal page), it stores the target section and sends
-     the visitor here. Scroll to it once, then clear the flag. */
-  useEffect(() => {
-    let id: string | null = null;
-    try {
-      id = sessionStorage.getItem(SCROLL_TARGET_KEY);
-      if (id) sessionStorage.removeItem(SCROLL_TARGET_KEY);
-    } catch { /* storage blocked — nothing to scroll to */ }
-    if (!id) return;
-    const target = id;
-    const t = window.setTimeout(() => nav(target), 90);
-    return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /* scroll effects — progress bar + hero parallax.
-     • The scroll-height is cached and only remeasured on resize, so the hot
-       scroll path never forces a synchronous layout.
-     • Parallax is skipped on touch/small screens and for reduced-motion users —
-       repainting a full-screen image every frame is the main source of scroll
-       jank on low-end phones. */
-  useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const smallScreen = window.matchMedia("(max-width: 1023px)").matches;
-    const parallax = !reduce && !smallScreen;
-
-    let dh = document.documentElement.scrollHeight - window.innerHeight || 1;
-    const measure = () => { dh = document.documentElement.scrollHeight - window.innerHeight || 1; };
-
-    const tick = () => {
-      const p = document.getElementById("prog");
-      if (p) p.style.width = Math.min(100, (window.scrollY / dh) * 100) + "%";
-      if (parallax && heroBgRef.current && window.scrollY < heroH * 1.5)
-        heroBgRef.current.style.transform = `translate3d(0,${window.scrollY * 0.28}px,0)`;
-    };
-    const onResize = () => { measure(); tick(); };
-
-    window.addEventListener("scroll", tick, { passive: true });
-    window.addEventListener("resize", onResize);
-    requestAnimationFrame(tick);
-    return () => {
-      window.removeEventListener("scroll", tick);
-      window.removeEventListener("resize", onResize);
-    };
-  }, [heroH]);
-
   return (
     <div className="relative overflow-x-hidden">
 
       {/* ── skip to content (keyboard a11y) ──────────── */}
-      <button className="skip-link" onClick={() => nav("hero")}>Skip to content</button>
+      <SectionButton to="hero" className="skip-link">Skip to content</SectionButton>
+      <LandingEffects />
 
       {/* ── progress bar ─────────────────────────────── */}
-      <div id="prog" className="fixed top-0 left-0 h-[3px] bg-champagne z-[120]" style={{ width: 0, transition: "width .1s linear" }} />
+      <div id="prog" className="hidden lg:block fixed top-0 left-0 w-full h-[3px] bg-champagne z-[120] origin-left" style={{ transform: "scaleX(0)" }} />
 
 
       {/* ── site header (shared with the legal pages) ── */}
@@ -135,7 +67,6 @@ export default function Landing() {
 
         {/* ── HERO ───────────────────────────────────── */}
         <section
-          ref={heroRef}
           id="hero"
           className="relative w-full overflow-hidden flex flex-col items-center justify-center lg:h-[100svh] lg:min-h-[700px] pt-28 pb-24 lg:pt-12 lg:pb-10"
           style={{ background: "rgb(20,35,59)" }}
@@ -144,12 +75,12 @@ export default function Landing() {
               index it — the LCP element, already preloaded in the layout head.
               eslint-disable-next-line @next/next/no-img-element */}
           <img
-            ref={heroBgRef}
+            id="hero-bg"
             src="/assets/hero-bg.webp"
             alt="Interior of a private, design-led LUXYN salon and wellness suite in Leander, TX"
             fetchPriority="high"
             decoding="async"
-            className="absolute will-change-transform object-cover"
+            className="absolute lg:will-change-transform object-cover"
             style={{
               left: 0,
               top: "-15%",
@@ -195,20 +126,16 @@ export default function Landing() {
                 LUXYN leases private, design-led salon &amp; wellness suites in Leander, TX to independent beauty professionals — giving you the freedom to build, serve, and grow in an elevated space.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mt-10">
-                <button
-                  onClick={() => openContact("lease")}
-                  className={btnGold}
+                <SectionButton to="contact" variant="lease" className={btnGold}
                   style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}
                 >
                   PRE-BOOK A SUITE
-                </button>
-                <button
-                  onClick={() => openContact("tour")}
-                  className={btnOutline}
+                </SectionButton>
+                <SectionButton to="contact" variant="tour" className={btnOutline}
                   style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}
                 >
                   BOOK A TOUR
-                </button>
+                </SectionButton>
               </div>
             </div>
 
@@ -267,7 +194,7 @@ export default function Landing() {
           >
             <div className="marq">
               {[0, 1].map(i => (
-                <span key={i} className="font-ui text-white pr-[.29em] whitespace-nowrap" style={{ fontSize: 16, letterSpacing: ".29em" }}>
+                <span key={i} className="font-ui text-[rgb(20,35,59)] pr-[.29em] whitespace-nowrap" style={{ fontSize: 16, letterSpacing: ".29em" }}>
                   SALON · WELLNESS · SPA · Now Pre-Booking · Private Suites · Premium Amenities · Flexible Leasing · Client-Friendly Location ·{" "}
                 </span>
               ))}
@@ -275,11 +202,11 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="philosophy" className="relative overflow-hidden w-full py-12 lg:py-20 flex justify-center" style={{ background: "rgb(243,236,220)" }}>
+        <section id="philosophy" className="cv-auto relative overflow-hidden w-full py-12 lg:py-20 flex justify-center" style={{ background: "rgb(243,236,220)" }}>
           <div className="w-full max-w-[1151px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-8 xl:gap-6">
             <div className="flex flex-col w-full lg:w-[45%] xl:w-[466px] shrink-0 mx-auto lg:mx-0">
               <Reveal as="span"
-                className="block font-ui font-semibold text-[rgb(198,155,95)]"
+                className="block font-ui font-semibold text-[rgb(128,96,46)]"
                 style={{ fontSize: 12, letterSpacing: 1.8 }}
               >
                 OUR PHILOSOPHY
@@ -341,10 +268,10 @@ export default function Landing() {
         </section>
 
         {/* ── DIVERSE ARTISTRY ───────────────────────── */}
-        <section id="gallery" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
+        <section id="gallery" className="cv-auto relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
           <div className="flex flex-col items-center px-6" style={{ maxWidth: 843, marginBottom: 48 }}>
             <Reveal as="span"
-              className="font-ui font-semibold text-[rgb(198,155,95)] text-center" style={{ fontSize: 12, letterSpacing: 1.8 }}
+              className="font-ui font-semibold text-[rgb(128,96,46)] text-center" style={{ fontSize: 12, letterSpacing: 1.8 }}
             >
               DIVERSE ARTISTRY
             </Reveal>
@@ -411,10 +338,10 @@ export default function Landing() {
         </section>
 
         {/* ── THE LUXYN DIFFERENCE ───────────────────── */}
-        <section id="difference" className="relative overflow-hidden w-full pt-12 lg:pt-20 pb-8 lg:pb-12 flex flex-col items-center" style={{ background: "rgb(244,238,225)" }}>
+        <section id="difference" className="cv-auto relative overflow-hidden w-full pt-12 lg:pt-20 pb-8 lg:pb-12 flex flex-col items-center" style={{ background: "rgb(244,238,225)" }}>
           <div className="flex flex-col items-center px-6 mb-8 lg:mb-12 text-center max-w-[900px]">
             <Reveal as="span"
-              className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
+              className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 13, letterSpacing: 4 }}
             >
               THE LUXYN DIFFERENCE
             </Reveal>
@@ -441,7 +368,7 @@ export default function Landing() {
         </section>
 
         {/* ── CTA BANNER ─────────────────────────────── */}
-        <section id="banner" className="relative w-full overflow-hidden flex items-center justify-center pt-20 lg:pt-32 pb-12 lg:pb-16" style={{ background: "rgb(20,35,59)" }}>
+        <section id="banner" className="cv-auto relative w-full overflow-hidden flex items-center justify-center pt-20 lg:pt-32 pb-12 lg:pb-16" style={{ background: "rgb(20,35,59)" }}>
           <div className="absolute" style={{ left: "-5%", top: "-10%", width: "110%", height: "130%", background: "url(/assets/cta-bg.webp) center/cover no-repeat" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(0deg,rgb(20,35,59) 0%,rgba(45,79,127,.5) 50%,rgba(70,122,194,0) 100%)" }} />
           <div className="relative z-[2] flex flex-col items-center gap-6 text-center" style={{ maxWidth: 760, padding: "0 24px" }}>
@@ -459,7 +386,7 @@ export default function Landing() {
         </section>
 
         {/* ── AMENITIES ──────────────────────────────── */}
-        <section id="amenities" className="relative w-full pt-8 lg:pt-12 pb-12 lg:pb-20 flex flex-col items-center justify-center gap-12" style={{ background: "rgb(20,35,59)" }}>
+        <section id="amenities" className="cv-auto relative w-full pt-8 lg:pt-12 pb-12 lg:pb-20 flex flex-col items-center justify-center gap-12" style={{ background: "rgb(20,35,59)" }}>
           <div className="absolute opacity-50 pointer-events-none" style={{ left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: "110%", minWidth: 1000, height: "120%", background: "url(/assets/amenities-illustration.webp) center/cover no-repeat" }} />
           <div className="relative z-[2] flex flex-col items-center gap-4 px-6 text-center">
             <Reveal as="span"
@@ -489,7 +416,7 @@ export default function Landing() {
         </section>
 
         {/* ── FIND A PRO ─────────────────────────────── */}
-        <section id="findpro" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center justify-center" style={{ background: "rgb(244,238,225)" }}>
+        <section id="findpro" className="cv-auto relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center justify-center" style={{ background: "rgb(244,238,225)" }}>
           <div className="w-full max-w-[1152px] px-6 lg:px-12 xl:px-0 flex flex-col-reverse lg:flex-row items-center justify-center gap-16 lg:gap-8 xl:gap-24">
             <div className="relative w-full lg:w-[45%] xl:w-[516px] shrink-0" style={{ aspectRatio: "516/590" }}>
               <Reveal
@@ -510,7 +437,7 @@ export default function Landing() {
             </div>
             <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-[45%] xl:w-[466px] shrink-0">
               <Reveal as="span"
-                className="block font-ui font-semibold text-[rgb(198,155,95)]" style={{ fontSize: 12, letterSpacing: 1.8 }}
+                className="block font-ui font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 12, letterSpacing: 1.8 }}
               >
                 FOR CLIENTS
               </Reveal>
@@ -524,19 +451,19 @@ export default function Landing() {
               >
                 Explore independent beauty and wellness professionals working from LUXYN.
               </Reveal>
-              <button
-                onClick={() => nav("gallery")}
+              <SectionButton
+                to="gallery"
                 className="findpro-btn h-[52px] px-10 rounded-full font-ui font-bold text-white cursor-pointer mt-8"
                 style={{ fontSize: 15, letterSpacing: .5, background: "rgb(20,35,59)" }}
               >
                 FIND A PRO
-              </button>
+              </SectionButton>
             </div>
           </div>
         </section>
 
         {/* ── READY CTA ──────────────────────────────── */}
-        <section id="cta" className="relative overflow-hidden w-full pt-24 lg:pt-32 pb-8 sm:pb-12 lg:pb-16 flex items-center justify-center" style={{ background: "rgb(26,45,76)" }}>
+        <section id="cta" className="cv-auto relative overflow-hidden w-full pt-24 lg:pt-32 pb-8 sm:pb-12 lg:pb-16 flex items-center justify-center" style={{ background: "rgb(26,45,76)" }}>
           <div className="absolute inset-0 overflow-hidden">
             {[
               { w: "w-[160vw] sm:w-[600px]", stroke: 5, opacity: 0.15 },
@@ -560,17 +487,17 @@ export default function Landing() {
               </Reveal>
             </div>
             <Reveal delay={0.16} className="flex flex-col sm:flex-row gap-3 sm:gap-5 w-full sm:w-auto px-4 sm:px-0">
-              <button onClick={() => openContact("lease")} className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}>PRE-BOOK A SUITE</button>
-              <button onClick={() => openContact("tour")} className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}>BOOK A TOUR</button>
+              <SectionButton to="contact" variant="lease" className={`${btnGold} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ background: "rgb(194,160,107)", color: "rgb(20,35,59)", fontFamily: "var(--font-inter), sans-serif" }}>PRE-BOOK A SUITE</SectionButton>
+              <SectionButton to="contact" variant="tour" className={`${btnOutline} h-[48px] sm:h-[44px] px-4 sm:px-8 text-[13px] sm:text-[12px] tracking-wide w-full sm:w-auto flex items-center justify-center`} style={{ boxShadow: "inset 0 0 0 1px rgb(194,160,107)", color: "rgb(194,160,107)", fontFamily: "var(--font-inter), sans-serif" }}>BOOK A TOUR</SectionButton>
             </Reveal>
           </div>
         </section>
 
         {/* ── FAQ ────────────────────────────────────── */}
-        <section id="faq" className="relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
+        <section id="faq" className="cv-auto relative overflow-hidden w-full py-12 lg:py-20 flex flex-col items-center" style={{ background: "rgb(251,248,241)" }}>
           <div className="flex flex-col items-center px-6 text-center" style={{ maxWidth: 760, marginBottom: 40 }}>
             <Reveal as="span"
-              className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 13, letterSpacing: 4 }}
+              className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 13, letterSpacing: 4 }}
             >
               QUESTIONS &amp; ANSWERS
             </Reveal>
@@ -580,7 +507,7 @@ export default function Landing() {
               Renting a salon suite in Leander, TX
             </Reveal>
             <Reveal as="p" delay={0.14}
-              className="font-ui text-[rgb(120,124,131)]" style={{ marginTop: 14, fontSize: 13, letterSpacing: 0.2 }}
+              className="font-ui text-[rgb(95,99,106)]" style={{ marginTop: 14, fontSize: 13, letterSpacing: 0.2 }}
             >
               Last updated {contentDates.updated}
             </Reveal>
@@ -610,112 +537,12 @@ export default function Landing() {
         </section>
 
         {/* ── CONTACT ────────────────────────────────── */}
-        <section id="contact" className="relative overflow-hidden w-full py-12 lg:py-20 flex justify-center" style={{ background: "rgb(243,236,220)" }}>
-          <div className="w-full max-w-[1151px] px-6 lg:px-12 xl:px-0 flex flex-col lg:flex-row items-start justify-center gap-12 lg:gap-16">
-            {/* intro + details */}
-            <Reveal
-              variant="left"
-              className="flex flex-col w-full lg:w-[45%] xl:w-[488px] shrink-0"
-            >
-              <span className="block font-ui font-semibold text-[rgb(198,155,95)]" style={{ fontSize: 12, letterSpacing: 1.8 }}>
-                GET IN TOUCH
-              </span>
-              <h2 className="m-0 font-display font-semibold text-[rgb(2,36,72)] text-3xl sm:text-4xl lg:text-[46px]" style={{ margin: "22px 0 0", lineHeight: 1.1 }}>
-                {contactVariant === "tour" ? "Book a private tour." : "Pre-book your suite at LUXYN."}
-              </h2>
-              <p className="font-ui font-normal text-[rgb(67,71,78)]" style={{ margin: "24px 0 0", fontSize: 16, lineHeight: 1.6 }}>
-                {contactVariant === "tour"
-                  ? "Pick a date and time that suits you. Our team will confirm your visit and walk you through the available suites in person."
-                  : "Pre-book a premium private salon or wellness suite in Leander, TX. Tell us about your craft and the space you envision, and our team will reach out to arrange a private tour and walk you through availability."}
-              </p>
-              <div className="flex flex-col gap-5 mt-9">
-                <ContactLine type="email" />
-                <ContactLine type="phone" />
-                <ContactLine type="address" />
-              </div>
-            </Reveal>
-
-            {/* form */}
-            <Reveal
-              variant="right" delay={0.12}
-              className="w-full lg:w-[50%] xl:w-[520px] shrink-0"
-            >
-              {/* intent switcher — keeps the two enquiry types distinct */}
-              <div
-                role="tablist" aria-label="Enquiry type"
-                className="mb-5 flex gap-1.5 rounded-full p-1.5"
-                style={{ background: "rgba(20,35,59,0.06)" }}
-              >
-                {([
-                  { key: "lease", label: "Pre-book a suite" },
-                  { key: "tour",  label: "Book a tour"   },
-                ] as const).map(({ key, label }) => {
-                  const active = contactVariant === key;
-                  return (
-                    <button
-                      key={key}
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => setContactVariant(key)}
-                      className="flex-1 h-[42px] rounded-full font-ui font-bold transition-all duration-300"
-                      style={{
-                        fontSize: 13, letterSpacing: 0.3,
-                        background: active ? "rgb(20,35,59)" : "transparent",
-                        color: active ? "rgb(225,216,194)" : "rgb(67,71,78)",
-                        boxShadow: active ? "0 8px 20px rgba(20,35,59,.18)" : "none",
-                      }}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-              <ContactForm key={contactVariant} variant={contactVariant} />
-            </Reveal>
-          </div>
-        </section>
+        <ContactSection />
 
       </div>{/* /pageRoot */}
 
       {/* ── site footer (shared with the legal pages) ── */}
       <SiteFooter />
-    </div>
-  );
-}
-
-/* ─── contact detail line (contact section + footer) ─────── */
-const CONTACT_ICONS = {
-  email: <path d="M3 5h18v14H3zM3 6l9 7 9-7" />,
-  phone: <path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 2 6a2 2 0 0 1 2-2Z" />,
-  address: <><path d="M12 21s-7-6.4-7-11a7 7 0 0 1 14 0c0 4.6-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></>,
-};
-
-function reportPhoneClick(): void {
-  window.gtag?.("event", "phone_click", { phone_number: site.contact.phoneHref });
-}
-
-function ContactLine({ type }: { type: "email" | "phone" | "address" }) {
-  const data = {
-    email:   { label: "EMAIL", value: site.contact.email, href: `mailto:${site.contact.email}` },
-    phone:   { label: "CALL",  value: site.contact.phone, href: `tel:${site.contact.phoneHref}` },
-    address: { label: "VISIT", value: fullAddress,        href: null as string | null },
-  }[type];
-
-  const value = data.href ? (
-    <a href={data.href} onClick={type === "phone" ? reportPhoneClick : undefined} className="font-ui text-[rgb(2,36,72)] text-[15.5px] transition-opacity duration-300 hover:opacity-70">{data.value}</a>
-  ) : (
-    <span className="font-ui text-[rgb(2,36,72)] text-[15.5px]">{data.value}</span>
-  );
-
-  return (
-    <div className="flex items-start gap-3.5">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgb(198,155,95)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0" aria-hidden="true">
-        {CONTACT_ICONS[type]}
-      </svg>
-      <span className="flex flex-col gap-0.5">
-        <span className="font-accent font-semibold text-[rgb(120,124,131)]" style={{ fontSize: 11, letterSpacing: 1.4 }}>{data.label}</span>
-        {value}
-      </span>
     </div>
   );
 }

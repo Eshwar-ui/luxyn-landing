@@ -76,7 +76,7 @@ export default function NewsletterSignup() {
     >
       <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
         <div className="max-w-[460px]">
-          <p className="font-accent font-semibold text-[rgb(184,153,104)]" style={{ fontSize: 12, letterSpacing: 3 }}>
+          <p className="font-accent font-semibold text-[rgb(128,96,46)]" style={{ fontSize: 12, letterSpacing: 3 }}>
             THE LUXYN JOURNAL
           </p>
           <h2 className="mt-2 font-display font-bold text-[rgb(2,36,72)] text-[24px] lg:text-[28px]" style={{ lineHeight: 1.2 }}>
