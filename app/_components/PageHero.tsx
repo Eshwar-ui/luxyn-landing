@@ -87,8 +87,10 @@ export default function PageHero({
                   boxShadow: "0 28px 60px rgba(0,0,0,.4), inset 0 0 0 1px rgba(225,216,194,.25)",
                 }}
               >
+                {/* Above the fold (and the LCP element on desktop), so it loads
+                    eagerly — lazy-loading it held the paint until layout ran. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image.src} alt={image.alt} loading="lazy" decoding="async" className="h-full w-full object-cover object-top" />
+                <img src={image.src} alt={image.alt} loading="eager" decoding="async" className="h-full w-full object-cover object-top" />
               </div>
             </div>
           )}
