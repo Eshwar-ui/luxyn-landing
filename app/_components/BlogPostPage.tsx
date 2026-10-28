@@ -21,6 +21,7 @@ const IMAGE_SIZES: Record<string, { width: number; height: number }> = {
   "/assets/gallery-1.webp":       { width: 1536, height: 1024 },
   "/assets/gallery-2.webp":       { width: 1536, height: 1024 },
   "/assets/lash-studio.webp":     { width: 407,  height: 347 },
+  "/assets/nail-studio.webp":     { width: 407,  height: 347 },
 };
 
 /**
