@@ -55,6 +55,8 @@ export type BlogPost = {
   /** Featured image (in /public/assets) — shown on the index card and as the
    *  article's banner. */
   image: string;
+  /** Descriptive alt text for the featured image (falls back to `title`). */
+  imageAlt?: string;
   /** Article body, rendered in order. */
   body: BlogBlock[];
   /** Topic tags shown as a tag cloud at the foot of the article. */
@@ -2173,6 +2175,7 @@ export const blogPosts: BlogPost[] = [
     readMins: 11,
     author: "LUXYN",
     image: "/assets/massage-studio.webp",
+    imageAlt: "Massage therapist treating a client in a private massage room for rent at LUXYN Studios in Leander, TX",
     body: [
       { type: "p", text: "Are you searching for a massage room for rent in Leander, TX? If you're an independent massage therapist or wellness practitioner looking to establish your own practice, choosing the right workspace is an important business decision." },
       { type: "p", text: "A private massage studio can provide a dedicated environment for client appointments, personalized services, and independent business operations. The right space should support your treatment requirements, client comfort, professional standards, and long-term business goals." },
@@ -2447,6 +2450,16 @@ export function blogPostMetadata(slug: string): Metadata {
       publishedTime: p.published,
       modifiedTime: p.updated,
       authors: [p.author],
+      // Restated per post — a route-level openGraph replaces the root one, so
+      // without this the article would share with no image at all.
+      images: [{ url: p.image, alt: p.imageAlt ?? p.title }],
+    },
+    // Same for twitter: otherwise it falls back to the site-wide title/copy.
+    twitter: {
+      card: "summary_large_image",
+      title: p.title,
+      description: p.description,
+      images: [p.image],
     },
     robots: { index: true, follow: true },
   };

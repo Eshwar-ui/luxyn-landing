@@ -90,7 +90,7 @@ export default function PageHero({
                 {/* Above the fold (and the LCP element on desktop), so it loads
                     eagerly — lazy-loading it held the paint until layout ran. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image.src} alt={image.alt} loading="eager" decoding="async" className="h-full w-full object-cover object-top" />
+                <img src={image.src} alt={image.alt} loading="eager" fetchPriority="high" className="h-full w-full object-cover object-top" />
               </div>
             </div>
           )}

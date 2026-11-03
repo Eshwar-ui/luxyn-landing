@@ -46,7 +46,8 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
         "@id": `${url}#primaryimage`,
         url: `${site.url}${post.image}`,
         contentUrl: `${site.url}${post.image}`,
-        caption: post.title,
+        ...IMAGE_SIZES[post.image],
+        caption: post.imageAlt ?? post.title,
       },
       {
         "@type": "BlogPosting",
@@ -58,6 +59,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
         datePublished: isoDateTime(post.published),
         dateModified: isoDateTime(post.updated),
         inLanguage: "en-US",
+        ...(post.tags && { keywords: post.tags.join(", ") }),
         wordCount: post.body.reduce((n, b) => n + ("text" in b && b.text ? b.text.split(/\s+/).length : 0), 0),
         author: { "@type": "Organization", name: post.author, "@id": `${site.url}/#organization` },
         publisher: { "@id": `${site.url}/#organization` },
@@ -142,7 +144,7 @@ export default function BlogPostPage({ post }: { post: BlogPost }) {
           kicker={post.kicker}
           h1={post.h1}
           narrow
-          image={{ src: post.image, alt: post.title }}
+          image={{ src: post.image, alt: post.imageAlt ?? post.title }}
         >
           {/* byline */}
           <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 font-ui text-[14px]" style={{ color: "rgba(225,216,194,.7)" }}>
