@@ -93,7 +93,7 @@ export default function BlogIndexPage() {
                 {featured.title}
               </h2>
               <p className="mt-3 font-ui font-normal text-[rgb(22,38,60)] opacity-80 text-[15.5px]" style={{ lineHeight: 1.65 }}>
-                {featured.description}
+                {featured.excerpt ?? featured.description}
               </p>
               <span className="mt-5 inline-flex items-center gap-2 font-ui font-semibold text-[14.5px] text-[rgb(2,36,72)]">
                 Read article <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
@@ -127,7 +127,7 @@ export default function BlogIndexPage() {
                         {p.title}
                       </h3>
                       <p className="mt-2 font-ui font-normal text-[rgb(22,38,60)] opacity-80 text-[14.5px]" style={{ lineHeight: 1.6 }}>
-                        {p.description}
+                        {p.excerpt ?? p.description}
                       </p>
                       <span className="mt-auto pt-4 font-ui font-semibold text-[14px] text-[rgb(2,36,72)]">
                         Read article <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
